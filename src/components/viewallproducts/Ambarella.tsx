@@ -1,8 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { 
-    View, Text, StyleSheet, SafeAreaView, StatusBar, 
-    TouchableOpacity, Image, ScrollView, ImageBackground 
-} from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, TouchableOpacity, Image, ScrollView, ImageBackground } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../../navigators/MainNavigator";
