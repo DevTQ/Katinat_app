@@ -9,9 +9,15 @@ import { RootStackParams } from "../../navigators/MainNavigator";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { navigateToPreviousScreen } from "../../utils/navigationHelper"; // Import hàm helper
-
+import {useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/store"; // Import RootState
+import { addProduct, deleteProduct } from "../../redux/slice/cartSlice";
 
 const ambarella = () => {
+    const dispatch = useDispatch();
+    const CartProducts = useSelector((state: RootState) => state.cart.CartArr);
+    const totalCartQuantity = CartProducts.reduce((sum, item) => sum + item.quantity, 0);
+
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     const [priceProduct, setPriceProduct] = useState(69000);
     const [totalPrice, setTotalPrice] = useState(priceProduct);
@@ -102,12 +108,23 @@ const ambarella = () => {
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+            {/* Giỏ hàng */}
+            <TouchableOpacity style={styles.cart} activeOpacity={1}>
+                <Image source={require("../../../assets/images/icon-cart.png")}
+                style={{width: 35, height: 35}}
+                />
+                {totalCartQuantity > 0 && (
+                    <View style={styles.cartBadge}>
+                        <Text style={styles.cartBadgeText}>{totalCartQuantity}</Text>
+                    </View>
+                )}
+            </TouchableOpacity>
+
             {/* Nút quay lại */}
             <TouchableOpacity 
                 onPress={() => navigateToPreviousScreen(navigation)} 
                 style={styles.backButton}
                 >
-
                 <AntDesign name="arrowleft" size={22} color="white" />
             </TouchableOpacity>
             <ScrollView>
@@ -225,8 +242,17 @@ const ambarella = () => {
                         </TouchableOpacity>
                     </View>
                 </View>
-                <TouchableOpacity style={styles.addCartButton}
-                onPress={() => {alert("Thêm vào giỏ hàng thành công")}}
+                <TouchableOpacity
+                    style={styles.addCartButton}
+                    onPress={() => {
+                        dispatch(addProduct({
+                            id: 1,
+                            name: "Cóc Cóc Đác Đác",
+                            price: totalPrice,
+                            quantity: numOfProduct,
+                            toppings: selectedToppings,
+                        }));
+                    }}                
                 >
                     <Text style={styles.addCartText}>Thêm vào giỏ hàng</Text>
                 </TouchableOpacity>
@@ -244,6 +270,28 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 40,
         left: 15,
+        zIndex: 10,
+        padding: 10,
+    },
+    cartBadge: {
+        position: 'absolute',
+        right: 10,
+        top: 8,
+        backgroundColor: '#B7935F',
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cartBadgeText: {
+        color: 'black',
+        fontSize: 11,
+        fontWeight: 'bold',
+        padding: 0.5,
+    },    
+    cart: {
+        position: "absolute",
+        top: 30,
+        right: 10,
         zIndex: 10,
         padding: 10,
     },
@@ -352,7 +400,7 @@ const styles = StyleSheet.create({
     },
     toppingBtn: {
         flexDirection: 'row', alignItems: 'center' , marginVertical: 3
-    }  
+    } 
 });
 
 export default ambarella;

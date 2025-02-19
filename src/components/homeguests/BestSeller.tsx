@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../../navigators/MainNavigator";
 
+
 // Dữ liệu sản phẩm
 const products = [
     { id: "1", name: "BƠ GIÀ DỪA NON (L)", price: "64.000đ", image: require('../../../assets/images/bestsellers/Bogia_duanon.jpg') },

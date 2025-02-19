@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { 
     View, Text, StyleSheet, SafeAreaView, StatusBar, 
-    TouchableOpacity, ScrollView, ImageBackground 
+    TouchableOpacity, ScrollView, ImageBackground ,Image
 } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -9,6 +9,9 @@ import { RootStackParams } from "../../navigators/MainNavigator";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { navigateToPreviousScreen } from "../../utils/navigationHelper";
+import {useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/store"; // Import RootState
+import { addProduct, deleteProduct } from "../../redux/slice/cartSlice";
 
 
 const rambutanMilkTea = () => {
@@ -18,6 +21,10 @@ const rambutanMilkTea = () => {
     const [totalPrice, setTotalPrice] = useState(priceProduct);
     const [selectedToppings, setSelectedToppings] = useState<{ [key: string]: number }>({});
     const [numOfProduct, setNumOfProduct] = useState(1);
+
+    const dispatch = useDispatch();
+    const CartProducts = useSelector((state: RootState) => state.cart.CartArr);
+    const totalCartQuantity = CartProducts.reduce((sum, item) => sum + item.quantity, 0);
 
     // Danh sách topping và giá tương ứng
     const toppingPrices: { [key: string]: number } = {
@@ -102,6 +109,17 @@ const rambutanMilkTea = () => {
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+            {/* Giỏ hàng */}
+            <TouchableOpacity style={styles.cart} activeOpacity={1}>
+                <Image source={require("../../../assets/images/icon-cart.png")}
+                style={{width: 35, height: 35}}
+                />
+                {totalCartQuantity > 0 && (
+                    <View style={styles.cartBadge}>
+                        <Text style={styles.cartBadgeText}>{totalCartQuantity}</Text>
+                    </View>
+                )}
+            </TouchableOpacity>
             {/* Nút quay lại */}
             <TouchableOpacity onPress={() => navigateToPreviousScreen(navigation)} style={styles.backButton}>
                 <AntDesign name="arrowleft" size={22} color="white" />
@@ -222,9 +240,18 @@ const rambutanMilkTea = () => {
                         </TouchableOpacity>
                     </View>
                 </View>
-                <TouchableOpacity style={styles.addCartButton}
-                onPress={() => {alert("Thêm vào giỏ hàng thành công")}}
-                >
+                <TouchableOpacity
+                    style={styles.addCartButton}
+                    onPress={() => {
+                        dispatch(addProduct({
+                            id: 10,
+                            name: "Trà Sữa Chôm Chôm",
+                            price: totalPrice,
+                            quantity: numOfProduct,
+                            toppings: selectedToppings,
+                        }));
+                    }}                
+                    >
                     <Text style={styles.addCartText}>Thêm vào giỏ hàng</Text>
                 </TouchableOpacity>
             </View>
@@ -349,7 +376,29 @@ const styles = StyleSheet.create({
     },
     toppingBtn: {
         flexDirection: 'row', alignItems: 'center' , marginVertical: 3
-    }  
+    },
+    cartBadge: {
+        position: 'absolute',
+        right: 10,
+        top: 8,
+        backgroundColor: '#B7935F',
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cartBadgeText: {
+        color: 'black',
+        fontSize: 11,
+        fontWeight: 'bold',
+        padding: 0.5,
+    },    
+    cart: {
+        position: "absolute",
+        top: 30,
+        right: 10,
+        zIndex: 10,
+        padding: 10,
+    } 
 });
 
 export default rambutanMilkTea;
