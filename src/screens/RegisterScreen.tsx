@@ -15,72 +15,14 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../navigators/MainNavigator";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { LoadingModal } from "../modals";
-import authenticationAPI from "../apis/authApi";
-import { Validate } from "../utils/validate";
 import { navigateToPreviousScreen } from "../utils/navigationHelper";
+import { RegisterScreenController} from "../controllers/userController";
+
 
 const RegisterScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
-  const [selected, setSelected] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErroMessage] = useState('');
-
-  const toggleRadioButton = () => {
-    setSelected(!selected);
-  };
-
-  const [values, setValues] = useState({
-    phoneNumber: "",
-    referralCode: "",
-  });
-
-  const handleChangeValue = (key: string, value: string) => {
-    const data: any = {...values};
-    data[`${key}`] = value;
-    setValues(data);
-  
-    // Kiểm tra tính hợp lệ của số điện thoại khi người dùng thay đổi giá trị
-    if (key === 'phoneNumber') {
-      if (value === '') {
-        setErroMessage('Vui lòng nhập số điện thoại!');
-      } else {
-        const phoneNumberValidation = Validate.isValidPhoneNumber(value);
-        if (!phoneNumberValidation) {
-          setErroMessage('Số điện thoại không hợp lệ');
-        } else {
-          setErroMessage(''); // Reset lỗi nếu số điện thoại hợp lệ
-        }
-      }
-    }
-  };
-  
-  const handleRegister = async () => {
-    // Nếu số điện thoại chưa nhập hoặc không hợp lệ, dừng lại và hiển thị thông báo lỗi
-    if (values.phoneNumber === '') {
-      setErroMessage('Vui lòng nhập số điện thoại!');
-      return;
-    }
-  
-    const phoneNumberValidation = Validate.isValidPhoneNumber(values.phoneNumber);
-    if (!phoneNumberValidation) {
-      setErroMessage('Số điện thoại không hợp lệ');
-      return;
-    }
-  
-    // Reset thông báo lỗi khi số điện thoại hợp lệ
-    setErroMessage('');
-  
-    // Tiến hành gọi API khi mọi thứ hợp lệ
-    setIsLoading(true);
-    try {
-      const res = await authenticationAPI.HandleAuthentication('/register', values, 'post');
-      console.log(res);
-      setIsLoading(false);
-    } catch (error) {
-      console.log(error);
-      setIsLoading(false);
-    }
-  };
+  const { values, selected, isLoading, errorMessage, toggleRadioButton, handleChangeValue, handleRegister } =
+  RegisterScreenController();
   
 
   return (
@@ -153,7 +95,7 @@ const RegisterScreen = () => {
           <View style={styles.bottom}>
           <TouchableOpacity 
             style={styles.button} 
-            onPress={() => [handleRegister(),navigation.navigate("RegisterComponent", { phoneNumber: values.phoneNumber, referralCode: values.referralCode})]}
+            onPress={() => handleRegister()}
           >
             <Text style={styles.buttonText}>Đăng Ký</Text>
           </TouchableOpacity>
@@ -161,7 +103,9 @@ const RegisterScreen = () => {
               <Text style={[styles.Text, styles.active1]}>
                 Bạn đã đăng ký tài khoản trên ứng dụng?
               </Text>
-              <TouchableOpacity>
+              <TouchableOpacity activeOpacity={1}
+              onPress={() => navigation.navigate("Login")}
+              >
                 <Text style={[styles.Text, styles.active1]}> Đăng nhập tại đây!</Text>
               </TouchableOpacity>
             </View>
@@ -209,7 +153,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1.5,
     borderBottomColor: "white",
     paddingBottom: 2, 
-    opacity: 0.7,
   },
   Text: {
     fontSize: 13.4,

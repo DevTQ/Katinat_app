@@ -27,4 +27,4 @@ export { default as EventNews3 } from "./eventnews/EventNews3";
 export { default as EventNews4 } from "./eventnews/EventNews4";
 export { default as EventNews5 } from "./eventnews/EventNews5";
 
-export { default as RegisterComponent } from './registers/RegisterComponent';
+export { default as RegisterComponent } from '../screens/RegisterComponent';

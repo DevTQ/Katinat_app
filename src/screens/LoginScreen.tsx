@@ -6,21 +6,47 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../navigators/MainNavigator";
-import axios from "axios";
-import authenticationAPI from "../apis/authApi";
+import { Alert } from "react-native";
+import authenticationAPI from "../services/authApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
   const [secureText, setSecureText] = useState(true); // State điều khiển ẩn/hiện mật khẩu
 
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleLogin = async () => {
-    try {
-      const res = await authenticationAPI.HandleAuthentication('/hello');
-      console.log(res);
-    } catch (error) {
-      console.log(error);
+    if (!phoneNumber || !password) {
+      Alert.alert("Lỗi", "Vui lòng nhập số điện thoại và mật khẩu.");
+      return;
     }
-  }
+
+    setIsLoading(true);
+    try {
+      console.log("📤 Đang gửi yêu cầu đăng nhập...");
+      const res = await authenticationAPI.HandleAuthentication(
+        "/login",
+        { phoneNumber, password },
+        "post"
+      );
+
+      console.log("✅ Đăng nhập thành công:", res);
+      
+      // Xử lý token hoặc lưu thông tin đăng nhập nếu cần
+      if (res?.data?.token) {
+        await AsyncStorage.setItem("token", res.data.token);
+        navigation.replace("Home"); // Điều hướng sau khi đăng nhập thành công
+      }
+    } catch (error: any) {
+      console.error("❌ Lỗi đăng nhập:", error.response?.data || error.message);
+      Alert.alert("Lỗi", error.response?.data?.message || "Đăng nhập thất bại");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const togglePasswordVisibility = () => {
     setSecureText(!secureText);
@@ -57,18 +83,27 @@ const LoginScreen = () => {
         <View style={styles.body}>
           <Text style={styles.label}>Số điện thoại</Text>
           <View style={styles.inputContainer}>
-            <TextInput style={styles.input} keyboardType="numeric" />
+            <TextInput 
+              style={styles.input} 
+              keyboardType="numeric" 
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
+            />
           </View>
           <View style={styles.password}>
-            <Text style={styles.label}>Mật khẩu</Text>
+          <Text style={styles.label}>Mật khẩu</Text>
             <View style={styles.inputContainer}>
-              <TextInput style={styles.input} secureTextEntry={secureText} />
+              <TextInput 
+                style={styles.input} 
+                secureTextEntry={secureText} 
+                value={password}
+                onChangeText={setPassword}
+              />
               <TouchableOpacity onPress={togglePasswordVisibility} style={styles.iconContainer}>
                 <FontAwesome6 name={secureText ? "eye-slash" : "eye"} style={styles.icon} />
               </TouchableOpacity>
             </View>
           </View>
-
           <TouchableOpacity>
             <Text style={styles.link}>Quên mật khẩu?</Text>
           </TouchableOpacity>
@@ -122,7 +157,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1.5,
     borderBottomColor: "white",
     paddingBottom: 2, 
-    opacity: 0.7
   },
   subTitleText: {
     fontSize: 15,
