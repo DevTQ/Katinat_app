@@ -16,7 +16,7 @@ const appBar = () => {
         <View style={styles.container}>
             <TouchableOpacity style={styles.button}
             onPress={() => {
-                navigation.navigate("Home");
+                navigation.navigate("HomeGuest");
             }}
             >
                 <Image source={IconHome} style={{width: 40, height: 40}}/>

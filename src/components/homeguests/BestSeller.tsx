@@ -31,34 +31,34 @@ const BestSeller = () => {
             onPress={() => {
                 switch (item.id) {
                     case "1":
-                        navigation.navigate("AvocadoCoconut");
+                        
                         break;
                     case "2":
                         navigation.navigate("RambutanMilkTea");
                         break;
                     case "3":
-                        navigation.navigate("OlongThreeTea");
+                      
                         break;
                     case "4":
-                        navigation.navigate("Ambarella");
+                       
                         break;
                     case "5":
-                        navigation.navigate("OlongStrawberry");
+                       
                         break;
                     case "6":
-                        navigation.navigate("BlackPearlAvocadoMilk");
+                       
                         break;
                     case "7":
-                        navigation.navigate("BlackPearlBile");
+                      
                         break;
                     case "8":
-                        navigation.navigate("PeachTea");
+                     
                         break;
                     case "9":
-                        navigation.navigate("BlackPearl");
+                  
                         break;
                     case "10":
-                        navigation.navigate("CheesePearl");
+                   
                         break;
                     default:
                         console.warn("Không có sản phẩm này!");
@@ -98,7 +98,7 @@ const BestSeller = () => {
                     </View>
                     <TouchableOpacity
                         activeOpacity={1} 
-                        onPress={() => navigation.navigate("ViewAllBestSeller")}
+                        onPress={() => navigation.navigate("ProductList")}
                     >
                         <Text style={{ marginRight: 15, color: '#b6a68d', fontSize: 13, fontFamily: 'Open Sans Condensed'}}>
                             Xem tất cả

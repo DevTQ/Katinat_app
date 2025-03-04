@@ -1,51 +1,48 @@
 import axios from "axios";
 import queryString from "query-string";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import TokenService from "../services/tokenService";
+import appInfor from "../utils/appInfor";
 
-// Tạo instance axios
+
 const axiosClient = axios.create({
+    baseURL: appInfor.BASE_URL, 
     paramsSerializer: (params) => queryString.stringify(params),
-});
+  });
 
-// Interceptor cho request (thêm token vào header)
+
 axiosClient.interceptors.request.use(
     async (config: any) => {
-        console.log("📤 Request:", config.method, config.url, config.data);
-
-        try {
-            const token = await AsyncStorage.getItem("token"); // Lấy token từ AsyncStorage
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            }
-        } catch (error) {
-            console.error("❌ Lỗi lấy token từ AsyncStorage:", error);
+      console.log("Request:", config.method, config.url, config.data);
+      try {
+        const token = await TokenService.getToken(); 
+        if (token) {
+          config.headers = config.headers || {}; 
+          config.headers.Authorization = `Bearer ${token}`;
         }
-
-        config.headers = {
-            Accept: "application/json",
-            ...config.headers,
-        };
-
-        return config;
+      } catch (error) {
+        console.error("Lỗi lấy token từ AsyncStorage:", error);
+      }
+  
+      config.headers.Accept = "application/json";
+      return config;
     },
     (error) => {
-        console.error("❌ Request Error:", error);
+      console.error("Request Error:", error);
+      return Promise.reject(error);
+    }
+  );
+  
+  axiosClient.interceptors.response.use(
+    (res) => res,
+    (error) => {
+        if (error.response) {
+            console.error(`API Error:`, error.response.status, error.response.data);
+            if (error.response.status === 400 && error.response.data?.token) {
+                return Promise.reject({ response: { data: { message: "Tài khoản hoặc mật khẩu không chính xác!" } } });
+            }
+        }
         return Promise.reject(error);
     }
 );
-
-// Interceptor cho response (Xử lý lỗi API)
-axiosClient.interceptors.response.use(
-    (res) => {
-        if (res.data && res.status === 200) {
-            return res.data;
-        }
-        throw new Error("Error");
-    },
-    (error) => {
-        console.log(`❌ API Error: ${JSON.stringify(error)}`);
-        throw new Error(error.response);
-    }
-);
-
+  
 export default axiosClient;

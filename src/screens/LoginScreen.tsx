@@ -1,61 +1,22 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, SafeAreaView, TextInput, ImageBackground, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Text, SafeAreaView, TextInput, ImageBackground, TouchableOpacity, Alert } from "react-native";
 import ImageBack from "../../assets/images/login-register.jpg";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../navigators/MainNavigator";
-import { Alert } from "react-native";
-import authenticationAPI from "../services/authApi";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLoginController } from "src/controllers/userController";
 
 const LoginScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
-  const [secureText, setSecureText] = useState(true); // State điều khiển ẩn/hiện mật khẩu
-
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleLogin = async () => {
-    if (!phoneNumber || !password) {
-      Alert.alert("Lỗi", "Vui lòng nhập số điện thoại và mật khẩu.");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      console.log("📤 Đang gửi yêu cầu đăng nhập...");
-      const res = await authenticationAPI.HandleAuthentication(
-        "/login",
-        { phoneNumber, password },
-        "post"
-      );
-
-      console.log("✅ Đăng nhập thành công:", res);
-      
-      // Xử lý token hoặc lưu thông tin đăng nhập nếu cần
-      if (res?.data?.token) {
-        await AsyncStorage.setItem("token", res.data.token);
-        navigation.replace("Home"); // Điều hướng sau khi đăng nhập thành công
-      }
-    } catch (error: any) {
-      console.error("❌ Lỗi đăng nhập:", error.response?.data || error.message);
-      Alert.alert("Lỗi", error.response?.data?.message || "Đăng nhập thất bại");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const togglePasswordVisibility = () => {
-    setSecureText(!secureText);
-  };
-
+  const { 
+    values, errorMessage, phoneError, passwordError, secureText, togglePasswordVisibility, handleChangeValue, handleLogin, setPhoneError, setPasswordError 
+  } = useLoginController();
   return (
     <SafeAreaView style={styles.container}>
       {/* Nút quay lại */}
-      <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.backButton}>
+      <TouchableOpacity onPress={() => navigation.navigate("HomeGuest")} style={styles.backButton}>
         <AntDesign name="arrowleft" size={22} color="white" />
       </TouchableOpacity>
 
@@ -83,26 +44,38 @@ const LoginScreen = () => {
         <View style={styles.body}>
           <Text style={styles.label}>Số điện thoại</Text>
           <View style={styles.inputContainer}>
-            <TextInput 
-              style={styles.input} 
-              keyboardType="numeric" 
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
+          <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              value={values.phone_number}
+              onChangeText={(text) => {
+                handleChangeValue("phone_number", text);
+                setPhoneError("");
+              }}
             />
           </View>
+          {
+            phoneError && <Text style={{marginTop: 5,color: '#DEB887', fontSize: 12, fontWeight: 'bold'}}>{phoneError}</Text>
+          }
           <View style={styles.password}>
           <Text style={styles.label}>Mật khẩu</Text>
             <View style={styles.inputContainer}>
               <TextInput 
                 style={styles.input} 
                 secureTextEntry={secureText} 
-                value={password}
-                onChangeText={setPassword}
+                value={values.password}
+                onChangeText={(text) => {
+                  handleChangeValue("password", text);
+                  setPasswordError("");
+                }}
               />
               <TouchableOpacity onPress={togglePasswordVisibility} style={styles.iconContainer}>
                 <FontAwesome6 name={secureText ? "eye-slash" : "eye"} style={styles.icon} />
               </TouchableOpacity>
             </View>
+            {
+              passwordError && <Text style={{marginTop: 5,color: '#DEB887', fontSize: 12, fontWeight: 'bold'}}>{passwordError}</Text>
+            }
           </View>
           <TouchableOpacity>
             <Text style={styles.link}>Quên mật khẩu?</Text>

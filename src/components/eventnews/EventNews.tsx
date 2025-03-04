@@ -4,9 +4,11 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../../navigators/MainNavigator";
 import { navigateToPreviousScreen } from "../../utils/navigationHelper";
+import { useState } from "react";
 
 
-const EventNews2 = () => {
+const EventNews = () => {
+    const [content, setContent] = useState("");
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     return (
@@ -16,42 +18,45 @@ const EventNews2 = () => {
             </TouchableOpacity>
             <View style={styles.title}>
                 <Text numberOfLines={1} style={{ fontSize: 17, fontWeight: '700', marginHorizontal: 50, fontFamily: 'Open Sans Condensed', color: '#233f4d'}}
-                >Cùng Taro Coco "khai môn" cho một năm mới</Text>
+                >Tết này, Katies đã "hái hoa" Như Ý chưa</Text>
             </View>
             <ScrollView>
                 <View style={styles.header}>
-                    <Image source={require("../../../assets/images/eventnews/KMDN.jpg")} style={styles.image} resizeMode="cover" />
+                    <Image source={require("../../../assets/images/eventnews/image1.jpg")} style={styles.image} resizeMode="cover" />
                     <Text style={{textAlign: 'center', fontSize: 20, fontWeight: '700', fontFamily: 'Open Sans Condensed', color: '#233f4d'}}>KATINAT</Text>
                     <Text style={{textAlign: 'center', fontSize: 17, fontWeight: '700', marginHorizontal: 15, color: '#ba9774', lineHeight: 25, fontFamily: 'Open Sans Condensed'}}
-                    >Cùng Taro Coco "Khai môn" cho một năm mới thật "dừa ý"</Text>
+                    >Tết này, Katies đã "hái hoa" Như Ý cho vạn sự như ý chưa?</Text>
                     <View style={styles.content}>
                         <Text numberOfLines={15} style={styles.description}>
-                            Năm mới đã chạm ngõ, KATINAT gõ cửa mời Katies đồ uống cực hợp cho dịp Tết này!
+                            KATINAT chính thức ra mắt Ly Như Ý - phiên bản ly giới
+                            hạn mừng Tết Ất Tỵ 2025. Nổi bật trên Ly Như Ý là bông 
+                            hoa Như Ý mà KATINAT muốn dành tặng riêng cho Katies. Bông
+                            hoa Như Ý được khắc họa tinh xảo và tỏa sắc với những cánh hoa
+                            trắng mềm mại, uyển chuyển trên nên vành ánh kim sang trọng.
+                            Ly Như Ý không chỉ thu hút mọi ánh nhìn mà còn là một biểu tượng
+                            thu hút may mắn, mở ra một năm mới thịnh vượng, gói trọn cả nguồn
+                            năng lượng tích cực tràn đầy!
                         </Text>
                         <Text style={[{ marginTop: 15}, styles.description]}>
-                            Taro Coco - Khoai Môn Dừa Non, Khai Môn Dừa Ý 
+                            Đặc biệt, KATINAT gửi gắm thông điệp ý nghĩa đến Katies trên Ly Như Ý: 
                         </Text>
                         <Text style={[{marginTop: 15}, styles.description]}>
-                            Taro Coco là sự sáng tạo cả về hương vị lẫn kết cấu. Hương vị lạ lạ
-                            mà quen quen của Taro Coco là sự kết hợp mới lạ của cả 2 nguyên liệu thân
-                            quen đó là Khoai Môn nghiền sánh mềm và sữa Dừa Non ngọt thanh.
+                            "Lucky Blossom Blooms In A Year Full Of Luck!"
                         </Text>
-                        <Image source={require("../../../assets/images/eventnews/KMDN.jpg")} style={{width: 400, height: 600}}/>
+                        <Text style={[{marginTop: 20}, styles.description]} numberOfLines={4}>
+                            Hãy để hoa Như Ý trở thành nguồn cảm hứng, đối với KATINAT,
+                            mỗi Katies như những bông hoa Như Ý(Lucky Blossom) nở rộ
+                            rực rỡ vào năm ngập tràn may mắn và vạn sự như ý.
+                        </Text>
+                        <Image source={require("../../../assets/images/eventnews/image1_1.jpeg")} style={{width: 400, height: 600}}/>
                         <Text style={[{marginTop: 10}, styles.description]}>
-                            Tết này, Katies hãy quên đi những cuộc trò chuyện buồn tẻ, Taro Coco sẽ làm
-                            mọi cuộc trò chuyện thêm vui tươi, rộn ràng nói cười bởi kết cấu vui miệng,
-                            vừa ăn vừa uống lai rai ngày Tết. Bên cạnh sự sánh mềm của Huyền Châu và giòn
-                            giòn của hạt còi điều sẽ khiến cho trải nghiệm của Katies khi thưởng thức thêm
-                            phần vui miệng, khiến cho mỗi cuộc trò chuyện đều trở nên rôm rả.
+                            Tết này, Katies đã biết khai xuân đầu năm thật nhiều may mắn
+                            chưa nào? Hãy nhanh chân ra các cửa hàng KATINAT để nhanh tay hái
+                            lộc, hái hoa Như Ý cho vạn sự như ý nhé!
                         </Text>
-                        <Text style={[{marginTop: 15}, styles.description]}>
-                            Thêm vào đó, Taro Coco không chỉ là một thức uống, mà còn là lời chức may mắn
-                            và như ý gửi đến các Katies. Tết này, hãy cùng Taro Coco khai mở cánh cửa may
-                            mắn, thành công và "dừa" nhiều ý nguyện!
-                        </Text>
-                        <Text style={[{marginTop: 15}, styles.description]}>
-                            Taro Coco đã chính thức có mặt trên toàn hệ thống và trên ứng dụng KATINAT từ
-                            ngày 16/01/2025. Cùng thưởng thức Taro Coco ngay thôi Katies ơi!
+                        <Text style={[{marginTop: 30}, styles.description]}>
+                            Ly Như Ý có mặt tại tất cả cửa hàng KATINAT từ ngày 20/01/2025,
+                            áp dụng cho các thức uống size L.
                         </Text>
                     </View>        
                 </View>
@@ -79,7 +84,7 @@ const styles = StyleSheet.create({
     },
     image: {
         width: 400,
-        height: 450,
+        height: 390,
         marginBottom: 4
     },
     caption: {
@@ -123,4 +128,4 @@ const styles = StyleSheet.create({
     }
 })  
 
-export default EventNews2;
+export default EventNews;

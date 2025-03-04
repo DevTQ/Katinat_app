@@ -66,9 +66,7 @@ const OrderScreen = () => {
                 </View>
 
                 <View style={styles.body}>
-                    {/* Ô tìm kiếm */}
                     <TouchableOpacity style={styles.search} activeOpacity={1}
-                    onPress={() => navigation.navigate('SearchBar')}
                     >
                         <MaterialIcons style={{ marginLeft: 10 }} name="search" size={25} color="#104358" />
                         <Text style={{color: '#104358'}}>Katies muốn tìm gì?</Text>

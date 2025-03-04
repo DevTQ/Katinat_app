@@ -8,8 +8,13 @@ import RegisterScreenDTO from "../dtos/registerScreenDTO";
 import RegisterComponentDTO from "@dtos/registerDTO";
 import { Alert } from "react-native";
 import { userService } from "src/services/userService";
+import LoginDTO from "@dtos/loginDTO";
+import TokenService from "src/services/tokenService";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/slice/userSlice";
 
 export const RegisterScreenController = () => {
+    
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     const [selected, setSelected] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +30,7 @@ export const RegisterScreenController = () => {
         if (key === "phoneNumber") {
             if (!value.trim()) setErrorMessage("Vui lòng nhập số điện thoại!");
             else if (!Validate.isValidPhoneNumber(value)) setErrorMessage("Số điện thoại không hợp lệ");
-            else setErrorMessage(""); // Reset lỗi nếu số điện thoại hợp lệ
+            else setErrorMessage(""); 
         }
     };
 
@@ -38,9 +43,6 @@ export const RegisterScreenController = () => {
             setErrorMessage("Số điện thoại không hợp lệ");
             return;
         }
-
-        setErrorMessage("");
-        setIsLoading(true);
 
         try {
             const checkPhoneRes = await authenticationAPI.HandleAuthentication(
@@ -149,5 +151,73 @@ export const RegisterComponentController = (phoneNumber?: string, referralCode?:
         values, errors, isLoading, modalVisible, secureTextPassword, secureTextConfirmPassword, setModalVisible, setIsLoading, 
         togglePasswordVisibility, toggleConfirmPasswordVisibility, handleChangeValue,
         handleGenderSelect, handleOutsidePress, handleRegisterComponent
+    };
+};
+
+export const useLoginController = () => {
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+    const dispatch = useDispatch(); // Dùng dispatch để gọi action
+    const [isLoading, setIsLoading] = useState(false);
+    const [values, setValues] = useState(new LoginDTO());
+    const [errorMessage, setErrorMessage] = useState("");
+    const [secureText, setSecureText] = useState(true);
+
+    const [phoneError, setPhoneError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+
+    const handleChangeValue = (key: keyof LoginDTO, value: string) => {
+        setValues((prev) => new LoginDTO({ ...prev, [key]: value }));
+    };
+
+    const togglePasswordVisibility = () => setSecureText((prev) => !prev);
+
+    const handleLogin = async () => {
+        setPhoneError("");
+        setPasswordError("");
+        setErrorMessage("");
+    
+        if (!values.phone_number.trim()) {
+            setPhoneError("Vui lòng nhập số điện thoại!");
+            return;
+        }
+        if (!values.password.trim()) {
+            setPasswordError("Vui lòng nhập mật khẩu!");
+            return;
+        }
+    
+        setIsLoading(true);
+        try {
+            const res = await authenticationAPI.HandleAuthentication(
+                "/login",
+                values,
+                "post"
+            );
+            if (res?.data?.token) {
+                await TokenService.setToken(res.data.token);
+                if (res.data.user?.fullname) {
+                    dispatch(setUser(res.data.user.fullname)); 
+                } 
+                navigation.navigate("HomeScreen");
+            } else {
+                setErrorMessage("Tài khoản hoặc mật khẩu không chính xác!");
+            }
+        } catch (error: any) {
+            setErrorMessage(error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!");
+        } finally {
+            setIsLoading(false);
+        }
+    };    
+    return {
+        values,
+        isLoading,
+        errorMessage,
+        phoneError,
+        passwordError,
+        secureText,
+        togglePasswordVisibility,
+        handleChangeValue,
+        handleLogin,
+        setPhoneError,
+        setPasswordError, 
     };
 };

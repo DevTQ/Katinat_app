@@ -1,27 +1,31 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, TouchableOpacity, Image, ScrollView, ImageBackground } from "react-native";
+import { 
+    View, Text, StyleSheet, SafeAreaView, StatusBar, 
+    TouchableOpacity, ScrollView, ImageBackground ,Image
+} from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../../navigators/MainNavigator";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { navigateToPreviousScreen } from "../../utils/navigationHelper"; // Import hàm helper
+import { navigateToPreviousScreen } from "../../utils/navigationHelper";
 import {useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store"; // Import RootState
 import { addProduct, deleteProduct } from "../../redux/slice/cartSlice";
 
-const ambarella = () => {
-    const dispatch = useDispatch();
-    const CartProducts = useSelector((state: RootState) => state.cart.CartArr);
-    const totalCartQuantity = CartProducts.reduce((sum, item) => sum + item.quantity, 0);
 
+const rambutanMilkTea = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
-    const [priceProduct, setPriceProduct] = useState(69000);
+    // State lưu giá tiền
+    const [priceProduct, setPriceProduct] = useState(59000);
     const [totalPrice, setTotalPrice] = useState(priceProduct);
     const [selectedToppings, setSelectedToppings] = useState<{ [key: string]: number }>({});
     const [numOfProduct, setNumOfProduct] = useState(1);
 
-    // Danh sách topping và giá tương ứng
+    const dispatch = useDispatch();
+    const CartProducts = useSelector((state: RootState) => state.cart.CartArr);
+    const totalCartQuantity = CartProducts.reduce((sum, item) => sum + item.quantity, 0);
+
     const toppingPrices: { [key: string]: number } = {
         "Trân châu phô mai dẻo": 15000,
         "Kem sữa phô mai": 15000,
@@ -42,7 +46,7 @@ const ambarella = () => {
     const setNumberOfProduct = (action: "increase" | "decrease") => {
         setNumOfProduct(prevNum => {
             let newNum = action === "increase" ? prevNum + 1 : Math.max(1, prevNum - 1);
-            const newProductPrice = newNum * 69000;
+            const newProductPrice = newNum * 59000;
             const toppingTotal = calculateToppingTotal(selectedToppings);
 
             setPriceProduct(newProductPrice);
@@ -82,25 +86,24 @@ const ambarella = () => {
         });
     };
 
-    // State lưu trạng thái lựa chọn (ngọt bình thường hoặc ít ngọt)
+    // đường
     const [selectedOption, setSelectedOption] = useState<string | null>("normal_sweet");
-    // Hàm thay đổi lựa chọn radio
     const toggleRadioButtonSweet = (option: string) => {
         setSelectedOption(option);
     };
-
-    useFocusEffect(
-            useCallback(() => {
-                StatusBar.setBarStyle("light-content"); // Giữ màu chữ trắng
-                StatusBar.setTranslucent(true); // Làm trong suốt
-                StatusBar.setBackgroundColor("transparent"); // Không có màu nền
-            }, [])
-    );
-
+    // đá
     const [selectedOptionIce, setSelectedOptionIce] = useState<string | null>("normal");
     const toggleRadioButtonIce = (option: string) => {
         setSelectedOptionIce(option);
     };
+
+    useFocusEffect(
+            useCallback(() => {
+                StatusBar.setBarStyle("light-content"); 
+                StatusBar.setTranslucent(true); 
+                StatusBar.setBackgroundColor("transparent");
+            }, [])
+    );
 
     return (
         <SafeAreaView style={styles.container}>
@@ -116,26 +119,23 @@ const ambarella = () => {
                     </View>
                 )}
             </TouchableOpacity>
-
             {/* Nút quay lại */}
-            <TouchableOpacity 
-                onPress={() => navigateToPreviousScreen(navigation)} 
-                style={styles.backButton}
-                >
+            <TouchableOpacity onPress={() => navigateToPreviousScreen(navigation)} style={styles.backButton}>
                 <AntDesign name="arrowleft" size={22} color="white" />
             </TouchableOpacity>
             <ScrollView>
                 <View style={styles.header}>
                     <ImageBackground 
-                        source={require('../../../assets/images/imageproducts/coccoc_dacdac.jpg')} 
+                        source={require('../../../assets/images/imageproducts/chomchom.jpg')} 
                         style={styles.image} 
                     />
-                    <Text style={styles.title}>Cóc Cóc Đác Đác (L)</Text>
+                    <Text style={styles.title}>TRÀ SỮA CHÔM CHÔM (L)</Text>
                     <Text numberOfLines={6} style={styles.description}>
-                        Cóc Cóc Đác Đác là sự kết hợp độc đáo từ Cóc Non Đồng Tháp tươi 
-                        mát, chua chua vừa vị, điểm nhấn cùng hạt đác Phú Yên bóng bẩy,
-                        rim thơm dẻo giòn. Hút một ngụm trà Cóc thanh mát và ăn một hạt 
-                        đác rim thơm dịu để cảm nhận trọn hương vị đặc sắc này.
+                        Trà sữa chôm chôm vẫn luôn là thức uống chiếm trọn trái tim 
+                        của Katies nhất, bởi vị đậm của trà và thơm béo của sữa kết 
+                        hợp độc đáo cùng topping Chôm Chôm dai giòn sừn sựt đánh thức 
+                        vị giác của bạn khi thưởng thức. Thành phần: Trà đen, Hạt dẻ,
+                        Chôm Chôm, Sữa đặc, Đá
                     </Text>
                 </View>
                 
@@ -143,14 +143,14 @@ const ambarella = () => {
                 <View style={styles.body}>
                     <Text style={styles.sectionTitle}>Chọn mức đường</Text>
                     {/* Ngọt bình thường */}
-                    <TouchableOpacity onPress={() => toggleRadioButtonSweet("normal_sweet")} style={styles.radioButtonContainer}>
+                    <TouchableOpacity activeOpacity={1} onPress={() => toggleRadioButtonSweet("normal_sweet")} style={styles.radioButtonContainer}>
                         <View style={[styles.radioButton, selectedOption === "normal_sweet" && styles.selectedRadioButton]}>
                             {selectedOption === "normal_sweet" && <Ionicons name="checkmark" style={styles.icon} />}
                         </View>
                         <Text style={styles.radioButtonText}>Ngọt bình thường</Text>
                     </TouchableOpacity>
                     {/* Ít ngọt */}
-                    <TouchableOpacity onPress={() => toggleRadioButtonSweet("less_sweet")} style={styles.radioButtonContainer}>
+                    <TouchableOpacity activeOpacity={1} onPress={() => toggleRadioButtonSweet("less_sweet")} style={styles.radioButtonContainer}>
                         <View style={[styles.radioButton, selectedOption === "less_sweet" && styles.selectedRadioButton]}>
                             {selectedOption === "less_sweet" && <Ionicons name="checkmark" style={styles.icon} />}
                         </View>
@@ -161,7 +161,7 @@ const ambarella = () => {
                     {/* Mức đá */}
                     <Text style={styles.sectionTitle}>Chọn mức đá</Text>
                     {/* Đá bình thường */}
-                    <TouchableOpacity onPress={() => toggleRadioButtonIce("normal")} style={styles.radioButtonContainer}>
+                    <TouchableOpacity activeOpacity={1} onPress={() => toggleRadioButtonIce("normal")} style={styles.radioButtonContainer}>
                         <View style={[styles.radioButton, selectedOptionIce === "normal" && styles.selectedRadioButton]}>
                             {selectedOptionIce === "normal" && <Ionicons name="checkmark" style={styles.icon} />}
                         </View>
@@ -169,20 +169,20 @@ const ambarella = () => {
                     </TouchableOpacity>
 
                     {/* Ít đá */}
-                    <TouchableOpacity onPress={() => toggleRadioButtonIce("less_ice")} style={styles.radioButtonContainer}>
+                    <TouchableOpacity activeOpacity={1} onPress={() => toggleRadioButtonIce("less_ice")} style={styles.radioButtonContainer}>
                         <View style={[styles.radioButton, selectedOptionIce === "less_ice" && styles.selectedRadioButton]}>
                             {selectedOptionIce === "less_ice" && <Ionicons name="checkmark" style={styles.icon} />}
                         </View>
                         <Text style={styles.radioButtonText}>Ít đá</Text>
                     </TouchableOpacity>
                     {/* Đá riêng */}
-                    <TouchableOpacity onPress={() => toggleRadioButtonIce("ice")} style={styles.radioButtonContainer}>
+                    <TouchableOpacity activeOpacity={1} onPress={() => toggleRadioButtonIce("ice")} style={styles.radioButtonContainer}>
                         <View style={[styles.radioButton, selectedOptionIce === "ice" && styles.selectedRadioButton]}>
                             {selectedOptionIce === "ice" && <Ionicons name="checkmark" style={styles.icon} />}
                         </View>
                         <Text style={styles.radioButtonText}>Đá riêng</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => toggleRadioButtonIce("no_ice")} style={styles.radioButtonContainer}>
+                    <TouchableOpacity activeOpacity={1} onPress={() => toggleRadioButtonIce("no_ice")} style={styles.radioButtonContainer}>
                         <View style={[styles.radioButton, selectedOptionIce === "no_ice" && styles.selectedRadioButton]}>
                             {selectedOptionIce === "no_ice" && <Ionicons name="checkmark" style={styles.icon} />}
                         </View>
@@ -243,14 +243,14 @@ const ambarella = () => {
                     style={styles.addCartButton}
                     onPress={() => {
                         dispatch(addProduct({
-                            id: 1,
-                            name: "Cóc Cóc Đác Đác",
+                            id: 10,
+                            name: "Trà Sữa Chôm Chôm",
                             price: totalPrice,
                             quantity: numOfProduct,
                             toppings: selectedToppings,
                         }));
                     }}                
-                >
+                    >
                     <Text style={styles.addCartText}>Thêm vào giỏ hàng</Text>
                 </TouchableOpacity>
             </View>
@@ -267,28 +267,6 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 40,
         left: 15,
-        zIndex: 10,
-        padding: 10,
-    },
-    cartBadge: {
-        position: 'absolute',
-        right: 10,
-        top: 8,
-        backgroundColor: '#B7935F',
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    cartBadgeText: {
-        color: 'black',
-        fontSize: 11,
-        fontWeight: 'bold',
-        padding: 0.5,
-    },    
-    cart: {
-        position: "absolute",
-        top: 30,
-        right: 10,
         zIndex: 10,
         padding: 10,
     },
@@ -397,7 +375,29 @@ const styles = StyleSheet.create({
     },
     toppingBtn: {
         flexDirection: 'row', alignItems: 'center' , marginVertical: 3
+    },
+    cartBadge: {
+        position: 'absolute',
+        right: 10,
+        top: 8,
+        backgroundColor: '#B7935F',
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cartBadgeText: {
+        color: 'black',
+        fontSize: 11,
+        fontWeight: 'bold',
+        padding: 0.5,
+    },    
+    cart: {
+        position: "absolute",
+        top: 30,
+        right: 10,
+        zIndex: 10,
+        padding: 10,
     } 
 });
 
-export default ambarella;
+export default rambutanMilkTea;

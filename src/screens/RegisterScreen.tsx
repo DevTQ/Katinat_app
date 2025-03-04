@@ -29,7 +29,7 @@ const RegisterScreen = () => {
     <>
       <SafeAreaView style={styles.container}>
         {/* Nút quay lại */}
-        <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.navigate("HomeGuest")} style={styles.backButton}>
           <AntDesign name="arrowleft" size={22} color="white" />
         </TouchableOpacity>
 

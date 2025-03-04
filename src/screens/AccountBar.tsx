@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
         marginTop: 40,
     },
     logoGreetingContainer: {
-        flexDirection: 'row', // Bố cục hàng ngang
+        flexDirection: 'row', 
         alignItems: 'center', // Căn giữa theo trục dọc
         marginBottom: 16,
     },

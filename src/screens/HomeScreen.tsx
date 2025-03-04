@@ -1,82 +1,74 @@
 import React from "react";
-import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity,Image } from "react-native";
+import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image } from "react-native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Banner from "../components/homeguests/Banner";
 import BestSeller from "../components/homeguests/BestSeller";
 import ForYou from "../components/homeguests/ForYou";
-import TryFood from "src/components/homeguests/TryFood";
+import TryFood from "../components/homeguests/TryFood";
 import EventNews from "../components/homeguests/EventNews";
 import AppBar from "../components/homeguests/AppBar";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../navigators/MainNavigator";
 import { Validate } from "../utils/validate";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 
-const HomeGuestScreen = () => {
+
+const HomeScreen = () => {
+  const username = useSelector((state: RootState) => state.user.username);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
   return (
     <SafeAreaView style={styles.header}>
       <ScrollView>
+          {/* Title Section */}
         <View style={styles.title}>
           <Text style={styles.textTitle}>KATINAT</Text>
           <Text style={{ textAlign: 'center', fontSize: 10, color: 'white' }}>
             COFFEE & TEA HOUSE
           </Text>
         </View>
-
-       
         <View style={styles.logoGreetingContainer}>
-   
           <View style={styles.logo}>
             <Text style={{ textAlign: 'center', fontSize: 11}}>KATINAT</Text>
           </View>
-
-   
           <View style={styles.textContainer}>
             <Text style={styles.greetingText}>{Validate.checkTime(new Date())}</Text>
-            <Text style={styles.guestText}>Khách</Text>
-          </View>
-
-        
-          <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
-            <FontAwesome name="bell-o" size={24} color="#104358" style={styles.bellIcon} />
-          </TouchableOpacity>
+            <Text style={styles.customerText}>{username}</Text>
         </View>
-
-    
-        <TouchableOpacity style={styles.logRegBtn}
-        onPress={() => {
-          navigation.navigate("Register");
-        }}
-        >
-          <Text style={{fontSize:16, color: 'white', fontFamily: 'Open Sans Condensed', fontWeight: '600'}}>ĐĂNG KÝ/ ĐĂNG NHẬP</Text>
-        </TouchableOpacity>
+          <View style={{flexDirection: 'row',}}>
+            <TouchableOpacity>
+              <Image source={require("../../assets/images/icons/giam-gia.png")} 
+              style={{width: 35, height: 35, marginRight: 15}}
+            />
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <FontAwesome name="bell-o" size={24} color="#104358" style={styles.bellIcon} />
+            </TouchableOpacity>
+          </View>
+        </View>
         <Banner/>
         <View style={{flexDirection: 'row'}}>
-                  <TouchableOpacity style={[styles.cart, {marginLeft: 20}]} activeOpacity={1} onPress={() => navigation.navigate("Order")}>
-                    <Image source={require("../../assets/images/Giaohang.png")}
-                    style={styles.image}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.cart, {marginLeft: 15}]} activeOpacity={1}>
-                    <Image source={require("../../assets/images/laytannoi.png")}
-                    style={styles.image}/>
-                  </TouchableOpacity>
-                </View>
-                <Text style={{color: '#907247', marginVertical: 15, fontSize: 15, fontWeight: 500, marginLeft: 50}}>
-                  Khung giờ áp dụng đặt hàng từ 7:00 - 21:30
-                </Text>
+          <TouchableOpacity style={[styles.cart, {marginLeft: 20}]}>
+            <Image source={require("../../assets/images/Giaohang.png")}
+            style={styles.image}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.cart, {marginLeft: 15}]}>
+            <Image source={require("../../assets/images/laytannoi.png")}
+            style={styles.image}/>
+          </TouchableOpacity>
+        </View>
+        <Text style={{color: '#907247', marginVertical: 15, fontSize: 15, fontWeight: 500, marginLeft: 50}}>
+          Khung giờ áp dụng đặt hàng từ 7:00 - 21:30
+        </Text>
         <BestSeller/>
         <View style={styles.line}></View>
-        {/* Dành cho bạn */}
         <ForYou/>
         <View style={styles.line}></View>
-        {/* Món ngon phải thử */}
         <TryFood/>
-        {/* Tin tức - sự kiện */}
         <EventNews/>
-        {/* thanh chức năng */}
         </ScrollView>
         <AppBar/>
     </SafeAreaView>
@@ -100,9 +92,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   logoGreetingContainer: {
-    flexDirection: 'row', // Bố cục hàng ngang
-    alignItems: 'center', // Căn giữa theo trục dọc
-    justifyContent: 'space-between', // Đẩy các phần tử cách đều
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
     marginBottom: 16,
   },
   logo: {
@@ -117,8 +109,8 @@ const styles = StyleSheet.create({
     borderWidth: 0.3,
   },
   textContainer: {
-    flex: 1, // Chiếm khoảng trống giữa logo và chuông
-    justifyContent: 'center', // Căn giữa nội dung theo trục dọc
+    flex: 1, 
+    justifyContent: 'center', 
   },
   greetingText: {
     color: '#b7956a',
@@ -126,7 +118,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 15,
   },
-  guestText: {
+  customerText: {
     color: '#104358',
     fontSize: 13,
     fontWeight: 'bold',
@@ -134,16 +126,7 @@ const styles = StyleSheet.create({
   },
   bellIcon: {
     marginRight: 10,
-  },
-  logRegBtn: {
-    backgroundColor: "#104358",
-    height: 50,
-    borderRadius: 15,
-    justifyContent: "center",
-    alignItems: "center",
-    opacity: 0.9,
-    marginHorizontal: 15,
-    marginBottom: 20
+    marginTop: 5
   },
   bestSeller: {
     flex: 1,
@@ -151,12 +134,16 @@ const styles = StyleSheet.create({
   },
   line: {
     display: 'flex',
-    width: '90%', // Chiều dài của đường kẻ ngang (90% chiều rộng màn hình)
-    height: 1.2,    // Độ dày của đường kẻ ngang
-    backgroundColor: '#ccc', // Màu sắc của đường kẻ
+    width: '90%', 
+    height: 1.2,   
+    backgroundColor: '#ccc', 
     marginBottom: 20,
     marginLeft: 18,
     opacity: 0.5
+  },
+  image: {
+    width: 170,
+    height: 150,
   },
   cart: {
     width: 170,
@@ -165,12 +152,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     shadowRadius: 20,
     borderColor: '#E3DEDE'
-  },
-  image: {
-    width: 170,
-    height: 150,
-  },
+  }
   
 });
 
-export default HomeGuestScreen;
+export default HomeScreen;

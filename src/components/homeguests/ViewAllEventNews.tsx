@@ -8,7 +8,7 @@ const ViewAllEventNews = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     return (
         <View style={styles.container}>
-            <TouchableOpacity activeOpacity={1} onPress={() => navigation.navigate("Home")} style={styles.backButton}>
+            <TouchableOpacity activeOpacity={1} onPress={() => navigation.navigate("HomeGuest")} style={styles.backButton}>
                 <AntDesign name="arrowleft" size={22} color="black" />
             </TouchableOpacity>
             <View style={styles.title}>
