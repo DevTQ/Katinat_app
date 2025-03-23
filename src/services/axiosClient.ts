@@ -10,13 +10,15 @@ const axiosClient = axios.create({
   });
 
 
-axiosClient.interceptors.request.use(
+  axiosClient.interceptors.request.use(
     async (config: any) => {
-      console.log("Request:", config.method, config.url, config.data);
+  
+      console.log(`Request: ${config.method?.toUpperCase()} ${config.url}}`);
+      
       try {
-        const token = await TokenService.getToken(); 
+        const token = await TokenService.getToken();
         if (token) {
-          config.headers = config.headers || {}; 
+          config.headers = config.headers || {};
           config.headers.Authorization = `Bearer ${token}`;
         }
       } catch (error) {
@@ -30,7 +32,7 @@ axiosClient.interceptors.request.use(
       console.error("Request Error:", error);
       return Promise.reject(error);
     }
-  );
+  );  
   
   axiosClient.interceptors.response.use(
     (res) => res,
@@ -44,5 +46,4 @@ axiosClient.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-  
 export default axiosClient;

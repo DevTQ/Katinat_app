@@ -1,6 +1,7 @@
-export { default as ProductList } from "./homeguests/ProductList";
+export { default as ViewAllBestSeller } from "./homeguests/ViewAllBestSeller";
+export { default as ViewAllForYou} from "./homeguests/ViewAllForYou";
 
-export { default as RambutanMilkTea } from "./viewallproducts/ProductDetails";
+export { default as productDetail } from "./viewallproducts/ProductDetail";
 // Các thành phần của TryFood
 export { default as Rambutan } from "./tryfoods/Rambutan";
 

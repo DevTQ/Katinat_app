@@ -4,6 +4,9 @@ import { useNavigation } from "@react-navigation/native";
 
 const Notification = () => {
     const navigation = useNavigation();
+    const noti = [
+        
+    ]
 
     return (
         <SafeAreaView style={styles.container}>

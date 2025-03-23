@@ -19,9 +19,7 @@ const ViewAllEventNews = () => {
             </View>
             <ScrollView contentContainerStyle={styles.body}>
                 <TouchableOpacity activeOpacity={1} style={styles.card}
-                onPress={() => {
-                    navigation.navigate("EventNews1");
-                }}
+               
                 >
                     <View style={styles.card}>
                         <Image source={require("../../../assets/images/eventnews/image1.jpg")} style={styles.image} />
@@ -32,9 +30,7 @@ const ViewAllEventNews = () => {
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity activeOpacity={1} style={styles.card}
-                onPress={() => {
-                    navigation.navigate("EventNews2");
-                }}
+                
                 >
                     <View style={styles.card}>
                         <Image source={require("../../../assets/images/eventnews/KMDN.jpg")} style={styles.image} />
@@ -45,9 +41,7 @@ const ViewAllEventNews = () => {
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity activeOpacity={1} style={styles.card}
-                onPress={() => {
-                    navigation.navigate("EventNews3");
-                }}
+              
                 >
                     <View style={styles.card}>
                         <Image source={require("../../../assets/images/imageproducts/offer.jpg")} style={styles.image} />
@@ -58,9 +52,7 @@ const ViewAllEventNews = () => {
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity activeOpacity={1} style={styles.card}
-                onPress={() => {
-                    navigation.navigate("EventNews4");
-                }}
+               
                 >
                     <View style={styles.card}>
                         <Image source={require("../../../assets/images/eventnews/image4.jpg")} style={styles.image} />
@@ -71,9 +63,7 @@ const ViewAllEventNews = () => {
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity activeOpacity={1} style={styles.card}
-                onPress={() => {
-                    navigation.navigate("EventNews5");
-                }}
+            
                 >
                     <View style={styles.card}>
                         <Image source={require("../../../assets/images/eventnews/hibi_sori.jpg")} style={styles.image} />

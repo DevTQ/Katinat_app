@@ -6,9 +6,10 @@ import {
     OrderScreen, Setting, HomeScreen, Notification
 } from "../screens";
 import { 
-    ProductList,
-    RambutanMilkTea, 
-    ViewAllEventNews, EventNews, RegisterComponent, 
+    ViewAllBestSeller,
+    productDetail, 
+    ViewAllEventNews, EventNews, RegisterComponent,
+    ViewAllForYou, 
 } from "../components";
 
 
@@ -17,8 +18,8 @@ export type RootStackParams = {
     // Param các chức năng chính
     HomeGuest: undefined; HomeScreen: undefined; Order: undefined; Account: undefined; Setting: undefined;Login: undefined; Register: undefined; Notification: undefined;
     // Param xem tất cả sản phẩm
-    ProductList: undefined; 
-    RambutanMilkTea:undefined;
+    ViewAllBestSeller: undefined;  ViewAllForYou: undefined;
+    productDetail: { productId: number };
     Rambutan: undefined;
     ViewAllEventNews: undefined; EventNews: undefined;
     RegisterComponent: { phoneNumber: string, referralCode: string};
@@ -35,14 +36,15 @@ const AuthNavigator = () => {
                 <RootStack.Screen name="Notification" component={Notification} options={{ headerShown: false }} />
                 <RootStack.Screen name="Account" component={AccountBar} options={{ headerShown: false }} />
                 <RootStack.Screen name="Order" component={OrderScreen} options={{ headerShown: false }} />
-                <RootStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+                <RootStack.Screen name="Login" component={LoginScreen} options={{animation: "none", headerShown: false }} />
                 <RootStack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
                 <RootStack.Screen name="RegisterComponent" component={RegisterComponent} options={{ headerShown: false }} />
                 <RootStack.Screen name="Setting" component={Setting} options={{ headerShown: false }} />
         
                 {/* Các màn hình con của Home */}
-                <RootStack.Screen name="ProductList" component={ProductList} options={{ headerShown: false }} />
-                <RootStack.Screen name="RambutanMilkTea" component={RambutanMilkTea} options={{ headerShown: false }} />
+                <RootStack.Screen name="ViewAllBestSeller" component={ViewAllBestSeller} options={{ headerShown: false }} />
+                <RootStack.Screen name="ViewAllForYou" component={ViewAllForYou} options={{ headerShown: false }} />
+                <RootStack.Screen name="productDetail" component={productDetail} options={{ headerShown: false }} />
    
                 {/* Các màn hình con của Tin Tức - Sự Kiện */}
                 <RootStack.Screen name="ViewAllEventNews" component={ViewAllEventNews} options={{ headerShown: false }} />

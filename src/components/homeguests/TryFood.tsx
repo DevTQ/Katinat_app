@@ -1,52 +1,56 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView, StyleSheet, FlatList, View, Image, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../../navigators/MainNavigator";
-
-const products = [
-    { id: "1", name: "Bơ già dừa non (L)", price: "64.000đ", image: require('../../../assets/images/bestsellers/Bogia_duanon.jpg')  },
-    { id: "2", name: "Trà sữa chôm chôm", price: "59.000đ", image: require('../../../assets/images/bestsellers/chomchom.jpg') },
-    { id: "3", name: "Cóc cóc đác đác (L)", price: "69.000đ", image: require('../../../assets/images/bestsellers/coccoc_dacdac.jpg') },
-    { id: "4", name: "Huyền châu đường mật (L)", price: "69.000đ", image: require('../../../assets/images/bestsellers/hc_duong_mat.jpg')}
-];
+import axiosClient from "src/services/axiosClient";
 
 const TryFood = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+    const [products, setProducts] = useState<any[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await axiosClient.get("/products", {
+                    params: { page: 2, limit: 4 },
+                });
+                setProducts(response.data.products); 
+            } catch (error) {
+                console.error("Lỗi khi lấy danh sách sản phẩm:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        fetchProducts();
+    }, []);    
 
     const renderItem = ({ item }: {item: any}) => (
         <TouchableOpacity 
             style={styles.card}
             activeOpacity={1}
             onPress={() => {
-                switch (item.id) {
-                    case "1":
-                        navigation.navigate("Avocado");
-                        break;
-                    case "2":
-                        navigation.navigate("Rambutan");
-                        break;
-                    case "3":
-                        navigation.navigate("AmbarellaPalm");
-                        break;
-                    case "4":
-                        navigation.navigate("BlackPearlSugar");
-                        break;
-                        default:
-                        console.warn("Không có sản phẩm này!");
-                        break;
+                if (!item.productId) {
+                    console.error("Lỗi: productId không hợp lệ", item);
+                    return;
                 }
-            }}>
-            <Image 
-                source={typeof item.image === "string" ? { uri: item.image } : item.image} 
-                style={styles.image} 
+                navigation.navigate("productDetail", { productId: item.productId });
+            }}      
+            >
+            <Image
+                source={{ uri: item.image }} 
+                style={styles.image}
             />
             <View style={styles.bottomCard}>
                 <Text style={styles.name} numberOfLines={2}>
                     {item.name}
                 </Text>
                 <View style={styles.priceContainer}>
-                    <Text style={styles.price}>{item.price}</Text>
+                    <Text style={{ fontSize: 15, color: '#104358', marginLeft: 10 }}>
+                        {Number(item.price).toFixed(3).replace(/\./g, ",")}đ
+                    </Text>
                     <TouchableOpacity style={styles.addButton}>
                         <Text style={styles.addText}>+</Text>
                     </TouchableOpacity>
@@ -60,9 +64,6 @@ const TryFood = () => {
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>MÓN NGON PHẢI THỬ</Text>
                 <TouchableOpacity
-                onPress={() => {
-                    navigation.navigate("ViewAllTryFood");
-                }}
                 >
                     <Text style={styles.viewAll}>Xem tất cả</Text>
                 </TouchableOpacity>
@@ -119,14 +120,14 @@ const styles = StyleSheet.create({
         height: 150,
     },
     bottomCard: {
-        flex: 1,  // Để đảm bảo phần này có thể co giãn
+        flex: 1,  
         justifyContent: 'space-between',
         marginLeft: 10,
     },
     name: {
         fontSize: 15,
         fontWeight: "bold",
-        maxWidth: 120,  // Giới hạn chiều rộng để đảm bảo xuống dòng
+        maxWidth: 120, 
         flexWrap: 'wrap',
         color: '#104358'
     },

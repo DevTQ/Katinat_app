@@ -22,16 +22,16 @@ const EventNews = () => {
             onPress={() => {
               switch (item.id) {
                   case "1":
-                      navigation.navigate("EventNews1");
+                      
                       break;
                   case "2":
-                      navigation.navigate("EventNews2");
+                      
                       break;
                   case "3":
-                      navigation.navigate("EventNews3");
+                     
                       break;
                   case "4":
-                      navigation.navigate("EventNews4");
+                     
                       break;
                       default:
                       console.warn("Không có sản phẩm này!");
