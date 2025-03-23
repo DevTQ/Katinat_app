@@ -63,15 +63,16 @@ const TryFood = () => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>MÓN NGON PHẢI THỬ</Text>
-                <TouchableOpacity
-                >
-                    <Text style={styles.viewAll}>Xem tất cả</Text>
+                <TouchableOpacity onPress={() => navigation.navigate("ViewAllTryFood")}>
+                    <Text style={{ marginRight: 15, color: '#b6a68d', fontSize: 13 }}>
+                        Xem tất cả
+                    </Text>
                 </TouchableOpacity>
             </View>
             <FlatList
                 data={products}
                 renderItem={renderItem}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.productId?.toString() || Math.random().toString()}
                 horizontal
                 style={styles.list}
                 showsHorizontalScrollIndicator={false}

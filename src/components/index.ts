@@ -1,5 +1,6 @@
 export { default as ViewAllBestSeller } from "./homeguests/ViewAllBestSeller";
-export { default as ViewAllForYou} from "./homeguests/ViewAllForYou";
+export { default as ViewAllForYou } from "./homeguests/ViewAllForYou";
+export { default as ViewAllTryFood } from "./homeguests/ViewAllTryFood";
 
 export { default as productDetail } from "./viewallproducts/ProductDetail";
 // Các thành phần của TryFood

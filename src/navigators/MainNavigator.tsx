@@ -9,7 +9,7 @@ import {
     ViewAllBestSeller,
     productDetail, 
     ViewAllEventNews, EventNews, RegisterComponent,
-    ViewAllForYou, 
+    ViewAllForYou, ViewAllTryFood
 } from "../components";
 
 
@@ -18,7 +18,7 @@ export type RootStackParams = {
     // Param các chức năng chính
     HomeGuest: undefined; HomeScreen: undefined; Order: undefined; Account: undefined; Setting: undefined;Login: undefined; Register: undefined; Notification: undefined;
     // Param xem tất cả sản phẩm
-    ViewAllBestSeller: undefined;  ViewAllForYou: undefined;
+    ViewAllBestSeller: undefined;  ViewAllForYou: undefined; ViewAllTryFood: undefined;
     productDetail: { productId: number };
     Rambutan: undefined;
     ViewAllEventNews: undefined; EventNews: undefined;
@@ -44,6 +44,7 @@ const AuthNavigator = () => {
                 {/* Các màn hình con của Home */}
                 <RootStack.Screen name="ViewAllBestSeller" component={ViewAllBestSeller} options={{ headerShown: false }} />
                 <RootStack.Screen name="ViewAllForYou" component={ViewAllForYou} options={{ headerShown: false }} />
+                <RootStack.Screen name="ViewAllTryFood" component={ViewAllTryFood} options={{ headerShown: false }} />
                 <RootStack.Screen name="productDetail" component={productDetail} options={{ headerShown: false }} />
    
                 {/* Các màn hình con của Tin Tức - Sự Kiện */}
