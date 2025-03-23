@@ -100,9 +100,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   logoGreetingContainer: {
-    flexDirection: 'row', // Bố cục hàng ngang
-    alignItems: 'center', // Căn giữa theo trục dọc
-    justifyContent: 'space-between', // Đẩy các phần tử cách đều
+    flexDirection: 'row', 
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 16,
   },
   logo: {

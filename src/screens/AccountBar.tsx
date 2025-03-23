@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     },
     logoGreetingContainer: {
         flexDirection: 'row', 
-        alignItems: 'center', // Căn giữa theo trục dọc
+        alignItems: 'center',
         marginBottom: 16,
     },
     logo: {

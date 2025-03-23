@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, StyleSheet, FlatList, View, Image, Text, TouchableOpacity } from "react-native";
+import { SafeAreaView, StyleSheet, FlatList, View, Image, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../../navigators/MainNavigator";
@@ -69,6 +69,9 @@ const TryFood = () => {
                     </Text>
                 </TouchableOpacity>
             </View>
+            {loading ? (
+                <ActivityIndicator size="large" color="#104358" />
+            ) : (
             <FlatList
                 data={products}
                 renderItem={renderItem}
@@ -77,6 +80,7 @@ const TryFood = () => {
                 style={styles.list}
                 showsHorizontalScrollIndicator={false}
             />
+        )}
         </SafeAreaView>
     );
 }

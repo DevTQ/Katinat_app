@@ -32,7 +32,7 @@ const appBar = () => {
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}
             onPress={() => {
-                // đến cửa hàng
+                navigation.navigate("StoreScreen")
             }}
             >
                 <Image source={IconStore} style={{width: 35, height: 35}}/>

@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { 
     LoginScreen, HomeGuestScreen, RegisterScreen, AccountBar, 
-    OrderScreen, Setting, HomeScreen, Notification
+    OrderScreen, Setting, HomeScreen, Notification, StoreScreen
 } from "../screens";
 import { 
     ViewAllBestSeller,
@@ -16,7 +16,8 @@ import {
 
 export type RootStackParams = {
     // Param các chức năng chính
-    HomeGuest: undefined; HomeScreen: undefined; Order: undefined; Account: undefined; Setting: undefined;Login: undefined; Register: undefined; Notification: undefined;
+    HomeGuest: undefined; HomeScreen: undefined; Order: undefined; Account: undefined; Setting: undefined;Login: undefined; 
+    Register: undefined; Notification: undefined; StoreScreen: undefined;
     // Param xem tất cả sản phẩm
     ViewAllBestSeller: undefined;  ViewAllForYou: undefined; ViewAllTryFood: undefined;
     productDetail: { productId: number };
@@ -40,6 +41,7 @@ const AuthNavigator = () => {
                 <RootStack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
                 <RootStack.Screen name="RegisterComponent" component={RegisterComponent} options={{ headerShown: false }} />
                 <RootStack.Screen name="Setting" component={Setting} options={{ headerShown: false }} />
+                <RootStack.Screen name="StoreScreen" component={StoreScreen} options={{ headerShown: false }} />
         
                 {/* Các màn hình con của Home */}
                 <RootStack.Screen name="ViewAllBestSeller" component={ViewAllBestSeller} options={{ headerShown: false }} />
