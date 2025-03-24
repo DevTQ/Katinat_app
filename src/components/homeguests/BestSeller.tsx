@@ -30,7 +30,7 @@ const BestSeller = () => {
     
     const renderItem = ({ item }: { item: any }) => (
         <TouchableOpacity
-            activeOpacity={1}
+            activeOpacity={1}      
             onPress={() => {
                 if (!item.productId) {
                     console.error("Lỗi: productId không hợp lệ", item);

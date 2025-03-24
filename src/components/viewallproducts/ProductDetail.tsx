@@ -8,7 +8,6 @@ import { useNavigation, useFocusEffect, useRoute } from "@react-navigation/nativ
 import Ionicons from '@expo/vector-icons/Ionicons';
 import axiosClient from "../../services/axiosClient";
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { navigateToPreviousScreen } from "../../utils/navigationHelper";
 import {useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { addProduct, deleteProduct } from "../../redux/slice/cartSlice";

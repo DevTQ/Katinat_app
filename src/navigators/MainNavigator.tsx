@@ -17,7 +17,7 @@ import {
 export type RootStackParams = {
     // Param các chức năng chính
     HomeGuest: undefined; HomeScreen: undefined; Order: undefined; Account: undefined; Setting: undefined;Login: undefined; 
-    Register: undefined; Notification: undefined; StoreScreen: undefined;
+    Register: undefined; Notification: undefined; StoreScreen: {storeId: number};
     // Param xem tất cả sản phẩm
     ViewAllBestSeller: undefined;  ViewAllForYou: undefined; ViewAllTryFood: undefined;
     productDetail: { productId: number };
