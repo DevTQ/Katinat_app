@@ -1,44 +1,35 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, FlatList
 } from "react-native";
 import { AppBar } from "src/components/orders";
 import { RootStackParams } from "src/navigators/MainNavigator";
-
-const Stores = [
-    {
-        store_id: 1, name: 'KATINAT Quỳnh Mai',
-        image: require("../../assets/images/imageproducts/KMDN.jpg"),
-        store_address: 'E6 Quỳnh Mai, Ngõ E6, Quỳnh Mai, \nHai Bà Trưng, Hà Nội',
-        open_hours: '07:00', close_time: '23:00', distance: '1,68km'
-    },
-    {
-        store_id: 2, name: 'KATINAT Thủy Tạ',
-        image: require("../../assets/images/imageproducts/KMDN.jpg"),
-        store_address: 'E6 Quỳnh Mai, Ngõ E6, Quỳnh Mai, \nHai Bà Trưng, Hà Nội',
-        open_hours: '07:00', close_time: '23:00', distance: '2,68km'
-    },
-    {
-        store_id: 3, name: 'KATINAT Lý Thường Kiệt',
-        image: require("../../assets/images/imageproducts/KMDN.jpg"),
-        store_address: 'E6 Quỳnh Mai, Ngõ E6, Quỳnh Mai, \nHai Bà Trưng, Hà Nội',
-        open_hours: '07:00', close_time: '22:30', distance: '3,68km'
-    },
-    {
-        store_id: 4, name: 'KATINAT KKKK',
-        image: require("../../assets/images/imageproducts/KMDN.jpg"),
-        store_address: 'E6 Quỳnh Mai, Ngõ E6, Quỳnh Mai, \nHai Bà Trưng, Hà Nội',
-        open_hours: '07:00', close_time: '22:30', distance: '3,68km'
-    },
-
-]
+import axiosClient from "src/services/axiosClient";
 
 const StoreScreen = () => {
     const [stores, setStores] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await axiosClient.get("/stores", {
+                    params: { page: 0, limit: 8 },
+                });
+                setStores(response.data.stores); 
+            } catch (error) {
+                console.error("Lỗi khi lấy danh sách cửa hàng:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        fetchProducts();
+    }, []);  
+      
     const renderItem = ({ item }: { item: any }) => (
         <ScrollView>
             <TouchableOpacity
@@ -54,18 +45,19 @@ const StoreScreen = () => {
             >
                 <View style={{ flexDirection: 'row' }}>
                     <Image
-                        source={item.image} style={styles.image}
+                        source={{ uri: item.image }}
+                         style={styles.image}
                     />
                     <View style={styles.content}>
-                        <Text style={styles.name}>{item.name}</Text>
-                        <Text style={styles.address}>{item.store_address}</Text>
+                        <Text style={styles.name}>{item.storeName}</Text>
+                        <Text style={styles.address}>{item.storeAddress}</Text>
                         <Text style={styles.address}>
                             <Text style={{ fontWeight: '500', color: '#102027' }}>Giờ mở cửa: </Text>
-                            {item.open_hours}
+                            {item.openingHours}
                         </Text>
                         <Text style={styles.address}>
                             <Text style={{ fontWeight: '500', color: '#102027' }}>Giờ đóng cửa: </Text>
-                            {item.close_time}</Text>
+                            {item.closingTime}</Text>
                         <Text style={{ color: '#C1AA88' }}>
                             <Text style={{ color: '#0F4359' }}>Cách đây</Text> {item.distance}
                         </Text>
@@ -131,7 +123,7 @@ const StoreScreen = () => {
                 </View>
             </View>
             <FlatList
-                data={Stores}
+                data={stores}
                 numColumns={1}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.store_id?.toString() || Math.random().toString()}

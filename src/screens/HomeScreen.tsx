@@ -14,8 +14,6 @@ import { Validate } from "../utils/validate";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 
-
-
 const HomeScreen = () => {
   const username = useSelector((state: RootState) => state.user.username);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
@@ -38,7 +36,9 @@ const HomeScreen = () => {
             <Text style={styles.customerText}>{username}</Text>
         </View>
           <View style={{flexDirection: 'row',}}>
-            <TouchableOpacity>
+            <TouchableOpacity
+            onPress={() => navigation.navigate("Voucher")}
+            >
               <Image source={require("../../assets/images/icons/giam-gia.png")} 
               style={{width: 35, height: 35, marginRight: 15}}
             />

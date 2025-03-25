@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { 
     LoginScreen, HomeGuestScreen, RegisterScreen, AccountBar, 
-    OrderScreen, Setting, HomeScreen, Notification, StoreScreen
+    OrderScreen, Setting, HomeScreen, Notification, StoreScreen, Voucher
 } from "../screens";
 import { 
     ViewAllBestSeller,
@@ -17,7 +17,7 @@ import {
 export type RootStackParams = {
     // Param các chức năng chính
     HomeGuest: undefined; HomeScreen: undefined; Order: undefined; Account: undefined; Setting: undefined;Login: undefined; 
-    Register: undefined; Notification: undefined; StoreScreen: {storeId: number};
+    Register: undefined; Notification: undefined; StoreScreen: {storeId: number}; Voucher: undefined;
     // Param xem tất cả sản phẩm
     ViewAllBestSeller: undefined;  ViewAllForYou: undefined; ViewAllTryFood: undefined;
     productDetail: { productId: number };
@@ -30,7 +30,7 @@ const AuthNavigator = () => {
     const RootStack = createNativeStackNavigator<RootStackParams>();
         return (
         <NavigationContainer>
-            <RootStack.Navigator initialRouteName="HomeGuest" screenOptions={{ animation: "none", headerBackTitle: ""}}>
+            <RootStack.Navigator initialRouteName="HomeScreen" screenOptions={{ animation: "none", headerBackTitle: ""}}>
                 {/* Các màn hình chính của App*/}
                 <RootStack.Screen name="HomeGuest" component={HomeGuestScreen} options={{ headerShown: false }} />
                 <RootStack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
@@ -42,6 +42,7 @@ const AuthNavigator = () => {
                 <RootStack.Screen name="RegisterComponent" component={RegisterComponent} options={{ headerShown: false }} />
                 <RootStack.Screen name="Setting" component={Setting} options={{ headerShown: false }} />
                 <RootStack.Screen name="StoreScreen" component={StoreScreen} options={{ headerShown: false }} />
+                <RootStack.Screen name="Voucher" component={Voucher} options={{ headerShown: false }} />
         
                 {/* Các màn hình con của Home */}
                 <RootStack.Screen name="ViewAllBestSeller" component={ViewAllBestSeller} options={{ headerShown: false }} />
