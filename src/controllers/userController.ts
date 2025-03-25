@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../navigators/MainNavigator";
 import authenticationAPI from "../services/authApi";
@@ -156,7 +156,7 @@ export const RegisterComponentController = (phoneNumber?: string, referralCode?:
 
 export const useLoginController = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
-    const dispatch = useDispatch(); // Dùng dispatch để gọi action
+    const dispatch = useDispatch(); 
     const [isLoading, setIsLoading] = useState(false);
     const [values, setValues] = useState(new LoginDTO());
     const [errorMessage, setErrorMessage] = useState("");
@@ -192,12 +192,23 @@ export const useLoginController = () => {
                 values,
                 "post"
             );
+    
             if (res?.data?.token) {
                 await TokenService.setToken(res.data.token);
+                
                 if (res.data.user?.fullname) {
                     dispatch(setUser(res.data.user.fullname)); 
-                } 
-                navigation.navigate("HomeScreen");
+                }
+    
+                setTimeout(() => {
+                    navigation.dispatch(
+                        CommonActions.reset({
+                            index: 0,
+                            routes: [{ name: "HomeScreen" }],
+                        })
+                    );
+                }, 100);         
+    
             } else {
                 setErrorMessage("Tài khoản hoặc mật khẩu không chính xác!");
             }

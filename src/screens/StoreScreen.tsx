@@ -13,63 +13,63 @@ const StoreScreen = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
 
+
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const response = await axiosClient.get("/stores", {
                     params: { page: 0, limit: 8 },
                 });
-                setStores(response.data.stores); 
+                setStores(response.data.stores);
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách cửa hàng:", error);
             } finally {
                 setLoading(false);
             }
         };
-    
+
         fetchProducts();
-    }, []);  
-      
+    }, []);
+
     const renderItem = ({ item }: { item: any }) => (
-        <ScrollView>
-            <TouchableOpacity
-                activeOpacity={1}
-                onPress={() => {
-                    if (!item.store_id) {
-                        console.error("Lỗi: productId không hợp lệ", item);
-                        return;
-                    }
-                    navigation.navigate("StoreScreen", { storeId: item.store_id });
-                }}
-                style={styles.card}
-            >
-                <View style={{ flexDirection: 'row' }}>
-                    <Image
-                        source={{ uri: item.image }}
-                         style={styles.image}
-                    />
-                    <View style={styles.content}>
-                        <Text style={styles.name}>{item.storeName}</Text>
-                        <Text style={styles.address}>{item.storeAddress}</Text>
-                        <Text style={styles.address}>
-                            <Text style={{ fontWeight: '500', color: '#102027' }}>Giờ mở cửa: </Text>
-                            {item.openingHours}
-                        </Text>
-                        <Text style={styles.address}>
-                            <Text style={{ fontWeight: '500', color: '#102027' }}>Giờ đóng cửa: </Text>
-                            {item.closingTime}</Text>
-                        <Text style={{ color: '#C1AA88' }}>
-                            <Text style={{ color: '#0F4359' }}>Cách đây</Text> {item.distance}
-                        </Text>
-                    </View>
+
+        <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {
+                if (!item.store_id) {
+                    console.error("Lỗi: productId không hợp lệ", item);
+                    return;
+                }
+                navigation.navigate("StoreScreen", { storeId: item.store_id });
+            }}
+            style={styles.card}
+        >
+            <View style={{ flexDirection: 'row' }}>
+                <Image
+                    source={{ uri: item.image }}
+                    style={styles.image}
+                />
+                <View style={styles.content}>
+                    <Text style={styles.name}>{item.storeName}</Text>
+                    <Text style={styles.address}>{item.storeAddress}</Text>
+                    <Text style={styles.address}>
+                        <Text style={{ fontWeight: '500', color: '#102027' }}>Giờ mở cửa: </Text>
+                        {item.openingHours}
+                    </Text>
+                    <Text style={styles.address}>
+                        <Text style={{ fontWeight: '500', color: '#102027' }}>Giờ đóng cửa: </Text>
+                        {item.closingTime}</Text>
+                    <Text style={{ color: '#C1AA88' }}>
+                        <Text style={{ color: '#0F4359' }}>Cách đây</Text> {item.distance}
+                    </Text>
                 </View>
-                <View style={styles.line}></View>
-                <View style={{flexDirection: 'row', marginTop: 40, justifyContent: 'space-between'}}>
-                    <Text style={[styles.textContent, {marginLeft: 50}]}>Chỉ đường</Text>
-                    <Text style={[styles.textContent, {marginRight: 120}]}>Đặt món</Text>
-                </View>
-            </TouchableOpacity>
-        </ScrollView>
+            </View>
+            <View style={styles.line}></View>
+            <View style={{ flexDirection: 'row', marginTop: 40, justifyContent: 'space-between' }}>
+                <Text style={[styles.textContent, { marginLeft: 50 }]}>Chỉ đường</Text>
+                <Text style={[styles.textContent, { marginRight: 120 }]}>Đặt món</Text>
+            </View>
+        </TouchableOpacity>
     );
     return (
         <SafeAreaView style={styles.header}>
@@ -82,7 +82,7 @@ const StoreScreen = () => {
             <View style={styles.body}>
                 <View style={{ flexDirection: 'row' }}>
                     <Image source={require("../../assets/images/icons/search-icon.png")}
-                    style={styles.search_icon}
+                        style={styles.search_icon}
                     />
                     <TextInput
                         style={styles.input}

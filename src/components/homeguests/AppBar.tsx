@@ -8,15 +8,23 @@ import IconOrder from "../../../assets/images/icons/order.png";
 import IconHome from "../../../assets/images/icons/home_icon.png";
 import IconStore from "../../../assets/images/icons/store.png";
 import IconAccount from "../../../assets/images/icons/account.png";
+import { useSelector } from "react-redux"; // Thêm useSelector
+import { RootState } from "src/redux/store"; // Import RootState
 
 
 const appBar = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+    const user = useSelector((state: RootState) => state.auth.user);
     return(
         <View style={styles.container}>
             <TouchableOpacity style={styles.button}
             onPress={() => {
-                navigation.navigate("HomeGuest");
+                console.log("🚀 User khi nhấn Trang chủ: ", user);
+                if (user) {
+                    navigation.navigate("HomeScreen");
+                } else {
+                    navigation.navigate("HomeGuest"); 
+                }
             }}
             >
                 <Image source={IconHome} style={{width: 40, height: 40}}/>
@@ -32,7 +40,7 @@ const appBar = () => {
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}
             onPress={() => {
-                navigation.navigate("StoreScreen")
+                navigation.navigate("StoreScreen");
             }}
             >
                 <Image source={IconStore} style={{width: 35, height: 35}}/>
