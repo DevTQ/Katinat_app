@@ -11,3 +11,4 @@ export { default as ViewAllEventNews } from "./homeguests/ViewAllEventNews";
 export { default as EventNews } from "./eventnews/EventNews";
 
 export { default as RegisterComponent } from '../screens/RegisterComponent';
+export { default as CartDetail } from "../components/carts/CartDetail";

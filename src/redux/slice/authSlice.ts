@@ -1,34 +1,27 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface User {
-  id: number;
-  phoneNumber: string;
-  name: string;
-  email?: string;
-}
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {
-  user: User | null;
+    user: any | null;
+    isLoading: boolean;
 }
 
 const initialState: AuthState = {
-  user: null,
+    user: null,
+    isLoading: false,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (state, action: PayloadAction<User>) => {
-      console.log("🚀 Redux nhận user:", action.payload);
+    setUser: (state, action: PayloadAction<any>) => {
       state.user = action.payload;
     },
     logout: (state) => {
-      console.log("🚪 User logout");
       state.user = null;
     },
   },
 });
 
-export const { login, logout } = authSlice.actions;
+export const { setUser, logout } = authSlice.actions;
 export default authSlice.reducer;

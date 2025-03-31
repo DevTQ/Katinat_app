@@ -3,9 +3,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface Product {
   id: number;
   name: string;
+  image: string;
   price: number;
   quantity: number;
   toppings: { [key: string]: number };
+  sugar?: string;
+  ice?: string; 
 }
 
 interface CartState {

@@ -8,28 +8,82 @@ import { AppBar } from "src/components/orders";
 import { RootStackParams } from "src/navigators/MainNavigator";
 import axiosClient from "src/services/axiosClient";
 
+import * as Location from 'expo-location';
+import { useSelector } from "react-redux";
+import { RootState } from "src/redux/store";
+
 const StoreScreen = () => {
     const [stores, setStores] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
-
+    const [location, setLocation] = useState<Location.LocationObject | null>(null);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        async function getCurrentLocation() {
+          
+          let { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== 'granted') {
+            setErrorMsg('Permission to access location was denied');
+            return;
+          }
+    
+          let location = await Location.getCurrentPositionAsync({});
+          setLocation(location);
+        }
+    
+        getCurrentLocation();
+    }, []);
+    
+    useEffect(() => {
+        const fetchStores = async () => {
+            setLoading(true);
             try {
                 const response = await axiosClient.get("/stores", {
                     params: { page: 0, limit: 8 },
                 });
-                setStores(response.data.stores);
+    
+                let storesWithDistance = response.data.stores;
+    
+                if (location) {
+                    storesWithDistance = storesWithDistance.map((store: any) => {
+                        const distance = calculateDistance(
+                            location.coords.latitude, location.coords.longitude,
+                            store.latitude, store.longitude
+                        );
+                        return { ...store, distance: distance.toFixed(2) + " km" };
+                    });
+    
+                    storesWithDistance.sort((a: any, b: any) => parseFloat(a.distance) - parseFloat(b.distance));
+                }
+    
+                setStores(storesWithDistance);
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách cửa hàng:", error);
             } finally {
                 setLoading(false);
             }
         };
+    
+        if (location) {
+            fetchStores();
+        }
+        }, [location]);    
 
-        fetchProducts();
-    }, []);
+    const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const toRad = (value: number) => (value * Math.PI) / 180;
+        
+        const R = 6371;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    };
 
     const renderItem = ({ item }: { item: any }) => (
 
@@ -130,7 +184,7 @@ const StoreScreen = () => {
                 style={styles.card}
                 showsVerticalScrollIndicator={false}
             />
-            <AppBar />
+            <AppBar/>
         </SafeAreaView>
     )
 };

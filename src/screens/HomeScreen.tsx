@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image } from "react-native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Banner from "../components/homeguests/Banner";
@@ -14,9 +14,11 @@ import { Validate } from "../utils/validate";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 
+
 const HomeScreen = () => {
-  const username = useSelector((state: RootState) => state.user.username);
+  const user = useSelector((state: RootState) => state.auth.user);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+  
   return (
     <SafeAreaView style={styles.header}>
       <ScrollView>
@@ -33,7 +35,7 @@ const HomeScreen = () => {
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.greetingText}>{Validate.checkTime(new Date())}</Text>
-            <Text style={styles.customerText}>{username}</Text>
+            <Text style={styles.customerText}>{user ? user.fullname : "Khách"}</Text>
         </View>
           <View style={{flexDirection: 'row',}}>
             <TouchableOpacity
@@ -43,19 +45,26 @@ const HomeScreen = () => {
               style={{width: 35, height: 35, marginRight: 15}}
             />
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity
+            onPress={() => navigation.navigate("Notification")}
+            >
               <FontAwesome name="bell-o" size={24} color="#104358" style={styles.bellIcon} />
             </TouchableOpacity>
           </View>
         </View>
         <Banner/>
         <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity style={[styles.cart, {marginLeft: 20}]}>
+          <TouchableOpacity style={[styles.cart, {marginLeft: 20}]}
+            onPress={() => navigation.navigate("Order")}
+          >
             <Image source={require("../../assets/images/Giaohang.png")}
             style={styles.image}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.cart, {marginLeft: 15}]}>
+          <TouchableOpacity style={[styles.cart, {marginLeft: 15}]}
+          onPress={() => navigation.navigate("StoreScreen")
+          }
+          >
             <Image source={require("../../assets/images/laytannoi.png")}
             style={styles.image}/>
           </TouchableOpacity>

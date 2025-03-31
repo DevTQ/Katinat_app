@@ -11,7 +11,7 @@ import { userService } from "src/services/userService";
 import LoginDTO from "@dtos/loginDTO";
 import TokenService from "src/services/tokenService";
 import { useDispatch } from "react-redux";
-import { setUser } from "../redux/slice/userSlice";
+import { setUser } from "../redux/slice/authSlice"; 
 
 export const RegisterScreenController = () => {
     
@@ -196,19 +196,16 @@ export const useLoginController = () => {
             if (res?.data?.token) {
                 await TokenService.setToken(res.data.token);
                 
-                if (res.data.user?.fullname) {
-                    dispatch(setUser(res.data.user.fullname)); 
-                }
+                if (res.data.user) {
+                    dispatch(setUser(res.data.user));
+                }                
     
-                setTimeout(() => {
-                    navigation.dispatch(
-                        CommonActions.reset({
-                            index: 0,
-                            routes: [{ name: "HomeScreen" }],
-                        })
-                    );
-                }, 100);         
-    
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: "HomeScreen" }],
+                    })
+                );     
             } else {
                 setErrorMessage("Tài khoản hoặc mật khẩu không chính xác!");
             }

@@ -3,7 +3,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 class TokenService {
   static async setToken(token: string) {
     try {
-        console.log("Lưu token vào AsyncStorage:", token);
         await AsyncStorage.setItem("token", token);
         console.log("Lưu token thành công!");
       } catch (error) {
