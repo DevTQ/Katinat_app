@@ -1,12 +1,16 @@
 import React, { useState } from "react";
-import { 
-  StyleSheet, 
-  View, 
-  Text, 
-  SafeAreaView, 
-  TextInput, 
-  ImageBackground, 
-  TouchableOpacity 
+import {
+  StyleSheet,
+  View,
+  Text,
+  SafeAreaView,
+  TextInput,
+  ImageBackground,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  Keyboard
 } from "react-native";
 import ImageBack from "../../assets/images/login-register.jpg";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -16,105 +20,120 @@ import { RootStackParams } from "../navigators/MainNavigator";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { LoadingModal } from "../modals";
 import { navigateToPreviousScreen } from "../utils/navigationHelper";
-import { RegisterScreenController} from "../controllers/userController";
-
+import { RegisterScreenController } from "../controllers/userController";
 
 const RegisterScreen = () => {
+  const isPhoneNumberValid = (phone: string) => {
+    const phoneRegex = /^(0|\+84)[0-9]{9}$/;
+    return phoneRegex.test(phone);
+  };
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
   const { values, selected, isLoading, errorMessage, toggleRadioButton, handleChangeValue, handleRegister } =
-  RegisterScreenController();
-  
+    RegisterScreenController();
+
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
-        {/* Nút quay lại */}
-        <TouchableOpacity onPress={() => navigation.navigate("HomeGuest")} style={styles.backButton}>
-          <AntDesign name="arrowleft" size={22} color="white" />
-        </TouchableOpacity>
+      <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+        <SafeAreaView style={styles.container}>
+          {/* Nút quay lại */}
+          <TouchableOpacity onPress={() => navigation.navigate("HomeGuest")} style={styles.backButton}>
+            <AntDesign name="arrowleft" size={22} color="white" />
+          </TouchableOpacity>
 
-        {/* Background */}
-        <View style={styles.topContainer}>
-          <ImageBackground source={ImageBack} style={styles.image} resizeMode="cover" />
-        </View>
-
-        {/* Nội dung */}
-        <View style={styles.bottomContainer}>
-          {/* Tiêu đề */}
-          <View style={styles.title}>
-            <View style={styles.row}>
-              <TouchableOpacity
-              onPress={() => navigateToPreviousScreen(navigation)}
-              >
-                <Text style={[styles.titleText, styles.active]}>ĐĂNG KÝ</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                <Text style={styles.titleText}>ĐĂNG NHẬP</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.Text}>Nhập SĐT đã sử dụng đăng ký thành viên trước đó (nếu có)</Text>
+          {/* Background */}
+          <View style={styles.topContainer}>
+            <ImageBackground source={ImageBack} style={styles.image} resizeMode="cover" />
           </View>
 
-          {/* Form đăng ký */}
-          <View style={styles.body}>
-            <Text style={styles.label}>Số điện thoại</Text>
-            <View style={styles.inputContainer}>
-              <TextInput 
-                style={styles.input} 
-                keyboardType="numeric" 
-                value={values.phoneNumber}
-                onChangeText={(text) => handleChangeValue("phoneNumber", text)}
-              />
-            </View>
-              {
-                errorMessage && <Text style={{marginTop: 5,color: '#DEB887', fontSize: 14, fontWeight: 'bold'}}>{errorMessage}</Text>
-              }
-            <View>
-              <TouchableOpacity onPress={toggleRadioButton} style={styles.radioButtonContainer}>
-                <View style={styles.radioButton}>
-                  {selected && <Ionicons name="checkmark" style={styles.icon} />}
+          {/* Nội dung */}
+          <KeyboardAvoidingView
+            style={styles.bottomContainer}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+          >
+            <View style={styles.bottomContainer}>
+              {/* Tiêu đề */}
+              <View style={styles.title}>
+                <View style={styles.row}>
+                  <TouchableOpacity
+                    onPress={() => navigateToPreviousScreen(navigation)}
+                  >
+                    <Text style={[styles.titleText, styles.active]}>ĐĂNG KÝ</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                    <Text style={styles.titleText}>ĐĂNG NHẬP</Text>
+                  </TouchableOpacity>
                 </View>
-                <Text style={styles.radioButtonText}>
-                  Bạn đã có mã giới thiệu từ lời mời của bạn bè
-                </Text>
-              </TouchableOpacity>
+                <Text style={styles.Text}>Nhập SĐT đã sử dụng đăng ký thành viên trước đó (nếu có)</Text>
+              </View>
 
-              {selected && (
+              {/* Form đăng ký */}
+              <View style={styles.body}>
+                <Text style={styles.label}>Số điện thoại</Text>
                 <View style={styles.inputContainer}>
-                  <TextInput 
-                    style={styles.input} 
-                    value={values.referralCode}
-                    onChangeText={(text) => handleChangeValue("referralCode", text)}
+                  <TextInput
+                    style={styles.input}
+                    keyboardType="numeric"
+                    value={values.phoneNumber}
+                    onChangeText={(text) => handleChangeValue("phoneNumber", text)}
                   />
                 </View>
-              )}
+                {
+                  errorMessage && <Text style={{ marginTop: 5, color: '#DEB887', fontSize: 14, fontWeight: 'bold' }}>{errorMessage}</Text>
+                }
+                <View>
+                  <TouchableOpacity onPress={toggleRadioButton} style={styles.radioButtonContainer}>
+                    <View style={styles.radioButton}>
+                      {selected && <Ionicons name="checkmark" style={styles.icon} />}
+                    </View>
+                    <Text style={styles.radioButtonText}>
+                      Bạn đã có mã giới thiệu từ lời mời của bạn bè
+                    </Text>
+                  </TouchableOpacity>
+
+                  {selected && (
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        style={styles.input}
+                        value={values.referralCode}
+                        onChangeText={(text) => handleChangeValue("referralCode", text)}
+                      />
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              {/* Nút đăng ký */}
+              <View style={styles.bottom}>
+                <TouchableOpacity
+                  style={[styles.button, {
+                    backgroundColor: isPhoneNumberValid(values.phoneNumber) ? "#4CAF50" : "#57635f",
+                    opacity: isPhoneNumberValid(values.phoneNumber) ? 1 : 0.5,
+                  },]}
+                  onPress={() => handleRegister()}
+                  disabled={!isPhoneNumberValid(values.phoneNumber)}
+                >
+                  <Text style={[styles.buttonText, { opacity: isPhoneNumberValid(values.phoneNumber) ? 1 : 0.5 }]}>Đăng Ký</Text>
+                  
+                </TouchableOpacity>
+                <View style={{ alignItems: "center", marginTop: 20 }}>
+  <Text style={[styles.Text]}>
+    Bạn đã đăng ký tài khoản trên ứng dụng?
+  </Text>
+  <TouchableOpacity activeOpacity={1} onPress={() => navigation.navigate("Login")}>
+    <Text style={[styles.Text, styles.active1]}>Đăng nhập tại đây!</Text>
+  </TouchableOpacity>
+</View>
+
+              </View>
             </View>
-          </View>
-          
-          {/* Nút đăng ký */}
-          <View style={styles.bottom}>
-          <TouchableOpacity 
-            style={styles.button} 
-            onPress={() => handleRegister()}
-          >
-            <Text style={styles.buttonText}>Đăng Ký</Text>
-          </TouchableOpacity>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={[styles.Text, styles.active1]}>
-                Bạn đã đăng ký tài khoản trên ứng dụng?
-              </Text>
-              <TouchableOpacity activeOpacity={1}
-              onPress={() => navigation.navigate("Login")}
-              >
-                <Text style={[styles.Text, styles.active1]}> Đăng nhập tại đây!</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </SafeAreaView>
-      <LoadingModal visible={isLoading}/>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </Pressable>
+      <LoadingModal visible={isLoading} />
     </>
-    
+
   );
 };
 
@@ -134,6 +153,7 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     height: "100%",
+    width: "100%",
   },
   title: {
     alignItems: "center",
@@ -152,16 +172,19 @@ const styles = StyleSheet.create({
   active: {
     borderBottomWidth: 1.5,
     borderBottomColor: "white",
-    paddingBottom: 2, 
+    paddingBottom: 2,
   },
   Text: {
+    alignSelf: "center",
     fontSize: 13.4,
     color: "white",
-    marginTop: 10,
+    marginTop: 8,
     textAlign: "left",
     fontWeight: "bold",
   },
   body: {
+    width: 350,
+    alignSelf: "center",
     marginBottom: 5,
   },
   label: {
@@ -187,6 +210,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   button: {
+    width: 350,
+    alignSelf: "center",
     backgroundColor: "#57635f",
     height: 50,
     borderRadius: 10,
@@ -210,31 +235,33 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   radioButton: {
-    width: 30,
-    height: 30,
+    width: 25,
+    height: 25,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 10,
+    marginTop: 5,
     backgroundColor: "white",
   },
   radioButtonText: {
+    marginTop: 5,
     fontSize: 15,
     color: "white",
   },
   bottom: {
-    marginTop: 10,
+    marginTop: 0,
   },
   backButton: {
     position: "absolute",
-    top: 40, 
+    top: 40,
     left: 15,
-    zIndex: 10, 
+    zIndex: 10,
     padding: 10,
   },
   active1: {
     borderBottomWidth: 1.2,
-    borderBottomColor: "white", 
+    borderBottomColor: "white",
     opacity: 0.7,
   },
 });
