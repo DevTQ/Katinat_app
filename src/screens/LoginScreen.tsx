@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, SafeAreaView, TextInput, ImageBackground, TouchableOpacity, Alert } from "react-native";
+import { StyleSheet, View, Text, SafeAreaView, TextInput, ImageBackground, TouchableOpacity, Alert, KeyboardAvoidingView, Pressable, Keyboard, Platform } from "react-native";
 import ImageBack from "../../assets/images/login-register.jpg";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -9,87 +9,108 @@ import { RootStackParams } from "../navigators/MainNavigator";
 import { useLoginController } from "src/controllers/userController";
 
 const LoginScreen = () => {
+  const isPhoneNumberValid = (phone: string) => {
+    const phoneRegex = /^(0|\+84)[0-9]{9}$/;
+    return phoneRegex.test(phone);
+  };
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
-  const { 
-    values, errorMessage, phoneError, passwordError, secureText, togglePasswordVisibility, handleChangeValue, handleLogin, setPhoneError, setPasswordError 
+  const {
+    values, errorMessage, phoneError, passwordError, secureText, togglePasswordVisibility, handleChangeValue, handleLogin, setPhoneError, setPasswordError
   } = useLoginController();
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Nút quay lại */}
-      <TouchableOpacity onPress={() => navigation.navigate("HomeGuest")} style={styles.backButton}>
-        <AntDesign name="arrowleft" size={22} color="white" />
-      </TouchableOpacity>
 
-      {/* Nửa trên: Background */}
-      <View style={styles.topContainer}>
-        <ImageBackground source={ImageBack} style={styles.image} resizeMode="cover" />
-      </View>
+    <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+      <SafeAreaView style={styles.container}>
+        {/* Nút quay lại */}
+        <TouchableOpacity onPress={() => navigation.navigate("HomeGuest")} style={styles.backButton}>
+          <AntDesign name="arrowleft" size={22} color="white" />
+        </TouchableOpacity>
 
-      {/* Nửa dưới: Nội dung */}
-      <View style={styles.bottomContainer}>
-        {/* Tiêu đề */}
-        <View style={styles.title}>
-          <View style={styles.row}>
-            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-              <Text style={styles.titleText}>ĐĂNG KÝ</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <Text style={[styles.titleText, styles.active]}>ĐĂNG NHẬP</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.subTitleText}>Chào mừng bạn đã quay trở lại!</Text>
+        {/* Nửa trên: Background */}
+        <View style={styles.topContainer}>
+          <ImageBackground source={ImageBack} style={styles.image} resizeMode="cover" />
         </View>
 
-        {/* Form đăng nhập */}
-        <View style={styles.body}>
-          <Text style={styles.label}>Số điện thoại</Text>
-          <View style={styles.inputContainer}>
-          <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={values.phone_number}
-              onChangeText={(text) => {
-                handleChangeValue("phone_number", text);
-                setPhoneError("");
-              }}
-            />
-          </View>
-          {
-            phoneError && <Text style={{marginTop: 5,color: '#DEB887', fontSize: 12, fontWeight: 'bold'}}>{phoneError}</Text>
-          }
-          <View style={styles.password}>
-          <Text style={styles.label}>Mật khẩu</Text>
-            <View style={styles.inputContainer}>
-              <TextInput 
-                style={styles.input} 
-                secureTextEntry={secureText} 
-                value={values.password}
-                onChangeText={(text) => {
-                  handleChangeValue("password", text);
-                  setPasswordError("");
-                }}
-              />
-              <TouchableOpacity onPress={togglePasswordVisibility} style={styles.iconContainer}>
-                <FontAwesome6 name={secureText ? "eye-slash" : "eye"} style={styles.icon} />
+        {/* Nửa dưới: Nội dung */}
+        <KeyboardAvoidingView
+          style={styles.bottomContainer}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+        >
+
+          <View style={styles.bottomContainer}>
+
+            {/* Tiêu đề */}
+            <View style={styles.title}>
+              <View style={styles.row}>
+                <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+                  <Text style={styles.titleText}>ĐĂNG KÝ</Text>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <Text style={[styles.titleText, styles.active]}>ĐĂNG NHẬP</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.subTitleText}>Chào mừng bạn đã quay trở lại!</Text>
+            </View>
+
+            {/* Form đăng nhập */}
+            <View style={styles.body}>
+              <Text style={styles.label}>Số điện thoại</Text>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  keyboardType="numeric"
+                  value={values.phone_number}
+                  onChangeText={(text) => {
+                    handleChangeValue("phone_number", text);
+                    setPhoneError("");
+                  }}
+                />
+              </View >
+              {
+                errorMessage && <Text style={{ marginTop: 5, marginBottom: 10, color: '#DEB887', fontSize: 14, fontWeight: 'bold', width: 350, alignSelf: "center"}}>{errorMessage}</Text>
+              }
+              {
+                phoneError && <Text style={{ marginTop: 5, color: '#DEB887', fontSize: 12, fontWeight: 'bold'}}>{phoneError}</Text>
+              }
+              <View style={styles.password}>
+                <Text style={styles.label}>Mật khẩu</Text>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    secureTextEntry={secureText}
+                    value={values.password}
+                    onChangeText={(text) => {
+                      handleChangeValue("password", text);
+                      setPasswordError("");
+                    }}
+                  />
+                  <TouchableOpacity onPress={togglePasswordVisibility} style={styles.iconContainer}>
+                    <FontAwesome6 name={secureText ? "eye-slash" : "eye"} style={styles.icon} />
+                  </TouchableOpacity>
+                </View>
+                {
+                  passwordError && <Text style={{ marginTop: 5, color: '#DEB887', fontSize: 12, fontWeight: 'bold' }}>{passwordError}</Text>
+                }
+              </View>
+              <TouchableOpacity>
+                <Text style={styles.link}>Quên mật khẩu?</Text>
               </TouchableOpacity>
             </View>
-            {
-              passwordError && <Text style={{marginTop: 5,color: '#DEB887', fontSize: 12, fontWeight: 'bold'}}>{passwordError}</Text>
-            }
-          </View>
-          <TouchableOpacity>
-            <Text style={styles.link}>Quên mật khẩu?</Text>
-          </TouchableOpacity>
-        </View>
 
-        {/* Nút đăng nhập */}
-        <TouchableOpacity style={styles.button}
-        onPress={handleLogin}
-        >
-          <Text style={styles.buttonText}>Đăng nhập</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+            {/* Nút đăng nhập */}
+            <TouchableOpacity style={[styles.button, {backgroundColor: isPhoneNumberValid(values.phone_number) ? "#4CAF50" : "#57635f",
+                    opacity: isPhoneNumberValid(values.phone_number) ? 1 : 0.5,
+                  }]}
+              onPress={handleLogin}
+              disabled={!isPhoneNumberValid(values.phone_number)}
+            >
+              <Text style={[styles.buttonText, { opacity: isPhoneNumberValid(values.phone_number) ? 1 : 0.5 }]}>Đăng nhập</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </Pressable>
   );
 };
 
@@ -109,6 +130,7 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     height: "100%",
+    width: "100%"
   },
   title: {
     alignItems: "center",
@@ -129,12 +151,12 @@ const styles = StyleSheet.create({
   active: {
     borderBottomWidth: 1.5,
     borderBottomColor: "white",
-    paddingBottom: 2, 
+    paddingBottom: 2,
   },
   subTitleText: {
     fontSize: 15,
     color: "white",
-    marginTop: 10,
+    marginTop: 8,
     fontFamily: 'Open Sans Condensed',
     fontWeight: 'bold'
   },
@@ -142,6 +164,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
+    width: 350,
+    alignSelf: "center",
     fontSize: 16,
     color: "white",
     marginBottom: 5,
@@ -155,6 +179,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   inputContainer: {
+    width: 350,
+    alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
@@ -171,6 +197,8 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   link: {
+    width: 350,
+    alignSelf: "center",
     color: '#af997a',
     textDecorationLine: "underline",
     fontSize: 15,
@@ -178,6 +206,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
+    width: 350,
+    alignSelf: "center",
     backgroundColor: "#57635f",
     height: 50,
     borderRadius: 10,
