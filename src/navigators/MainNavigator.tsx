@@ -15,8 +15,11 @@ import {
     ViewAllBestSeller, productDetail, 
     ViewAllEventNews, EventNews, RegisterComponent,
     ViewAllForYou, ViewAllTryFood,
-    CartDetail
+    CartDetail, CartEmpty
 } from "../components";
+import {
+    NewAddressModal
+} from "../modals";
 
 // Tạo stack navigator
 const RootStack = createNativeStackNavigator<RootStackParams>();
@@ -37,7 +40,7 @@ export type RootStackParams = {
     ViewAllEventNews: undefined; 
     EventNews: undefined;
     RegisterComponent: { phoneNumber: string, referralCode: string };
-    CartDetail: undefined;
+    CartDetail: undefined; NewAddressModal: undefined; CartEmpty: undefined;
 };
 
 
@@ -82,7 +85,9 @@ const UserStack = () => (
         <RootStack.Screen name="ViewAllEventNews" component={ViewAllEventNews} options={{ headerShown: false }} />
         <RootStack.Screen name="EventNews" component={EventNews} options={{ headerShown: false }} />
         <RootStack.Screen name="CartDetail" component={CartDetail} options={{ headerShown: false }} />
+        <RootStack.Screen name="CartEmpty" component={CartEmpty} options={{ headerShown: false }} />
         <RootStack.Screen name="OrderConfirm" component={OrderConfirm} options={{ headerShown: false }} />
+        <RootStack.Screen name="NewAddressModal" component={NewAddressModal} options={{ headerShown: false }} />
     </RootStack.Navigator>
 );
 

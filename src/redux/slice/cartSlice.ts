@@ -25,20 +25,27 @@ const cartSlice = createSlice({
   reducers: {
     addProduct: (state, action: PayloadAction<Product>) => {
       const existingProduct = state.CartArr.find((item) => item.id === action.payload.id);
-
       if (existingProduct) {
-        // Nếu sản phẩm đã tồn tại, tăng số lượng
         existingProduct.quantity += action.payload.quantity;
       } else {
-        // Nếu sản phẩm chưa có trong giỏ, thêm mới
         state.CartArr.push(action.payload);
       }
     },
     deleteProduct: (state, action: PayloadAction<number>) => {
       state.CartArr = state.CartArr.filter((item) => item.id !== action.payload);
     },
+    updateProductQuantity: (
+      state,
+      action: PayloadAction<{ id: number; quantity: number }>
+    ) => {
+      const { id, quantity } = action.payload;
+      const product = state.CartArr.find((item) => item.id === id);
+      if (product) {
+        product.quantity = Math.max(1, quantity);
+      }
+    },
   },
 });
 
-export const { addProduct, deleteProduct } = cartSlice.actions;
+export const { addProduct, deleteProduct, updateProductQuantity } = cartSlice.actions;
 export default cartSlice.reducer;

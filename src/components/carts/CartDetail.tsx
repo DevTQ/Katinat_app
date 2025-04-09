@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -12,9 +12,12 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { RootStackParams } from "src/navigators/MainNavigator";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import LoginModal from "src/modals/LoginModal";
+import ProductNotificationModal from "src/modals/ProductNotificationModal";
+import { deleteProduct, updateProductQuantity } from "../../redux/slice/cartSlice";
+
 
 
 const CartDetail = () => {
@@ -22,6 +25,15 @@ const CartDetail = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     const cartProducts = useSelector((state: RootState) => state.cart.CartArr);
     const [loginModalVisible, setLoginModalVisible] = useState(false);
+    const [selectedProductForDeletion, setSelectedProductForDeletion] = useState<number | null>(null);
+    const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (cartProducts.length === 0) {
+          navigation.replace("CartEmpty");
+        }
+      }, [cartProducts, navigation]);
 
     const totalQuantity = cartProducts.reduce(
         (sum, product) => sum + product.quantity,
@@ -32,6 +44,33 @@ const CartDetail = () => {
         (acc, product) => acc + product.price * product.quantity,
         0
     );
+
+    const handleIncrease = (id: number, currentQuantity: number) => {
+        dispatch(updateProductQuantity({ id, quantity: currentQuantity + 1 }));
+    };
+
+    const handleDecrease = (id: number, currentQuantity: number) => {
+        if (currentQuantity === 1) {
+            setSelectedProductForDeletion(id);
+            setIsConfirmModalVisible(true);
+        } else {
+            dispatch(updateProductQuantity({ id, quantity: currentQuantity - 1 }));
+        }
+    };
+
+    const confirmDeletion = () => {
+        if (selectedProductForDeletion !== null) {
+            dispatch(deleteProduct(selectedProductForDeletion));
+        }
+        setIsConfirmModalVisible(false);
+        setSelectedProductForDeletion(null);
+    };
+
+    const cancelDeletion = () => {
+        setIsConfirmModalVisible(false);
+        setSelectedProductForDeletion(null);
+    };
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -84,7 +123,13 @@ const CartDetail = () => {
                                 <Text style={styles.productPrice}>
                                     {Number(product.price).toLocaleString("vi-VN")}đ
                                 </Text>
+                                <TouchableOpacity style={{ marginRight: 10 }} onPress={() => handleDecrease(product.id, product.quantity)}>
+                                    <AntDesign name="minuscircleo" size={24} color="#104358" />
+                                </TouchableOpacity>
                                 <Text style={styles.productQuantity}>{product.quantity}</Text>
+                                <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => handleIncrease(product.id, product.quantity)}>
+                                    <AntDesign name="pluscircleo" size={24} color="#104358" />
+                                </TouchableOpacity>
                             </View>
                         </View>
                     </View>
@@ -100,19 +145,27 @@ const CartDetail = () => {
             </View>
             <View style={styles.resume}>
                 <TouchableOpacity style={styles.addCartButton}
-                onPress={() => {
-                    user ? navigation.navigate("OrderConfirm") : setLoginModalVisible(true)
-                }}
+                    onPress={() => {
+                        user ? navigation.navigate("OrderConfirm") : setLoginModalVisible(true)
+                    }}
                 >
                     <Text style={styles.addCartText}>Tiếp tục</Text>
                 </TouchableOpacity>
             </View>
             {loginModalVisible && (
-            <LoginModal
-                visible={loginModalVisible}
-                onClose={() => setLoginModalVisible(false)}
-            />
+                <LoginModal
+                    visible={loginModalVisible}
+                    onClose={() => setLoginModalVisible(false)}
+                />
             )}
+
+            <ProductNotificationModal
+                visible={isConfirmModalVisible}
+                message="Bạn có chắc chắn muốn bỏ sản phẩm này?"
+                onConfirm={confirmDeletion}
+                onCancel={cancelDeletion}
+            />
+
         </SafeAreaView>
     );
 };
@@ -192,7 +245,7 @@ const styles = StyleSheet.create({
         fontSize: 17,
         color: "#104358",
         fontWeight: "500",
-        marginRight: 120,
+        marginRight: 85,
     },
     productQuantity: {
         fontSize: 17,

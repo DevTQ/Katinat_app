@@ -41,7 +41,7 @@ const ProductDetailScreen = () => {
 
     const recalcTotalPrice = (quantity: number, toppings: { [key: string]: number }) => {
         if (Object.keys(toppings).length === 0) {
-         
+
             setTotalPrice(quantity * basePrice);
         } else {
             const toppingTotal = Object.entries(toppings).reduce(
@@ -50,6 +50,14 @@ const ProductDetailScreen = () => {
             );
             const unitPrice = basePrice + toppingTotal;
             setTotalPrice(quantity * unitPrice);
+        }
+    };
+
+    const handleCartPress = () => {
+        if (CartProducts.length === 0) {
+            navigation.navigate("CartEmpty");
+        } else {
+            navigation.navigate("CartDetail");
         }
     };
 
@@ -63,31 +71,31 @@ const ProductDetailScreen = () => {
 
     useEffect(() => {
         const fetchProductDetail = async () => {
-          try {
-            const response = await axiosClient.get(`/products/${productId}`);
-            if (response.data && response.data.productId) {
-              setProduct(response.data);
-              const rawPrice = response.data.price;
-              const numericPrice = typeof rawPrice === "string" 
-                ? parseInt(rawPrice.replace(/\./g, ""), 10)
-                : rawPrice * 1000;
-              
-              setBasePrice(numericPrice);
- 
-              setTotalPrice(numOfProduct * numericPrice);
-            } else {
-              setProduct(null);
+            try {
+                const response = await axiosClient.get(`/products/${productId}`);
+                if (response.data && response.data.productId) {
+                    setProduct(response.data);
+                    const rawPrice = response.data.price;
+                    const numericPrice = typeof rawPrice === "string"
+                        ? parseInt(rawPrice.replace(/\./g, ""), 10)
+                        : rawPrice * 1000;
+
+                    setBasePrice(numericPrice);
+
+                    setTotalPrice(numOfProduct * numericPrice);
+                } else {
+                    setProduct(null);
+                }
+            } catch (error) {
+                console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
+                setProduct(null);
+            } finally {
+                setLoading(false);
             }
-          } catch (error) {
-            console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
-            setProduct(null);
-          } finally {
-            setLoading(false);
-          }
         };
         fetchProductDetail();
     }, [productId]);
-    
+
 
     useFocusEffect(
         useCallback(() => {
@@ -147,7 +155,7 @@ const ProductDetailScreen = () => {
     return (
         <SafeAreaView style={styles.container}>
             <TouchableOpacity style={styles.cart} activeOpacity={1}
-                onPress={() => navigation.navigate("CartDetail")}>
+                onPress={handleCartPress}>
                 <Image source={require("../../../assets/images/icon-cart.png")}
                     style={{ width: 30, height: 30 }}
                 />
