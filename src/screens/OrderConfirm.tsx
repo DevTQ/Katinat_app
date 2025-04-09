@@ -2,22 +2,59 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import {
     SafeAreaView, View, Text, Image, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, FlatList, ScrollView,
+    Alert,
 } from "react-native";
 import { RootStackParams } from "src/navigators/MainNavigator";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "src/redux/store";
 import voucherService from "src/services/voucherService";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import AddressModal from "src/modals/AddressModal";
+import StoresModal from "src/modals/StoresModal";
+import { createOrder } from "src/services/orderService";
+import { deleteProduct, updateProductQuantity } from "src/redux/slice/cartSlice";
+import ProductNotificationModal from "src/modals/ProductNotificationModal";
+
 
 const OrderConfirm = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     const cartProducts = useSelector((state: RootState) => state.cart.CartArr);
+    const currentUser = useSelector((state: RootState) => state.auth.user);
+    const [selectedProductForDeletion, setSelectedProductForDeletion] = useState<number | null>(null);
+    const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+    const dispatch = useDispatch();
+
+    const fullName = currentUser?.fullname;
+    const phone = currentUser?.phone_number;
+    const userId = currentUser?.id;
+
     const [vouchers, setVouchers] = useState<any[]>([]);
+    const [selectedVoucher, setSelectedVoucher] = useState<any | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedPayment, setSelectedPayment] = useState<"ZaloPay" | "MoMo" | null>(null);
+    const [modalAddress, setModalAddress] = useState(false);
+    const [modalStores, setModalStores] = useState(false);
+    const [shippingNote, setShippingNote] = useState("");
+    const [Note, setNote] = useState("");
+    const shippingFee = 20000;
+
+    const [selectedAddress, setSelectedAddress] = useState<{
+        id: string;
+        label: string;
+        isDefault: boolean;
+        name: string;
+        phone: string;
+        address: string;
+    } | null>(null);
+    const [selectedStore, setSelectedStore] = useState<{
+        store_id: number;
+        storeName: string;
+        storeAddress: string;
+        distance?: string;
+    } | null>(null);
 
     useEffect(() => {
         const fetchVouchers = async () => {
@@ -37,6 +74,92 @@ const OrderConfirm = () => {
         setSelectedPayment(option);
     };
 
+    const handleToggleVoucher = (voucher: any) => {
+        if (selectedVoucher?.voucherId === voucher.voucherId) {
+            setSelectedVoucher(null);
+        } else {
+            setSelectedVoucher(voucher);
+        }
+    };
+
+    const handleIncrease = (id: number, currentQuantity: number) => {
+        dispatch(updateProductQuantity({ id, quantity: currentQuantity + 1 }));
+    };
+
+    const handleDecrease = (id: number, currentQuantity: number) => {
+        if (currentQuantity === 1) {
+            setSelectedProductForDeletion(id);
+            setIsConfirmModalVisible(true);
+        } else {
+            dispatch(updateProductQuantity({ id, quantity: currentQuantity - 1 }));
+        }
+    };
+
+    const confirmDeletion = () => {
+        if (selectedProductForDeletion !== null) {
+            dispatch(deleteProduct(selectedProductForDeletion));
+        }
+        setIsConfirmModalVisible(false);
+        setSelectedProductForDeletion(null);
+    };
+
+    const cancelDeletion = () => {
+        setIsConfirmModalVisible(false);
+        setSelectedProductForDeletion(null);
+    };
+
+
+    const totalQuantity = cartProducts.reduce((sum, product) => sum + product.quantity, 0);
+    const totalPrice = cartProducts.reduce(
+        (acc, product) => acc + product.price * product.quantity,
+        0
+    );
+
+    const calculateFinalAmount = () => {
+        const subtotal = Number(totalPrice) + Number(shippingFee);
+
+        if (selectedVoucher) {
+            const discount = Number(selectedVoucher.discount);
+            const discountAmount = subtotal * (discount / 100);
+            return subtotal - discountAmount;
+        }
+
+        return subtotal;
+    };
+
+    const handleSubmitOrder = async () => {
+        try {
+            const orderData = {
+                user_id: userId,
+                full_name: fullName,
+                phone_number: phone,
+                address: selectedAddress?.address || "",
+                store_address: selectedStore?.storeAddress || "",
+                note_ship: shippingNote || "",
+                note: Note || "",
+                voucher_id: selectedVoucher?.voucherId || null,
+                total_money: calculateFinalAmount(),
+                shipping_date: "",
+                payment_method: selectedPayment,
+                order_details: cartProducts.map(item => ({
+                    product_id: item.id,
+                    number_of_products: item.quantity,
+                    price: item.price,
+                    total_money: item.price * item.quantity
+                }))
+            };
+            console.log("currentUser: ", currentUser);
+            console.log(orderData)
+            const response = await createOrder(orderData);
+            console.log("Order success:", response.data);
+            Alert.alert("Thành công", "Đặt hàng thành công!");
+        } catch (error) {
+            console.error("Order failed:", error);
+            Alert.alert("Lỗi", "Không thể đặt hàng. Vui lòng thử lại sau.");
+        }
+    };
+
+
     const renderVoucher = ({ item }: { item: any }) => (
         <View style={styles.voucherContainer}>
             <View style={{ flexDirection: "row" }}>
@@ -47,7 +170,7 @@ const OrderConfirm = () => {
                 />
                 <View
                     style={{
-                        backgroundColor: "#e0e3ea",
+                        backgroundColor: selectedVoucher?.voucherId === item.voucherId ? "#104358" : "#e0e3ea",
                         height: 100,
                         borderTopRightRadius: 10,
                         borderBottomRightRadius: 10,
@@ -56,17 +179,19 @@ const OrderConfirm = () => {
                     <Text
                         numberOfLines={1}
                         ellipsizeMode="tail"
-                        style={styles.voucherName}
+                        style={[styles.voucherName, { color: selectedVoucher?.voucherId === item.voucherId ? "white" : "#104358", }]}
                     >
                         {item.voucherName}
                     </Text>
-                    <Text style={styles.endDate}>
+                    <Text style={[styles.endDate, { color: selectedVoucher?.voucherId === item.voucherId ? "white" : "#104358", }]}>
                         {dayjs(item.endDate, "DD/MM/YYYY HH:mm").format("DD/MM/YYYY HH:mm")}
                     </Text>
                 </View>
                 <TouchableOpacity
+                    onPress={() => handleToggleVoucher(item)}
                     style={{
-                        backgroundColor: "#e0e3ea",
+                        backgroundColor:
+                            selectedVoucher?.voucherId === item.voucherId ? "#104358" : "#e0e3ea",
                         height: 100,
                         borderRadius: 10,
                         width: 80,
@@ -74,7 +199,14 @@ const OrderConfirm = () => {
                         alignItems: "center",
                     }}
                 >
-                    <Text style={{ color: "#104358", fontSize: 18 }}>Chọn</Text>
+                    <Text
+                        style={{
+                            color: selectedVoucher?.voucherId === item.voucherId ? "white" : "#104358",
+                            fontWeight: "bold",
+                        }}
+                    >
+                        {selectedVoucher?.voucherId === item.voucherId ? "Bỏ chọn" : "Chọn"}
+                    </Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -97,15 +229,9 @@ const OrderConfirm = () => {
                         <Text style={styles.textTitle}>Xác nhận đơn hàng</Text>
                     </View>
                     <View style={styles.bodyContainer}>
-                        <View style={[styles.card, { height: 150 }]}>
+                        <View style={[styles.card, selectedAddress ? styles.cardExpanded : styles.cardDefault]}>
                             <View style={styles.row}>
-                                <Text
-                                    style={{
-                                        fontSize: 18,
-                                        fontWeight: "500",
-                                        color: "#b49177",
-                                    }}
-                                >
+                                <Text style={{ fontSize: 18, fontWeight: "500", color: "#b49177" }}>
                                     GIAO HÀNG
                                 </Text>
                                 <TouchableOpacity>
@@ -113,51 +239,60 @@ const OrderConfirm = () => {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.row}>
-                                <Text
-                                    style={{
-                                        fontSize: 18,
-                                        fontWeight: "500",
-                                        color: "#15435a",
-                                    }}
-                                >
+                                <Text style={{ fontSize: 18, fontWeight: "500", color: "#15435a" }}>
                                     Địa chỉ nhận hàng
                                 </Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => setModalAddress(true)}>
                                     <Text style={{ color: "#ae997a" }}>Thay đổi</Text>
                                 </TouchableOpacity>
+                                <AddressModal
+                                    visible={modalAddress}
+                                    onClose={() => setModalAddress(false)}
+                                    onSelectAddress={(address) => {
+                                        setSelectedAddress(address);
+                                        setModalAddress(false);
+                                    }}
+                                />
                             </View>
+                            {selectedAddress ? (
+                                <View style={styles.selectedAddressContainer}>
+                                    <Text style={styles.addressText}>{selectedAddress.name} - {selectedAddress.phone}</Text>
+                                    <Text style={styles.addressText}>{selectedAddress.address}</Text>
+                                </View>
+                            ) : null}
                             <TextInput
+                                value={shippingNote}
+                                onChangeText={setShippingNote}
                                 style={styles.input}
                                 placeholder="Thêm hướng dẫn giao hàng"
                             />
                         </View>
                         <View style={[styles.card, { height: 100 }]}>
                             <View style={styles.row}>
-                                <Text
-                                    style={{
-                                        fontSize: 18,
-                                        fontWeight: "500",
-                                        color: "#15435a",
-                                    }}
-                                >
+                                <Text style={{ fontSize: 18, fontWeight: "500", color: "#15435a" }}>
                                     Cửa hàng giao hàng
                                 </Text>
                             </View>
                             <View style={styles.row}>
-                                <Text
-                                    style={{
-                                        fontSize: 16,
-                                        fontWeight: "500",
-                                        color: "#15435a",
-                                    }}
-                                >
-                                    Vui lòng chọn cửa hàng
+                                <Text style={{ fontSize: 15, fontWeight: "500", color: "#15435a" }}>
+                                    {selectedStore
+                                        ? `${selectedStore.storeName} \nCách ${selectedStore.distance}`
+                                        : "Vui lòng chọn cửa hàng"}
                                 </Text>
-                                <TouchableOpacity>
-                                    <Text>Icon nhấn</Text>
+                                <TouchableOpacity onPress={() => setModalStores(true)}>
+                                    <AntDesign name="right" size={22} color="#104358" />
                                 </TouchableOpacity>
+                                <StoresModal
+                                    visible={modalStores}
+                                    onClose={() => setModalStores(false)}
+                                    onSelectStore={(store) => {
+                                        setSelectedStore(store);
+                                        setModalStores(false);
+                                    }}
+                                />
                             </View>
                         </View>
+
                         <View style={styles.productDetailCard}>
                             <View style={{ marginHorizontal: 10 }}>
                                 <Text style={[styles.textTitle, { fontSize: 18 }]}>
@@ -193,9 +328,13 @@ const OrderConfirm = () => {
                                                 <Text style={styles.productPrice}>
                                                     {Number(product.price).toLocaleString("vi-VN")}đ
                                                 </Text>
-                                                <Text style={styles.productQuantity}>
-                                                    {product.quantity}
-                                                </Text>
+                                                <TouchableOpacity style={{ marginRight: 10 }} onPress={() => handleDecrease(product.id, product.quantity)}>
+                                                    <AntDesign name="minuscircleo" size={24} color="#104358" />
+                                                </TouchableOpacity>
+                                                <Text style={styles.productQuantity}>{product.quantity}</Text>
+                                                <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => handleIncrease(product.id, product.quantity)}>
+                                                    <AntDesign name="pluscircleo" size={24} color="#104358" />
+                                                </TouchableOpacity>
                                             </View>
                                         </View>
                                     </View>
@@ -205,10 +344,7 @@ const OrderConfirm = () => {
                         <View style={styles.cardVoucher}>
                             <View style={styles.voucherRow}>
                                 <Text
-                                    style={[
-                                        styles.textTitle,
-                                        { fontSize: 18, marginVertical: 10 },
-                                    ]}
+                                    style={[styles.textTitle, { fontSize: 18, marginVertical: 10 }]}
                                 >
                                     Khuyến mãi
                                 </Text>
@@ -229,10 +365,7 @@ const OrderConfirm = () => {
                         <View style={[styles.card, { height: 170 }]}>
                             <View style={{ marginHorizontal: 10 }}>
                                 <Text
-                                    style={[
-                                        styles.textTitle,
-                                        { fontSize: 18, marginVertical: 10 },
-                                    ]}
+                                    style={[styles.textTitle, { fontSize: 18, marginVertical: 10 }]}
                                 >
                                     Phương thức thanh toán
                                 </Text>
@@ -274,29 +407,58 @@ const OrderConfirm = () => {
                                 </View>
                             </View>
                         </View>
-                        <View style={[styles.card, { height: 250 }]}>
-                            <View style={{ marginHorizontal: 10 }}>
-                                <Text>Tổng cộng { }</Text>
-                                <Text>Thành tiền</Text>
-                                <Text>Phí giao hàng</Text>
-                                <Text>Số tiền thanh toán</Text>
+                        <View style={[styles.card, { height: 220, marginBottom: 10 }]}>
+                            <View style={{ marginHorizontal: 10, }}>
+                                <Text style={{ fontSize: 17, fontWeight: '500', color: '#104358' }}>Tổng cộng ({totalQuantity} món)</Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <Text style={{ color: '#104358' }}>Thành tiền</Text>
+                                    <Text style={{ color: '#104358' }}>{Number(totalPrice).toLocaleString("vi-VN")}đ</Text>
+                                </View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <Text style={{ color: '#104358' }}>Phí giao hàng</Text>
+                                    <Text style={{ color: '#104358' }}>{Number(shippingFee).toLocaleString("vi-VN")}đ</Text>
+                                </View>
+                                {selectedVoucher && (
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 4 }}>
+                                        <Text style={{ color: '#104358' }}>{selectedVoucher.voucherName}</Text>
+                                        <Text style={{ color: '#C1AA88' }}>
+                                            -{((totalPrice + shippingFee) * (Number(selectedVoucher.discount) / 100)).toLocaleString()}đ
+                                        </Text>
+                                    </View>
+                                )}
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <Text style={{ fontSize: 18, fontWeight: '500', color: '#104358' }}>
+                                        Số tiền thanh toán
+                                    </Text>
+                                    <Text style={{ color: '#104358', fontSize: 18, fontWeight: '500' }}>{calculateFinalAmount().toLocaleString()}đ</Text>
+                                </View>
                             </View>
-                            <TextInput style={styles.input}
-                                placeholder="Ghi chú cho quán"
-                            />
+                            <TextInput
+                                value={Note}
+                                onChangeText={setNote}
+                                style={styles.input}
+                                placeholder="Ghi chú cho quán" />
                         </View>
                     </View>
                 </KeyboardAvoidingView>
             </ScrollView>
             <View style={styles.order}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 20 }}>
+                    <Text style={{ fontSize: 18, color: '#104358', flex: 1 }}>{totalQuantity} sản phẩm</Text>
+                    <Text style={{ fontSize: 20, color: '#104358', fontWeight: 'bold' }}>{calculateFinalAmount().toLocaleString()}đ</Text>
+                </View>
                 <TouchableOpacity style={styles.addCartButton}
-                onPress={() => {
-                    
-                }}
+                    onPress={handleSubmitOrder}
                 >
                     <Text style={styles.addCartText}>Đặt hàng</Text>
                 </TouchableOpacity>
             </View>
+            <ProductNotificationModal
+                visible={isConfirmModalVisible}
+                message="Bạn có chắc chắn muốn bỏ sản phẩm này?"
+                onConfirm={confirmDeletion}
+                onCancel={cancelDeletion}
+            />
         </SafeAreaView>
     );
 };
@@ -398,7 +560,7 @@ const styles = StyleSheet.create({
         fontSize: 17,
         color: "#104358",
         fontWeight: "500",
-        marginRight: 120,
+        marginRight: 80,
     },
     productQuantity: {
         fontSize: 17,
@@ -480,7 +642,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     addCartButton: {
-        width: "95%",
+        width: "90%",
         backgroundColor: "#bb946b",
         padding: 15,
         borderRadius: 10,
@@ -494,11 +656,24 @@ const styles = StyleSheet.create({
     },
     order: {
         width: "100%",
-        height: 80,
+        height: 100,
         backgroundColor: "#f9f8fe",
         justifyContent: "center",
         alignItems: "center",
-    }
+    },
+    cardDefault: {
+        height: 150,
+    },
+    cardExpanded: {
+        height: 'auto',
+    },
+    selectedAddressContainer: {
+        marginLeft: 15,
+    },
+    addressText: {
+        fontSize: 16,
+        color: '#104358',
+    },
 });
 
 export default OrderConfirm;

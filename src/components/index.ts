@@ -12,3 +12,4 @@ export { default as EventNews } from "./eventnews/EventNews";
 
 export { default as RegisterComponent } from '../screens/RegisterComponent';
 export { default as CartDetail } from "../components/carts/CartDetail";
+export { default as CartEmpty } from "../components/carts/CartEmpty";

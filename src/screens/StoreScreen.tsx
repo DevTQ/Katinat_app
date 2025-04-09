@@ -68,8 +68,8 @@ const StoreScreen = () => {
         if (location) {
             fetchStores();
         }
-        }, [location]);    
-
+        }, [location]);   
+     
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
         const toRad = (value: number) => (value * Math.PI) / 180;
         
