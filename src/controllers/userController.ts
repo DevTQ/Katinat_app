@@ -203,8 +203,8 @@ export const useLoginController = () => {
                 await TokenService.setToken(res.data.token);
                 
                 if (res.data.user) {
-                    dispatch(setUser(res.data.user));
-                }                
+                    dispatch(setUser(res.data.user)); 
+                }                                                 
     
                 navigation.dispatch(
                     CommonActions.reset({

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, ScrollView, SafeAreaView, TextInput, TouchableOpacity,
-    TouchableWithoutFeedback, Keyboard 
+    TouchableWithoutFeedback, Keyboard, Image
  } from "react-native";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { AppBar, Latte, Phin, Espresso, FruitShake, MilkTea, FruitTea, Topping, Mechandise, IconFunct } from "../components/orders";
@@ -99,8 +99,15 @@ const OrderScreen = () => {
                             {renderProducts()}
                         </ScrollView>
                     </View>
+                    <View style={styles.cart}>
+                        <TouchableOpacity>
+                            <Image source={require("../../assets/images/icon-cart.png")}
+                            style={styles.iconCart}
+                            />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <AppBar />
+                <AppBar/>
             </SafeAreaView>
         </TouchableWithoutFeedback>
     );
@@ -159,7 +166,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Open Sans Condensed'
     },
     activeBtn: {
-        backgroundColor: '#104358', // Màu nổi bật khi được chọn,
+        backgroundColor: '#104358',
         color: 'white'
     },
     lineRow: {
@@ -180,6 +187,22 @@ const styles = StyleSheet.create({
     rightSection: {
         width: '80%',
     },
+    cart: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        borderWidth: 1,
+        justifyContent: 'center',
+        backgroundColor: '#104358',
+        alignItems: 'center',
+        position: 'absolute',
+        left: 330,
+        top: 580,
+    },
+    iconCart: {
+        width: 25,
+        height: 25,
+    }
 });
 
 export default OrderScreen;

@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, Text, TouchableOpacity,Image} from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Image } from "react-native";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -8,51 +8,54 @@ import IconOrder from "../../../assets/images/icons/order.png";
 import IconHome from "../../../assets/images/icons/home_icon.png";
 import IconStore from "../../../assets/images/icons/store.png";
 import IconAccount from "../../../assets/images/icons/account.png";
+import { useSelector } from "react-redux"; 
+import { RootState } from "src/redux/store";
 
 
-const appBar = () => {
+const AppBar = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
-    return(
+    const user = useSelector((state: RootState) => state.auth.user);
+    return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.button}
-            onPress={() => {
-                navigation.navigate("HomeGuest");
-            }}
+            <TouchableOpacity
+                onPress={() => {
+                    user ? navigation.navigate("HomeScreen") : navigation.navigate("HomeGuest");
+                }}
             >
-                <Image source={IconHome} style={{width: 40, height: 40}}/>
-                <Text style={{marginBottom: 5, color: 'white'}}>Trang chủ</Text>  
+                <Image source={IconHome} style={{ width: 40, height: 40, marginLeft: 10 }} />
+                <Text style={{ marginBottom: 17, color: "white" }}>Trang chủ</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}
-            onPress={() => {
-                navigation.navigate("Order");
-            }}
+                onPress={() => {
+                    navigation.navigate("Order");
+                }}
             >
-                <Image source={IconOrder} style={{width: 30, height: 30}}/>
-                <Text style={{marginBottom: 1, color: 'white'}}>Đặt nước</Text>
+                <Image source={IconOrder} style={{ width: 30, height: 30 }} />
+                <Text style={{ marginBottom: 1, color: 'white' }}>Đặt nước</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}
-            onPress={() => {
-                navigation.navigate("StoreScreen")
-            }}
+                onPress={() => {
+                    navigation.navigate("StoreScreen");
+                }}
             >
-                <Image source={IconStore} style={{width: 35, height: 35}}/>
-                <Text style={{marginBottom: 4, color: 'white'}}>cửa hàng</Text>
+                <Image source={IconStore} style={{ width: 35, height: 35 }} />
+                <Text style={{ marginBottom: 4, color: 'white' }}>cửa hàng</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}
-            onPress={() => {
-                navigation.navigate("Account");
-            }}
+                onPress={() => {
+                    user ? navigation.navigate("Account") : navigation.navigate("AccountGuest");
+                }}
             >
-                <Image source={IconAccount} style={{width: 40, height: 40}}/>
-                <Text style={{marginBottom: 5, color: 'white'}}>Tài khoản</Text>
+                <Image source={IconAccount} style={{ width: 40, height: 40 }} />
+                <Text style={{ marginBottom: 5, color: 'white' }}>Tài khoản</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}
-            onPress={() => {
-                navigation.navigate("Setting");
-            }}
+                onPress={() => {
+                    navigation.navigate("Setting");
+                }}
             >
                 <MaterialIcons name="settings" size={24} color="white" />
-                <Text style={{color: 'white'}}>Cài đặt</Text>
+                <Text style={{ color: 'white' }}>Cài đặt</Text>
             </TouchableOpacity>
         </View>
     )
@@ -73,7 +76,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         justifyContent: 'center',
         alignItems: 'center'
-        
+
     },
     buttonText: {
         color: '#FFF',
@@ -82,4 +85,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default appBar;
+export default AppBar;

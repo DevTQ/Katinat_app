@@ -1,22 +1,27 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface UserState {
-    username: string;
-}
-
-const initialState: UserState = {
-    username: "", 
-};
+    phone_number: string;
+    fullname: string;
+  }
+  
+  const initialState: UserState = {
+    phone_number: "",
+    fullname: "",
+  };
+  
 
 const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        setUser: (state, action: PayloadAction<string>) => {
-            state.username = action.payload;
+        setUser: (state, action: PayloadAction<UserState>) => {
+            state.fullname = action.payload.fullname;
+            state.phone_number = action.payload.phone_number;
         },
         clearUser: (state) => {
-            state.username = "";
+            state.fullname = "";
+            state.phone_number = "";
         },
     },
 });

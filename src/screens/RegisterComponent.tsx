@@ -129,7 +129,6 @@ const RegisterComponent = () => {
                     <Text style={styles.buttonText}>Đăng Ký</Text>
                 </TouchableOpacity>
 
-                {/* Modal cho lựa chọn giới tính */}
                 <Modal
                     visible={modalVisible}
                     transparent={true}

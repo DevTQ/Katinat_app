@@ -44,7 +44,6 @@ const HomeGuestScreen = () => {
           </TouchableOpacity>
         </View>
 
-    
         <TouchableOpacity style={styles.logRegBtn}
         onPress={() => {
           navigation.navigate("Register");
@@ -54,12 +53,14 @@ const HomeGuestScreen = () => {
         </TouchableOpacity>
         <Banner/>
         <View style={{flexDirection: 'row'}}>
-                  <TouchableOpacity style={[styles.cart, {marginLeft: 20}]} activeOpacity={1} onPress={() => navigation.navigate("Order")}>
+                  <TouchableOpacity style={[styles.cart, {marginLeft: 20}]} 
+                  activeOpacity={1} onPress={() => navigation.navigate("Order")}>
                     <Image source={require("../../assets/images/Giaohang.png")}
                     style={styles.image}
                     />
                   </TouchableOpacity>
-                  <TouchableOpacity style={[styles.cart, {marginLeft: 15}]} activeOpacity={1}>
+                  <TouchableOpacity style={[styles.cart, {marginLeft: 15}]} activeOpacity={1}
+                  onPress={() => navigation.navigate("StoreScreen")}>
                     <Image source={require("../../assets/images/laytannoi.png")}
                     style={styles.image}/>
                   </TouchableOpacity>
