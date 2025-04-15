@@ -167,6 +167,11 @@ export const useLoginController = () => {
 
     const handleChangeValue = (key: keyof LoginDTO, value: string) => {
         setValues((prev) => new LoginDTO({ ...prev, [key]: value }));
+        if (key === "phone_number") {
+            if (!value.trim()) setErrorMessage("Vui lòng nhập số điện thoại!");
+            else if (!Validate.isValidPhoneNumber(value)) setErrorMessage("Số điện thoại không hợp lệ");
+            else setErrorMessage(""); 
+        }
     };
 
     const togglePasswordVisibility = () => setSecureText((prev) => !prev);
@@ -175,6 +180,7 @@ export const useLoginController = () => {
         setPhoneError("");
         setPasswordError("");
         setErrorMessage("");
+        
     
         if (!values.phone_number.trim()) {
             setPhoneError("Vui lòng nhập số điện thoại!");
