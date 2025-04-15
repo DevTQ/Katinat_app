@@ -9,7 +9,7 @@ import { RootState } from "src/redux/store";
 import { 
     LoginScreen, HomeGuestScreen, RegisterScreen, AccountGuest, 
     OrderScreen, Setting, HomeScreen, Notification, StoreScreen, Voucher,
-    Account, VourcherDetail,OrderConfirm
+    Account, VourcherDetail,OrderConfirm, PaymentScreen, PaymentSuccessScreen, PaymentFailedScreen 
 } from "../screens";
 import { 
     ViewAllBestSeller, productDetail, 
@@ -40,8 +40,11 @@ export type RootStackParams = {
     ViewAllEventNews: undefined; 
     EventNews: undefined;
     RegisterComponent: { phoneNumber: string, referralCode: string };
-    CartDetail: undefined; NewAddressModal: undefined; CartEmpty: undefined;
-};
+    CartDetail: undefined; NewAddressModal: undefined; CartEmpty: undefined; 
+    PaymentScreen: {paymentUrl: string};
+    PaymentSuccessScreen: { orderCode: number | null };
+    PaymentFailedScreen: { orderCode: number | null; reason?: string };
+};    
 
 
 const GuestStack = () => (
@@ -88,6 +91,9 @@ const UserStack = () => (
         <RootStack.Screen name="CartEmpty" component={CartEmpty} options={{ headerShown: false }} />
         <RootStack.Screen name="OrderConfirm" component={OrderConfirm} options={{ headerShown: false }} />
         <RootStack.Screen name="NewAddressModal" component={NewAddressModal} options={{ headerShown: false }} />
+        <RootStack.Screen name="PaymentScreen" component={PaymentScreen} options={{ headerShown: false }} />
+        <RootStack.Screen name="PaymentSuccessScreen" component={PaymentSuccessScreen} options={{ headerShown: false }}/>
+        <RootStack.Screen name="PaymentFailedScreen" component={PaymentFailedScreen} options={{ headerShown: false }}/>
     </RootStack.Navigator>
 );
 
@@ -105,7 +111,7 @@ const MainNavigator = () => {
 
     return (
         <NavigationContainer>
-            <View style={{ flex: 1 }}>
+            <View style={{flex: 1}}>
                 {user ? <UserStack /> : <GuestStack />}
             </View>
         </NavigationContainer>

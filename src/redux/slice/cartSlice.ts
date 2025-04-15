@@ -8,7 +8,7 @@ interface Product {
   quantity: number;
   toppings: { [key: string]: number };
   sugar?: string;
-  ice?: string; 
+  ice?: string;
 }
 
 interface CartState {
@@ -44,8 +44,11 @@ const cartSlice = createSlice({
         product.quantity = Math.max(1, quantity);
       }
     },
+    resetCart: (state) => {
+      state.CartArr = [];
+    },
   },
 });
 
-export const { addProduct, deleteProduct, updateProductQuantity } = cartSlice.actions;
+export const { addProduct, deleteProduct, updateProductQuantity, resetCart } = cartSlice.actions;
 export default cartSlice.reducer;

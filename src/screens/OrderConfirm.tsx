@@ -17,6 +17,7 @@ import StoresModal from "src/modals/StoresModal";
 import { createOrder } from "src/services/orderService";
 import { deleteProduct, updateProductQuantity } from "src/redux/slice/cartSlice";
 import ProductNotificationModal from "src/modals/ProductNotificationModal";
+import paymentService from "src/services/paymentService";
 
 
 const OrderConfirm = () => {
@@ -34,7 +35,7 @@ const OrderConfirm = () => {
     const [vouchers, setVouchers] = useState<any[]>([]);
     const [selectedVoucher, setSelectedVoucher] = useState<any | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const [selectedPayment, setSelectedPayment] = useState<"ZaloPay" | "MoMo" | null>(null);
+    const [selectedPayment, setSelectedPayment] = useState<"VNPay" | "MoMo" | null>(null);
     const [modalAddress, setModalAddress] = useState(false);
     const [modalStores, setModalStores] = useState(false);
     const [shippingNote, setShippingNote] = useState("");
@@ -70,7 +71,7 @@ const OrderConfirm = () => {
         fetchVouchers();
     }, []);
 
-    const toggleRadioButton = (option: "ZaloPay" | "MoMo") => {
+    const toggleRadioButton = (option: "VNPay" | "MoMo") => {
         setSelectedPayment(option);
     };
 
@@ -129,35 +130,49 @@ const OrderConfirm = () => {
 
     const handleSubmitOrder = async () => {
         try {
-            const orderData = {
-                user_id: userId,
-                full_name: fullName,
-                phone_number: phone,
-                address: selectedAddress?.address || "",
-                store_address: selectedStore?.storeAddress || "",
-                note_ship: shippingNote || "",
-                note: Note || "",
-                voucher_id: selectedVoucher?.voucherId || null,
-                total_money: calculateFinalAmount(),
-                shipping_date: "",
-                payment_method: selectedPayment,
-                order_details: cartProducts.map(item => ({
-                    product_id: item.id,
-                    number_of_products: item.quantity,
-                    price: item.price,
-                    total_money: item.price * item.quantity
-                }))
-            };
-            console.log("currentUser: ", currentUser);
-            console.log(orderData)
-            const response = await createOrder(orderData);
-            console.log("Order success:", response.data);
+          const orderData = {
+            user_id: userId,
+            full_name: fullName,
+            phone_number: phone,
+            address: selectedAddress?.address || "",
+            store_address: selectedStore?.storeAddress || "",
+            note_ship: shippingNote || "",
+            note: Note || "",
+            voucher_id: selectedVoucher?.voucherId || null,
+            total_money: calculateFinalAmount(),
+            shipping_date: "",
+            payment_method: selectedPayment,
+            order_details: cartProducts.map(item => ({
+              product_id: item.id,
+              number_of_products: item.quantity,
+              price: item.price,
+              total_money: item.price * item.quantity,
+            })),
+          };
+      
+          const orderResponse = await createOrder(orderData);
+          console.log("Order success:", orderResponse.data);
+      
+          if (selectedPayment === "VNPay" || selectedPayment === "MoMo") {
+            const paymentResponse = await paymentService.createPayment({
+              orderId: orderResponse.data.orderId,
+              amount: calculateFinalAmount(),
+              bankCode: selectedPayment === "VNPay" ? "NCB" : "TCB",
+              language: "vn",
+              orderInfo: `Thanh toán đơn hàng #${orderResponse.data.orderId}`,
+            });
+          
+            const paymentUrl = paymentResponse;
+          
+            navigation.navigate("PaymentScreen", { paymentUrl });          
+          } else {
             Alert.alert("Thành công", "Đặt hàng thành công!");
+          }
         } catch (error) {
-            console.error("Order failed:", error);
-            Alert.alert("Lỗi", "Không thể đặt hàng. Vui lòng thử lại sau.");
+          console.error("Order failed:", error);
+          Alert.alert("Lỗi", "Không thể đặt hàng. Vui lòng thử lại sau.");
         }
-    };
+      };
 
 
     const renderVoucher = ({ item }: { item: any }) => (
@@ -371,19 +386,19 @@ const OrderConfirm = () => {
                                 </Text>
                                 <View style={styles.paymentOption}>
                                     <Image
-                                        source={require("../../assets/images/ZaloPay.jpg")}
+                                        source={require("../../assets/images/vnpay.png")}
                                         style={styles.imagePayment}
                                     />
                                     <View style={styles.paymentMethod}>
-                                        <Text style={styles.paymentLabel}> Ví ZaloPay</Text>
+                                        <Text style={styles.paymentLabel}> Ví VNPay</Text>
                                         <TouchableOpacity
-                                            onPress={() => toggleRadioButton("ZaloPay")}
+                                            onPress={() => toggleRadioButton("VNPay")}
                                             style={[
                                                 styles.radioButton,
-                                                selectedPayment === "ZaloPay" && { backgroundColor: "#104358" },
+                                                selectedPayment === "VNPay" && { backgroundColor: "#104358" },
                                             ]}
                                         >
-                                            {selectedPayment === "ZaloPay" && <Ionicons name="checkmark" style={styles.icon} />}
+                                            {selectedPayment === "VNPay" && <Ionicons name="checkmark" style={styles.icon} />}
                                         </TouchableOpacity>
                                     </View>
                                 </View>
