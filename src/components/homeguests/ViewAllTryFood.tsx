@@ -5,8 +5,8 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import axiosClient from "src/services/axiosClient";
 import { RootStackParams } from "../../navigators/MainNavigator";
+import productService from "src/services/productService";
 
 const ViewAllTryFood = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
@@ -17,9 +17,7 @@ const ViewAllTryFood = () => {
         let isMounted = true;
         const fetchProducts = async () => {
             try {
-                const response = await axiosClient.get("/products", {
-                    params: { page: 2, limit: 4 },
-                });
+                const response = await productService.getProducts();
                 if (isMounted) {
                     setProducts(response.data.products);
                 }

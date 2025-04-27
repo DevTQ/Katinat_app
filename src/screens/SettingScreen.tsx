@@ -18,7 +18,7 @@ const Setting = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <TouchableOpacity onPress={() => navigation.navigate("HomeGuest")} style={styles.backButton}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                 <AntDesign name="arrowleft" size={22} color="black" />
             </TouchableOpacity>
             <View style={styles.topContainer}>

@@ -7,11 +7,16 @@ export { default as OrderScreen } from "./OrderScreen";
 export { default as Setting } from "./SettingScreen";
 export { default as HomeScreen } from "./HomeScreen";
 export { default as Notification } from "../screens/Notification";
-export { default as StoreScreen } from "./StoreScreen";
+export { default as StoreScreen } from "./stores/StoreScreen";
+export { default as StoreDetail } from "./stores/StoreDetail";
 export { default as Voucher } from "./Vourcher";
 export { default as VourcherDetail } from "./VoucherDetail";
 export { default as OrderConfirm } from "./OrderConfirm";
 export { default as PaymentScreen } from "./PaymentScreen";
 export { default as PaymentFailedScreen } from "./PaymentFailedScreen";
 export { default as PaymentSuccessScreen } from "./PaymentSuccessScreen";
-
+export { default as OrderPending } from "./orderstatus/OrderPending";
+export { default as OrderPaid } from "./orderstatus/OrderPaid";
+export { default as ListOrderDetail } from "./orderstatus/ListOrderDetail";
+export { default as OrderConfirmed } from "./orderstatus/OrderConfirmed";
+export { default as OrderCompleted } from "./orderstatus/OrderCompleted";

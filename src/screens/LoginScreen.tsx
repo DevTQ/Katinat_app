@@ -34,7 +34,7 @@ const LoginScreen = () => {
         {/* Nửa dưới: Nội dung */}
         <KeyboardAvoidingView
           style={styles.bottomContainer}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+    
           keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
         >
 
@@ -227,9 +227,9 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: 40, // Điều chỉnh xuống một chút để tránh bị che
+    top: 40,
     left: 15,
-    zIndex: 10, // Đảm bảo nút luôn ở trên cùng
+    zIndex: 10,
     padding: 10,
   },
 });

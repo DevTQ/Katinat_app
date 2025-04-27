@@ -5,7 +5,7 @@ import {
 } from "react-native";
 import { useNavigation, useFocusEffect, useRoute } from "@react-navigation/native";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import axiosClient from "../../services/axiosClient";
+import productService from "src/services/productService";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -72,10 +72,10 @@ const ProductDetailScreen = () => {
     useEffect(() => {
         const fetchProductDetail = async () => {
             try {
-                const response = await axiosClient.get(`/products/${productId}`);
-                if (response.data && response.data.productId) {
-                    setProduct(response.data);
-                    const rawPrice = response.data.price;
+                const productDetailData = await productService.getProductById(productId);
+                if (productDetailData.data && productDetailData.data.productId) {
+                    setProduct(productDetailData.data);
+                    const rawPrice = productDetailData.data.price;
                     const numericPrice = typeof rawPrice === "string"
                         ? parseInt(rawPrice.replace(/\./g, ""), 10)
                         : rawPrice * 1000;

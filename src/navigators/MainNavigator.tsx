@@ -9,7 +9,9 @@ import { RootState } from "src/redux/store";
 import { 
     LoginScreen, HomeGuestScreen, RegisterScreen, AccountGuest, 
     OrderScreen, Setting, HomeScreen, Notification, StoreScreen, Voucher,
-    Account, VourcherDetail,OrderConfirm, PaymentScreen, PaymentSuccessScreen, PaymentFailedScreen 
+    Account, VourcherDetail,OrderConfirm, PaymentScreen, PaymentSuccessScreen, PaymentFailedScreen,
+    OrderPending, OrderPaid, OrderConfirmed, OrderCompleted, StoreDetail,
+    ListOrderDetail
 } from "../screens";
 import { 
     ViewAllBestSeller, productDetail, 
@@ -21,17 +23,18 @@ import {
     NewAddressModal
 } from "../modals";
 
-// Tạo stack navigator
 const RootStack = createNativeStackNavigator<RootStackParams>();
 
 export type RootStackParams = {
     HomeGuest: undefined; HomeScreen: undefined; 
-    Order: undefined; OrderConfirm: undefined;
+    Order: undefined; OrderConfirm: undefined; OrderPending: {orderId: number, paymentUrl: string}; 
+    OrderPaid: {orderCode: string}; ListOrderDetail: ListOrderDetailParams; OrderConfirmed: {orderCode: string};
+    OrderCompleted: {orderCode: string};
     AccountGuest: undefined; Account: undefined;
     Setting: undefined;
     Login: undefined; Register: undefined; 
     Notification: undefined; 
-    StoreScreen: { storeId: number }; 
+    StoreScreen: { storeId: number }; StoreDetail: { storeId: number, distance: number};
     Voucher: undefined; VourcherDetail: {voucherId: number};
     ViewAllBestSeller: undefined;  
     ViewAllForYou: undefined; 
@@ -42,7 +45,7 @@ export type RootStackParams = {
     RegisterComponent: { phoneNumber: string, referralCode: string };
     CartDetail: undefined; NewAddressModal: undefined; CartEmpty: undefined; 
     PaymentScreen: {paymentUrl: string};
-    PaymentSuccessScreen: { orderCode: number | null };
+    PaymentSuccessScreen: { orderCode: string};
     PaymentFailedScreen: { orderCode: number | null; reason?: string };
 };    
 
@@ -56,6 +59,7 @@ const GuestStack = () => (
         <RootStack.Screen name="RegisterComponent" component={RegisterComponent} options={{ headerShown: false }} />
         <RootStack.Screen name="Notification" component={Notification} options={{ headerShown: false }} />
         <RootStack.Screen name="StoreScreen" component={StoreScreen} options={{ headerShown: false }} />
+        <RootStack.Screen name="StoreDetail" component={StoreDetail} options={{ headerShown: false }} />
         <RootStack.Screen name="Order" component={OrderScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="Setting" component={Setting} options={{ headerShown: false }} />
         <RootStack.Screen name="AccountGuest" component={AccountGuest} options={{ headerShown: false }} />
@@ -79,6 +83,7 @@ const UserStack = () => (
         <RootStack.Screen name="Order" component={OrderScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="Setting" component={Setting} options={{ headerShown: false }} />
         <RootStack.Screen name="StoreScreen" component={StoreScreen} options={{ headerShown: false }} />
+        <RootStack.Screen name="StoreDetail" component={StoreDetail} options={{ headerShown: false }} />
         <RootStack.Screen name="Voucher" component={Voucher} options={{ headerShown: false }} />
         <RootStack.Screen name="VourcherDetail" component={VourcherDetail} options={{ headerShown: false }} />
         <RootStack.Screen name="ViewAllBestSeller" component={ViewAllBestSeller} options={{ headerShown: false }} />
@@ -94,6 +99,11 @@ const UserStack = () => (
         <RootStack.Screen name="PaymentScreen" component={PaymentScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="PaymentSuccessScreen" component={PaymentSuccessScreen} options={{ headerShown: false }}/>
         <RootStack.Screen name="PaymentFailedScreen" component={PaymentFailedScreen} options={{ headerShown: false }}/>
+        <RootStack.Screen name="OrderPending" component={OrderPending} options={{ headerShown: false }} />
+        <RootStack.Screen name="OrderPaid" component={OrderPaid} options={{ headerShown: false }} />
+        <RootStack.Screen name="OrderConfirmed" component={OrderConfirmed} options={{ headerShown: false }} />
+        <RootStack.Screen name="ListOrderDetail" component={ListOrderDetail} options={{ headerShown: false }} />
+        <RootStack.Screen name="OrderCompleted" component={OrderCompleted} options={{ headerShown: false }} />
     </RootStack.Navigator>
 );
 
