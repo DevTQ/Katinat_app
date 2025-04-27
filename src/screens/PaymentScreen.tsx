@@ -1,62 +1,69 @@
-import React, { useEffect } from "react";
+import React, { useRef } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { WebView } from "react-native-webview";
+import { WebView, WebViewNavigation } from "react-native-webview";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import axios from "axios";
-
 
 import { RootStackParams } from "src/navigators/MainNavigator";
 
-const PaymentScreen = ({ route }) => {
+type PaymentScreenProps = {
+  route: { params: { paymentUrl: string } };
+};
+
+const PaymentScreen: React.FC<PaymentScreenProps> = ({ route }) => {
   const { paymentUrl } = route.params;
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+  const webviewRef = useRef<WebView>(null);
 
-  useEffect(() => {
-  }, []);
+  const getQueryParam = (url: string, param: string): string | null => {
+    const match = url.match(new RegExp(`[?&]${param}=([^&]+)`));
+    return match ? decodeURIComponent(match[1]) : null;
+  };
 
-  
-  const handleNavigationStateChange = async (event) => {
-    const { url } = event;
+  const handleSuccessUrl = (url: string) => {
+    try {
+      const orderCode = getQueryParam(url, 'orderCode') || getQueryParam(url, 'vnp_TxnRef');
+      if (!orderCode) throw new Error('Missing orderCode/vnp_TxnRef in URL');
+      navigation.replace('PaymentSuccessScreen', { orderCode });
+    } catch (err) {
+      console.error('Failed to parse success URL', err);
+      navigation.replace('PaymentFailedScreen');
+    }
+  };
 
-   
-    if (url.includes("/api/v1/payments/payment-success")) {
-      try {
-        const response = await axios.get(url);
-        const { data } = response.data;
-
-        navigation.navigate("PaymentSuccessScreen", {
-          orderCode: data?.orderCode || null,
-        });
-
-      } catch (error) {
-        console.error("Không thể xác nhận thanh toán thành công", error);
-        navigation.navigate("PaymentFailedScreen");
-      }
-    } else if (url.includes("/api/v1/payments/payment-failed")) {
-      try {
-        const response = await axios.get(url);
-        const { data } = response.data;
-        navigation.navigate("PaymentFailedScreen", {
-          orderCode: data?.orderCode || null,
-        });
-      } catch (error) {
-        console.error("Không thể xác nhận thanh toán thất bại", error);
-        navigation.navigate("PaymentFailedScreen");
-      }
+  const handleNavStateChange = (navState: WebViewNavigation) => {
+    const { url } = navState;
+    if (url.includes('/api/v1/payments/payment-success')) {
+      webviewRef.current?.stopLoading();
+      handleSuccessUrl(url);
+      return;
+    }
+    if (url.includes('/api/v1/payments/payment-failed')) {
+      webviewRef.current?.stopLoading();
+      navigation.replace("OrderPending");
     }
   };
 
   return (
     <WebView
+      ref={webviewRef}
       source={{ uri: paymentUrl }}
       startInLoadingState
       renderLoading={() => (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <ActivityIndicator size="large" color="#0000ff" />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" />
         </View>
       )}
-      onNavigationStateChange={handleNavigationStateChange}
+      onNavigationStateChange={handleNavStateChange}
+      onShouldStartLoadWithRequest={(req) => {
+        const { url } = req;
+        if (url.includes('/api/v1/payments/payment-success') ||
+            url.includes('/api/v1/payments/payment-failed')) {
+          handleNavStateChange(req as WebViewNavigation);
+          return false;
+        }
+        return true;
+      }}
     />
   );
 };

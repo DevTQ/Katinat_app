@@ -9,17 +9,19 @@ import { resetCart } from "../redux/slice/cartSlice";
 
 const PaymentSuccessScreen = () => {
   const route = useRoute<RouteProp<RootStackParams, 'PaymentSuccessScreen'>>();
-  const { orderCode } = route.params || {};
+ 
+  const { orderCode } = route.params as { orderCode: string };
+
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
   const dispatch = useDispatch();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate("HomeScreen"); 
+      navigation.navigate("OrderPaid", { orderCode });
     }, 3000);
-
     return () => clearTimeout(timer);
-  }, [navigation]);
+  }, [navigation, orderCode]);
+  
 
   return (
     <View style={styles.container}>

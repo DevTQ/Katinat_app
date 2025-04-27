@@ -14,7 +14,7 @@ import dayjs from "dayjs";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddressModal from "src/modals/AddressModal";
 import StoresModal from "src/modals/StoresModal";
-import { createOrder } from "src/services/orderService";
+import OrderService from "src/services/orderService";
 import { deleteProduct, updateProductQuantity } from "src/redux/slice/cartSlice";
 import ProductNotificationModal from "src/modals/ProductNotificationModal";
 import paymentService from "src/services/paymentService";
@@ -149,28 +149,27 @@ const OrderConfirm = () => {
               total_money: item.price * item.quantity,
             })),
           };
-      
-          const orderResponse = await createOrder(orderData);
-          console.log("Order success:", orderResponse.data);
-      
+          
+          const orderResponse = await OrderService.createOrder(orderData);
+
+          let paymentUrl: string | null = null;
           if (selectedPayment === "VNPay" || selectedPayment === "MoMo") {
             const paymentResponse = await paymentService.createPayment({
               orderId: orderResponse.data.orderId,
               amount: calculateFinalAmount(),
               bankCode: selectedPayment === "VNPay" ? "NCB" : "TCB",
               language: "vn",
-              orderInfo: `Thanh toán đơn hàng #${orderResponse.data.orderId}`,
+              orderInfo: `Thanh toán đơn hàng #${orderResponse.data.orderCode}`,
             });
-          
-            const paymentUrl = paymentResponse;
-          
-            navigation.navigate("PaymentScreen", { paymentUrl });          
-          } else {
-            Alert.alert("Thành công", "Đặt hàng thành công!");
-          }
+            paymentUrl = paymentResponse;
+        }
+        navigation.navigate("OrderPending", {
+            orderId: orderResponse.data.orderId,
+            paymentUrl,
+            });          
         } catch (error) {
-          console.error("Order failed:", error);
-          Alert.alert("Lỗi", "Không thể đặt hàng. Vui lòng thử lại sau.");
+            console.error("Order failed:", error);
+            Alert.alert("Lỗi", "Không thể đặt hàng. Vui lòng thử lại sau.");
         }
       };
 
