@@ -1,93 +1,134 @@
-import React from "react";
-import { StyleSheet, View,TextInput, Text, ScrollView, SafeAreaView, TouchableOpacity } from "react-native";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import React, { useState } from "react";
+import { StyleSheet, View, TextInput, Text, ScrollView, SafeAreaView, TouchableOpacity } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import Zocial from '@expo/vector-icons/Zocial';
 import AppBar from '../components/homeguests/AppBar';
 import { useNavigation } from "@react-navigation/native";
+import { useLoginController } from "src/controllers/userController";
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { RootStackParams } from "src/navigators/MainNavigator";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-const accountBar = () => {
-    const navigation = useNavigation();
-    return(
+const AccountGuest = () => {
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+    const [Focused, SetFocused] = useState(false);
+    const isPhoneNumberValid = (phone: string) => {
+        const phoneRegex = /^(0|\+84)[0-9]{9}$/;
+        return phoneRegex.test(phone);
+    };
+
+    const {
+        values, errorMessage, phoneError, passwordError, secureText, togglePasswordVisibility, handleChangeValue, handleLogin, setPhoneError, setPasswordError
+    } = useLoginController();
+    return (
         <SafeAreaView style={styles.container}>
             <ScrollView>
                 <View style={styles.header}>
                     <View style={styles.logoGreetingContainer}>
-                        {/* Logo */}
                         <View style={styles.logo}>
-                        <Text style={{ textAlign: 'center', fontSize: 11}}>KATINAT</Text>
+                            <Text style={{ textAlign: 'center', fontSize: 11, color: 'gray', fontWeight: '500' }}>KATINAT</Text>
                         </View>
                         {/* Greeting and Role */}
-                        <Text style={styles.greetingText}>Hello Katies!</Text>
+                        <Text style={styles.greetingText}>Hello Katies</Text>
                     </View>
                     <View style={styles.title}>
-                        <Text style={{fontSize: 30, fontWeight: '400'}}>Đăng nhập</Text>
+                        <Text style={{ fontSize: 30, fontWeight: '500', color: '#104358' }}>Đăng nhập</Text>
                     </View>
                 </View>
                 <View style={styles.body}>
                     <Text style={styles.label}>Số điện thoại</Text>
                     <TextInput
-                    style={styles.input}
-                    keyboardType="number-pad"
+                        style={styles.input}
+                        keyboardType="number-pad"
+                        onFocus={() => SetFocused(true)}
+                        onBlur={() => SetFocused(false)}
+                        value={values.phone_number}
+                        onChangeText={(text) => {
+                            handleChangeValue("phone_number", text);
+                            setPhoneError("");
+                        }}
                     />
+                    {
+                        errorMessage && <Text style={{ color: '#DEB887', fontSize: 14, fontWeight: 'bold', width: 350, alignSelf: "center" }}>{errorMessage}</Text>
+                    }
+                    {
+                        phoneError && <Text style={{ marginLeft: 20, color: '#DEB887', fontSize: 15, fontWeight: 'bold' }}>{phoneError}</Text>
+                    }
                     <Text style={styles.label}>Mật khẩu</Text>
                     <View style={styles.groupPassword}>
                         <TextInput
                             style={styles.passwordInput}
                             secureTextEntry
+                            onFocus={() => SetFocused(true)}
+                            onBlur={() => SetFocused(false)}
+                            value={values.password}
+                            onChangeText={(text) => {
+                                handleChangeValue("password", text);
+                                setPasswordError("");
+                            }}
                         />
-                        <TouchableOpacity>
-                            <Ionicons name="eye-off-outline" size={24} color="black" />
+                        <TouchableOpacity onPress={togglePasswordVisibility}>
+                            <FontAwesome6 name={secureText ? "eye-slash" : "eye"} style={styles.icon} />
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity>
+                    {
+                        passwordError && <Text style={{ marginLeft: 20, color: '#DEB887', fontSize: 15, fontWeight: 'bold' }}>{passwordError}</Text>
+                    }
+                    <TouchableOpacity onPress={() => navigation.navigate("ForgotPasswordScreen")}>
                         <Text style={styles.forgotPassword}>Quên mật khẩu?</Text>
                     </TouchableOpacity>
-                    <View style={styles.btnLogin}>
-                        <TouchableOpacity>
-                            <Text style={{textAlign: 'center', fontSize: 18, color: 'white'}}>Đăng nhập</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <TouchableOpacity style={styles.textRegis}>
-                        <Text style={{fontSize: 16, fontWeight: '300'}}>Bạn chưa có tài khoản?</Text>
-                        <Text style={{textDecorationLine: 'underline', fontSize: 16, fontWeight:'400'}}>đăng ký</Text>
-                    </TouchableOpacity> 
+
+                    <TouchableOpacity
+                        style={[styles.btnLogin, {
+                            backgroundColor: isPhoneNumberValid(values.phone_number) ? "#bb946b" : "#bb946b",
+                            opacity: isPhoneNumberValid(values.phone_number) ? 1 : 0.6
+                        }]}
+                        onPress={handleLogin}
+                        disabled={!isPhoneNumberValid(values.phone_number)} // <-- Đặt ở đây
+                    >
+                        <Text style={[styles.buttonText, { opacity: isPhoneNumberValid(values.phone_number) ? 1 : 0.5 }]}>Đăng nhập</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.textRegis} onPress={() => navigation.navigate("Register")}>
+                        <Text style={{ fontSize: 16, fontWeight: '300', color: '#104358' }}>Bạn chưa có tài khoản?</Text>
+                        <Text style={{ textDecorationLine: 'underline', fontSize: 16, fontWeight: '400', color: '#104358' }}>đăng ký</Text>
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.bottom}>
                     <TouchableOpacity>
                         <View style={styles.functions}>
-                            <AntDesign name="home" size={25} color="black"/>
-                            <Text style={{fontSize: 16, marginLeft: 20}}>Về chúng tôi</Text>  
+                            <AntDesign name="home" size={25} color="black" />
+                            <Text style={styles.textContent}>Về chúng tôi</Text>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity>
                         <View style={styles.functions}>
                             <MaterialIcons name="settings" size={24} color="black" />
-                            <Text style={{fontSize: 16, marginLeft: 20}}>Cài đặt</Text>  
+                            <Text style={styles.textContent}>Cài đặt</Text>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity>
                         <View style={styles.functions}>
                             <SimpleLineIcons name="question" size={24} color="black" />
-                            <Text style={{fontSize: 16, marginLeft: 20}}>Trợ giúp & Liên hệ</Text>  
+                            <Text style={styles.textContent}>Trợ giúp & Liên hệ</Text>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity>
                         <View style={styles.functions}>
                             <Zocial name="instapaper" size={24} color="black" />
-                            <Text style={{fontSize: 16, marginLeft: 20}}>Điều khoản & Chính khách</Text>  
+                            <Text style={styles.textContent}>Điều khoản & Chính khách</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.introduce}>
-                    <Text style={{textDecorationLine: 'underline', textAlign: 'center', fontWeight: '300'}}>Phiên bản: 1.0.31</Text>
-                    <Text style={{textAlign: 'center', fontWeight: '300'}}>Copyright KATINAT All Rights Reserved.</Text>
-                    <Text style={{textAlign: 'center', fontWeight: '300'}}>Powered by Softworld OOD platform</Text>
+                    <Text style={{ textDecorationLine: 'underline', textAlign: 'center', fontWeight: '300', color: '#104358' }}>Phiên bản: 1.0.31</Text>
+                    <Text style={{ textAlign: 'center', fontWeight: '300', color: '#104358' }}>Copyright KATINAT All Rights Reserved.</Text>
+                    <Text style={{ textAlign: 'center', fontWeight: '300', color: '#104358' }}>Powered by Softworld OOD platform</Text>
                 </View>
             </ScrollView>
-            <AppBar/>
+            {!Focused && <AppBar />}
         </SafeAreaView>
     )
 }
@@ -102,7 +143,7 @@ const styles = StyleSheet.create({
         marginTop: 40,
     },
     logoGreetingContainer: {
-        flexDirection: 'row', 
+        flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 16,
     },
@@ -112,19 +153,18 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#DCDCDC',
-        opacity: 0.3,
+        backgroundColor: '#f5f4fa',
+        opacity: 0.5,
         marginLeft: 10,
-        borderWidth: 0.3,
     },
     greetingText: {
-        color: 'orange',
+        color: '#104358',
         fontSize: 18,
         fontWeight: 'bold',
         marginLeft: 15,
     },
     title: {
-        marginBottom: 30,
+        marginBottom: 20,
         alignItems: 'center'
     },
     body: {
@@ -132,17 +172,17 @@ const styles = StyleSheet.create({
     },
     input: {
         borderWidth: 0.5,
-        fontSize: 22,
         marginBottom: 10,
         borderRadius: 10,
         width: '90%',
-        marginHorizontal: 20
-
+        marginHorizontal: 20,
+        height: 50,
     },
     label: {
         fontSize: 18,
         marginHorizontal: 20,
         fontWeight: 300,
+        color: '#104358'
     },
     groupPassword: {
         flexDirection: 'row',
@@ -151,12 +191,12 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         borderWidth: 0.5,
         borderRadius: 10,
-        paddingHorizontal: 10,  // Tạo khoảng cách giữa nội dung và viền
+        paddingHorizontal: 10,
     },
     passwordInput: {
-        flex: 1,  // Để input không chiếm hết không gian
-        fontSize: 22,
-        paddingVertical: 10, // Tạo khoảng cách trên dưới
+        flex: 1,
+        height: 50,
+        paddingVertical: 10,
     },
     forgotPassword: {
         textDecorationLine: 'underline',
@@ -172,8 +212,9 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         justifyContent: 'center',
         marginTop: 15,
-        opacity: 0.8
-    } ,
+        opacity: 0.8,
+        alignItems: 'center'
+    },
     textRegis: {
         flexDirection: 'row',
         justifyContent: 'center',
@@ -193,8 +234,24 @@ const styles = StyleSheet.create({
     },
     introduce: {
         padding: 40,
-        
+    },
+    icon: {
+        fontSize: 20,
+        color: "gray",
+    },
+    buttonText: {
+        color: "#ffffff",
+        fontWeight: "bold",
+        fontSize: 18,
+        opacity: 0.5,
+        fontFamily: 'Open Sans Condensed',
+    },
+    textContent: {
+        fontSize: 17,
+        marginLeft: 20,
+        color: '#104358',
+        fontWeight: '500'
     }
 });
 
-export default accountBar;
+export default AccountGuest;

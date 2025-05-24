@@ -14,25 +14,16 @@ const ViewAllTryFood = () => {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        let isMounted = true;
-        const fetchProducts = async () => {
+        const fetchBestSellers = async () => {
             try {
-                const response = await productService.getProducts();
-                if (isMounted) {
-                    setProducts(response.data.products);
-                }
+                const response = await productService.getTryFood();
+                setProducts(response.data.products ?? response.data);
             } catch (error) {
-                console.error("Lỗi khi lấy danh sách sản phẩm:", error);
             } finally {
-                if (isMounted) setLoading(false);
+                setLoading(false);
             }
         };
-
-        fetchProducts();
-
-        return () => {
-            isMounted = false;
-        };
+        fetchBestSellers();
     }, []);
 
     const renderItem = ({ item }: { item: any }) => {

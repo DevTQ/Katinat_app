@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity,Image } from "react-native";
+import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image } from "react-native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Banner from "../components/homeguests/Banner";
 import BestSeller from "../components/homeguests/BestSeller";
@@ -25,61 +25,59 @@ const HomeGuestScreen = () => {
           </Text>
         </View>
 
-       
-        <View style={styles.logoGreetingContainer}>
-   
-          <View style={styles.logo}>
-            <Text style={{ textAlign: 'center', fontSize: 11}}>KATINAT</Text>
-          </View>
 
-   
+        <View style={styles.logoGreetingContainer}>
+
+          <View style={styles.logo}>
+            <Text style={{ textAlign: 'center', fontSize: 11, color: 'gray', fontWeight: '500' }}>KATINAT</Text>
+          </View>
           <View style={styles.textContainer}>
             <Text style={styles.greetingText}>{Validate.checkTime(new Date())}</Text>
             <Text style={styles.guestText}>Khách</Text>
           </View>
 
-        
+
           <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
             <FontAwesome name="bell-o" size={24} color="#104358" style={styles.bellIcon} />
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.logRegBtn}
-        onPress={() => {
-          navigation.navigate("Register");
-        }}
+          onPress={() => {
+            navigation.navigate("Register");
+          }}
         >
-          <Text style={{fontSize:16, color: 'white', fontFamily: 'Open Sans Condensed', fontWeight: '600'}}>ĐĂNG KÝ/ ĐĂNG NHẬP</Text>
+          <Text style={{ fontSize: 16, color: 'white', fontFamily: 'Open Sans Condensed', fontWeight: '600' }}>ĐĂNG KÝ/ ĐĂNG NHẬP</Text>
         </TouchableOpacity>
-        <Banner/>
-        <View style={{flexDirection: 'row'}}>
-                  <TouchableOpacity style={[styles.cart, {marginLeft: 20}]} 
-                  activeOpacity={1} onPress={() => navigation.navigate("Order")}>
-                    <Image source={require("../../assets/images/Giaohang.png")}
-                    style={styles.image}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.cart, {marginLeft: 15}]} activeOpacity={1}
-                  onPress={() => navigation.navigate("StoreScreen")}>
-                    <Image source={require("../../assets/images/laytannoi.png")}
-                    style={styles.image}/>
-                  </TouchableOpacity>
-                </View>
-                <Text style={{color: '#907247', marginVertical: 15, fontSize: 15, fontWeight: 500, marginLeft: 50}}>
-                  Khung giờ áp dụng đặt hàng từ 7:00 - 21:30
-                </Text>
-        <BestSeller/>
+        <Banner />
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity style={[styles.cart, { marginLeft: 20 }]}
+            activeOpacity={1} onPress={() => navigation.navigate("Order")}>
+            <Image source={require("../../assets/images/Giaohang.png")}
+              style={styles.image}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.cart, { marginLeft: 15 }]} activeOpacity={1}
+            onPress={() => navigation.navigate("StoreScreen")}>
+            <Image source={require("../../assets/images/laytannoi.png")}
+              style={styles.image} />
+          </TouchableOpacity>
+        </View>
+        <Text style={{ color: '#907247', marginVertical: 15, fontSize: 15, fontWeight: 500, marginLeft: 50 }}>
+          Khung giờ áp dụng đặt hàng từ 7:00 - 21:30
+        </Text>
+        <BestSeller />
         <View style={styles.line}></View>
         {/* Dành cho bạn */}
-        <ForYou/>
+        <ForYou />
         <View style={styles.line}></View>
         {/* Món ngon phải thử */}
-        <TryFood/>
+        <TryFood />
         {/* Tin tức - sự kiện */}
-        <EventNews/>
+        <EventNews />
         {/* thanh chức năng */}
-        </ScrollView>
-        <AppBar/>
+      </ScrollView>
+      <AppBar />
     </SafeAreaView>
   );
 };
@@ -101,7 +99,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   logoGreetingContainer: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 16,
@@ -112,10 +110,9 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#DCDCDC',
-    opacity: 0.3,
+    backgroundColor: '#f5f4fa',
+    opacity: 0.5,
     marginLeft: 10,
-    borderWidth: 0.3,
   },
   textContainer: {
     flex: 1, // Chiếm khoảng trống giữa logo và chuông
@@ -171,7 +168,7 @@ const styles = StyleSheet.create({
     width: 170,
     height: 150,
   },
-  
+
 });
 
 export default HomeGuestScreen;

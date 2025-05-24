@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../../navigators/MainNavigator";
 import axiosClient from "../../services/axiosClient";
+import productService from "src/services/productService";
 
 const BestSeller = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
@@ -12,47 +13,43 @@ const BestSeller = () => {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchBestSellers = async () => {
             try {
-                const response = await axiosClient.get("/products", {
-                    params: { page: 0, limit: 8 },
-                });
-                setProducts(response.data.products); 
+                const response = await productService.getBestSellers();
+                setProducts(response.data.products ?? response.data);
             } catch (error) {
-                console.error("Lỗi khi lấy danh sách sản phẩm:", error);
             } finally {
                 setLoading(false);
             }
         };
-    
-        fetchProducts();
-    }, []);    
-    
+        fetchBestSellers();
+    }, []);
+
     const renderItem = ({ item }: { item: any }) => (
         <TouchableOpacity
-            activeOpacity={1}      
+            activeOpacity={1}
             onPress={() => {
                 if (!item.productId) {
                     console.error("Lỗi: productId không hợp lệ", item);
                     return;
                 }
                 navigation.navigate("productDetail", { productId: item.productId });
-            }}                  
-            
+            }}
+
             style={styles.card}
         >
             <Image
-                source={{ uri: item.image }} 
+                source={{ uri: item.image }}
                 style={styles.image}
             />
             <Text style={styles.name}>{item.name}</Text>
             <View style={styles.bottomCard}>
-            <Text style={{ fontSize: 15, color: '#104358', marginLeft: 10 }}>
-                {Number(item.price).toFixed(3).replace(/\./g, ",")}đ
-            </Text>
-                <TouchableOpacity 
+                <Text style={{ fontSize: 15, color: '#104358', marginLeft: 10 }}>
+                    {Number(item.price).toFixed(3).replace(/\./g, ",")}đ
+                </Text>
+                <TouchableOpacity
                     activeOpacity={1}
-                    style={styles.addButton} 
+                    style={styles.addButton}
                     onPress={() => alert('Thêm sản phẩm thành công')}
                 >
                     <Text style={styles.addText}>+</Text>
@@ -66,7 +63,7 @@ const BestSeller = () => {
             <View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'row' }}>
-                        <Text style={{color: '#104358', fontWeight: 'bold', marginLeft: 15, marginRight: 3, fontSize: 18}}>
+                        <Text style={{ color: '#104358', fontWeight: 'bold', marginLeft: 15, marginRight: 3, fontSize: 18 }}>
                             BEST SELLER
                         </Text>
                         <AntDesign name="staro" size={14} color="black" />
@@ -78,7 +75,7 @@ const BestSeller = () => {
                     </TouchableOpacity>
                 </View>
             </View>
-            
+
             {loading ? (
                 <ActivityIndicator size="large" color="#104358" />
             ) : (

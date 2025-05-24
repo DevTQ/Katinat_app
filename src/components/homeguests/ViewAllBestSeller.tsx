@@ -1,5 +1,5 @@
-import { 
-    View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator, FlatList, Image 
+import {
+    View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator, FlatList, Image
 } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useNavigation } from "@react-navigation/native";
@@ -14,26 +14,20 @@ const ViewAllBestSeller = () => {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        let isMounted = true;
-        const fetchProducts = async () => {
+        const fetchBestSellers = async () => {
             try {
-                const response = await productService.getProducts();
-                if (isMounted) {
-                    setProducts(response.data.products);
-                }
+                const response = await productService.getBestSellers();
+                setProducts(response.data.products ?? response.data);
             } catch (error) {
-                console.error("Lỗi khi lấy danh sách sản phẩm:", error);
             } finally {
-                if (isMounted) setLoading(false);
+                setLoading(false);
             }
         };
-
-        fetchProducts();
-
-        return () => {
-            isMounted = false;
-        };
+        fetchBestSellers();
     }, []);
+
+
+
 
     const renderItem = ({ item }: { item: any }) => {
         return (
@@ -54,8 +48,8 @@ const ViewAllBestSeller = () => {
                     <Text style={styles.price}>
                         {Number(item.price).toFixed(3).replace(/\./g, ",")}đ
                     </Text>
-                    <TouchableOpacity 
-                        style={styles.addButton} 
+                    <TouchableOpacity
+                        style={styles.addButton}
                         onPress={() => console.log(`Thêm ${item.name} vào giỏ hàng`)}
                     >
                         <Text style={styles.addText}>+</Text>
@@ -80,7 +74,7 @@ const ViewAllBestSeller = () => {
                     numColumns={2}
                     data={products}
                     renderItem={renderItem}
-                    keyExtractor={(item) => item.productId?.toString() || Math.random().toString()}
+                    keyExtractor={(item, index) => item.productId?.toString() ?? index.toString()}
                     columnWrapperStyle={styles.row}
                     style={styles.list}
                     showsVerticalScrollIndicator={false}
@@ -161,7 +155,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: '#104358',
     },
-    list: { 
+    list: {
         marginTop: 10,
         marginBottom: 10,
     },

@@ -62,12 +62,12 @@ const NewAddressModal = () => {
 }
 
 const styles = StyleSheet.create({
-    container: {flex: 1},
+    container: {flex: 1, backgroundColor: 'white'},
     backButton: {position: "absolute",top: 40,left: 15,zIndex: 10,padding: 10,},
     header: {alignItems: 'center',marginTop: 25,padding: 20,},
     titleText: {fontSize: 20,fontWeight: '500',color: '#104358'},
     body: {},
-    contact: { backgroundColor: 'orange', padding: 5, marginTop: 5},
+    contact: { backgroundColor: '#f1f1f1', padding: 5, marginTop: 5},
     contactText: {fontSize: 18, color: '#104358', paddingLeft: 15},
     form: {marginHorizontal: 15, marginVertical: 10},
     label: {fontSize: 18, fontWeight: '500', color: '#104358', marginVertical: 5},

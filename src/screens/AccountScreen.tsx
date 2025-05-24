@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, SafeAreaView, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Text, SafeAreaView, TouchableOpacity, ImageBackground, ScrollView } from "react-native";
 import { CommonActions, useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/slice/authSlice";
 import { AppBar } from "src/components/orders";
 import LogoutModal from "src/modals/LogoutModal";
 import { RootState } from "src/redux/store";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
-const AccountBar = () => {
+const Account = () => {
     const navigation = useNavigation();
     const dispatch = useDispatch();
     const [modalVisible, setModalVisible] = useState(false);
@@ -17,7 +18,6 @@ const AccountBar = () => {
         setModalVisible(true);
     };
 
-    // Hàm đóng modal
     const closeModal = () => {
         setModalVisible(false);
     };
@@ -28,59 +28,72 @@ const AccountBar = () => {
         navigation.dispatch(
             CommonActions.reset({
                 index: 0,
-                routes: [{ name: "AccountGuest"}],
+                routes: [{ name: "AccountGuest" }],
             })
-        );    
+        );
     };
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.logoGreetingContainer}>
-                    <View style={styles.logo}>
-                        <Text style={{ textAlign: 'center', fontSize: 11 }}>KATINAT</Text>
+            <ScrollView>
+                <View style={styles.header}>
+                    <View style={styles.logoGreetingContainer}>
+                        <View style={styles.logo}>
+                            <Text style={{ textAlign: 'center', fontSize: 11, color: 'gray', fontWeight: '500' }}
+                            >KATINAT</Text>
+                        </View>
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 15 }}>
+                        <Text style={styles.name}>{user.fullname}</Text>
+                        <TouchableOpacity onPress={openModal}>
+                            <Text style={styles.logOut}>Đăng xuất</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
-                <Text style={styles.name}>{user.fullname}</Text>
-                <TouchableOpacity onPress={openModal}>
-                    <Text style={styles.logOut}>Đăng xuất</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.body}>
-                <Text style={{ fontSize: 18, fontWeight: '500', color: '#0F4359', marginLeft: 20, marginVertical: 15 }}>Thông tin tài khoản</Text>
-                <View style={styles.content}>
-                    <TouchableOpacity style={styles.btnFuction}>
-                        <Text style={styles.text}>Chỉnh sửa{"\n"}trang cá nhân</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.btnFuction}>
-                        <Text style={styles.text}>Sở thích</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.btnFuction}>
-                        <Text style={styles.text}>Danh sách{"\n"}yêu thích</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.btnFuction}>
-                        <Text style={styles.text}>Đặc quyền{"\n"}thành viên</Text>
-                    </TouchableOpacity>
+                <View style={styles.infor}>
+                    <Text style={[styles.name, { color: '#696e98',  paddingLeft: 20, paddingBottom: 20}]}>{user.fullname}</Text>
                 </View>
-                <View style={styles.content}>
-                    <TouchableOpacity style={[styles.btnFuction, { borderBottomLeftRadius: 20 }]}>
-                        <Text style={styles.text}>Ưu đãi</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.btnFuction}>
-                        <Text style={styles.text}>Lịch sử{"\n"}đặt hàng</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.btnFuction}>
-                        <Text style={styles.text}>Đánh giá{"\n"}đơn hàng</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.btnFuction, { borderBottomRightRadius: 20 }]}>
-                        <Text style={styles.text}>Giới thiệu{"\n"}Bạn bè</Text>
-                    </TouchableOpacity>
+                <View style={styles.body}>
+                    <View style={styles.content}>
+                        <TouchableOpacity style={styles.fuct}>
+                            <Text style={styles.text}>Chỉnh sửa trang cá nhân</Text>
+                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.fuct}>
+                            <Text style={styles.text}>Sở thích</Text>
+                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.fuct}>
+                            <Text style={styles.text}>Danh sách yêu thích</Text>
+                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.fuct}>
+                            <Text style={styles.text}>Đặc quyền thành viên</Text>
+                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.fuct}>
+                            <Text style={styles.text}>Ưu đãi</Text>
+                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.fuct}>
+                            <Text style={styles.text}>Lịch sử đặt hàng</Text>
+                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.fuct}>
+                            <Text style={styles.text}>Đánh giá đơn hàng</Text>
+                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.fuct}>
+                            <Text style={styles.text}>Giới thiệu Bạn bè</Text>
+                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
+            </ScrollView>
             <LogoutModal
                 visible={modalVisible}
                 onConfirm={handleConfirmLogout}
-                onCancel={closeModal}      
+                onCancel={closeModal}
             />
             <AppBar />
         </SafeAreaView>
@@ -94,64 +107,73 @@ const styles = StyleSheet.create({
     },
     header: {
         flexDirection: 'row',
+        paddingTop: 30,
+        paddingHorizontal: 10
     },
     logoGreetingContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-        marginLeft: 10,
-        marginTop: 40
+        marginRight: 5,
     },
     logo: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        width: 65,
+        height: 65,
+        borderRadius: 35,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#DCDCDC',
-        opacity: 0.3,
-        marginLeft: 10,
-        borderWidth: 0.3,
+        backgroundColor: '#f5f4fa',
+        opacity: 0.5
     },
     name: {
-        fontSize: 25,
+        fontSize: 22,
         fontWeight: '500',
-        color: "#0F4359",
-        marginTop: 52,
-        marginLeft: 5
+        color: "#22404d",
+        marginRight: 60,
     },
     logOut: {
-        marginTop: 62,
-        marginLeft: 100,
+        marginTop: 5,
+        fontSize: 17,
         color: 'burlywood'
     },
     body: {
-        borderRadius: 20,
-        borderWidth: 2,
-        width: '92%',
-        marginHorizontal: 15,
-        borderColor: "rgba(0, 0, 0, 0.1)",
+        flex: 1,
+        marginHorizontal: 5,
         marginBottom: 15,
     },
     content: {
-        flexDirection: "row",
-        justifyContent: 'center',
+        alignItems: 'flex-start',
+        marginHorizontal: 10
     },
     text: {
-        textAlign: 'center',
-        marginTop: 60,
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: '500',
-        color: "#0F4359"
+        color: "#0F4359",
     },
-    btnFuction: {
-        borderWidth: 0.2,
-        borderStyle: 'dashed',
-        height: 110,
-        width: 90,
-        borderColor: "rgba(0, 0, 0, 0.3)"
+    image: {
+        width: '100%',
+        height: '40%',
+        borderRadius: 10
+    },
+    infor: {
+        minHeight: 200,
+        width: '90%',
+        backgroundColor: '#e7e9f5',
+        borderRadius: 10,
+        marginHorizontal: 20,
+        marginVertical: 10,
+        alignItems: 'flex-start',
+        justifyContent: 'flex-end'
+    },
+    fuct: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 15,
+        borderWidth: 1.5,
+        borderColor: '#f3f3f3',
+        width: '100%',
+        borderRadius: 10,
+        marginVertical: 5,
+        paddingLeft: 10
     }
-
 });
 
-export default AccountBar;
+export default Account;

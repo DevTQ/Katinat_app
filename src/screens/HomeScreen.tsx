@@ -31,7 +31,7 @@ const HomeScreen = () => {
         </View>
         <View style={styles.logoGreetingContainer}>
           <View style={styles.logo}>
-            <Text style={{ textAlign: 'center', fontSize: 11}}>KATINAT</Text>
+            <Text style={{ textAlign: 'center', fontSize: 11, color: 'gray', fontWeight: '500'}}>KATINAT</Text>
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.greetingText}>{Validate.checkTime(new Date())}</Text>
@@ -112,10 +112,9 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#DCDCDC',
-    opacity: 0.3,
+    backgroundColor: '#f5f4fa',
+    opacity: 0.5,
     marginLeft: 10,
-    borderWidth: 0.3,
   },
   textContainer: {
     flex: 1, 

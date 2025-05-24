@@ -7,6 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../navigators/MainNavigator";
 import { useLoginController } from "src/controllers/userController";
+import ErrorModal from '../modals/ErrorModal.tsx';
 
 const LoginScreen = () => {
   const isPhoneNumberValid = (phone: string) => {
@@ -15,7 +16,8 @@ const LoginScreen = () => {
   };
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
   const {
-    values, errorMessage, phoneError, passwordError, secureText, togglePasswordVisibility, handleChangeValue, handleLogin, setPhoneError, setPasswordError
+    values, errorMessage, phoneError, passwordError, secureText, togglePasswordVisibility, handleChangeValue, 
+    handleLogin, setPhoneError, setPasswordError, showErrorModal, setShowErrorModal
   } = useLoginController();
   return (
 
@@ -34,7 +36,6 @@ const LoginScreen = () => {
         {/* Nửa dưới: Nội dung */}
         <KeyboardAvoidingView
           style={styles.bottomContainer}
-    
           keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
         >
 
@@ -59,7 +60,7 @@ const LoginScreen = () => {
               <View style={styles.inputContainer}>
                 <TextInput
                   style={styles.input}
-                  keyboardType="numeric"
+                  keyboardType="phone-pad"
                   value={values.phone_number}
                   onChangeText={(text) => {
                     handleChangeValue("phone_number", text);
@@ -68,10 +69,10 @@ const LoginScreen = () => {
                 />
               </View >
               {
-                errorMessage && <Text style={{ marginTop: 5, marginBottom: 10, color: '#DEB887', fontSize: 14, fontWeight: 'bold', width: 350, alignSelf: "center"}}>{errorMessage}</Text>
+                errorMessage && <Text style={{ marginTop: 5, marginBottom: 10, color: '#DEB887', fontSize: 14, fontWeight: 'bold', width: 350, alignSelf: "center" }}>{errorMessage}</Text>
               }
               {
-                phoneError && <Text style={{ marginTop: 5, color: '#DEB887', fontSize: 12, fontWeight: 'bold'}}>{phoneError}</Text>
+                phoneError && <Text style={{ marginTop: 5, color: '#DEB887', fontSize: 12, fontWeight: 'bold' }}>{phoneError}</Text>
               }
               <View style={styles.password}>
                 <Text style={styles.label}>Mật khẩu</Text>
@@ -93,21 +94,26 @@ const LoginScreen = () => {
                   passwordError && <Text style={{ marginTop: 5, color: '#DEB887', fontSize: 12, fontWeight: 'bold' }}>{passwordError}</Text>
                 }
               </View>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate("ForgotPasswordScreen")}>
                 <Text style={styles.link}>Quên mật khẩu?</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Nút đăng nhập */}
-            <TouchableOpacity style={[styles.button, {backgroundColor: isPhoneNumberValid(values.phone_number) ? "#4CAF50" : "#57635f",
-                    opacity: isPhoneNumberValid(values.phone_number) ? 1 : 0.5,
-                  }]}
+            <TouchableOpacity style={[styles.button, {
+              backgroundColor: isPhoneNumberValid(values.phone_number) ? "#bb946b" : "#bb946b",
+              opacity: isPhoneNumberValid(values.phone_number) ? 1 : 0.5,
+            }]}
               onPress={handleLogin}
               disabled={!isPhoneNumberValid(values.phone_number)}
             >
               <Text style={[styles.buttonText, { opacity: isPhoneNumberValid(values.phone_number) ? 1 : 0.5 }]}>Đăng nhập</Text>
             </TouchableOpacity>
           </View>
+          <ErrorModal
+            visible={showErrorModal}
+            message={errorMessage}
+            onClose={() => setShowErrorModal(false)}
+          />
         </KeyboardAvoidingView>
       </SafeAreaView>
     </Pressable>

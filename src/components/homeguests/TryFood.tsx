@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../../navigators/MainNavigator";
 import axiosClient from "src/services/axiosClient";
+import productService from "src/services/productService";
 
 const TryFood = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
@@ -11,21 +12,17 @@ const TryFood = () => {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchBestSellers = async () => {
             try {
-                const response = await axiosClient.get("/products", {
-                    params: { page: 2, limit: 4 },
-                });
-                setProducts(response.data.products); 
+                const response = await productService.getTryFood();
+                setProducts(response.data.products ?? response.data);
             } catch (error) {
-                console.error("Lỗi khi lấy danh sách sản phẩm:", error);
             } finally {
                 setLoading(false);
             }
         };
-    
-        fetchProducts();
-    }, []);    
+        fetchBestSellers();
+    }, []);
 
     const renderItem = ({ item }: {item: any}) => (
         <TouchableOpacity 
