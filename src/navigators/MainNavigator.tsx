@@ -11,7 +11,11 @@ import {
     OrderScreen, Setting, HomeScreen, Notification, StoreScreen, Voucher,
     Account, VourcherDetail,OrderConfirm, PaymentScreen, PaymentSuccessScreen, PaymentFailedScreen,
     OrderPending, OrderPaid, OrderConfirmed, OrderCompleted, StoreDetail,
-    ListOrderDetail
+    ListOrderDetail,ForgotPasswordScreen,
+    OTPVerificationScreen,ResetPasswordScreen, OrderShippingConfirm,
+    OrderShipping, ListNotification, NotificationDetail,
+    SearchScreen,
+    SearchResultsScreen
 } from "../screens";
 import { 
     ViewAllBestSeller, productDetail, 
@@ -27,13 +31,14 @@ const RootStack = createNativeStackNavigator<RootStackParams>();
 
 export type RootStackParams = {
     HomeGuest: undefined; HomeScreen: undefined; 
-    Order: undefined; OrderConfirm: undefined; OrderPending: {orderId: number, paymentUrl: string}; 
+    Order: undefined; OrderConfirm: undefined; OrderPending: {orderCode: string | null, paymentUrl: string}; 
     OrderPaid: {orderCode: string}; ListOrderDetail: ListOrderDetailParams; OrderConfirmed: {orderCode: string};
-    OrderCompleted: {orderCode: string};
-    AccountGuest: undefined; Account: undefined;
-    Setting: undefined;
+    OrderCompleted: {orderCode: string}; OrderShipping: {orderCode: string}
+    AccountGuest: undefined; Account: undefined; ForgotPasswordScreen: undefined; 
+    OTPVerificationScreen: { phone: string}; ResetPasswordScreen: { phone: string, code: string};
+    Setting: undefined; SearchScreen: undefined; SearchResultsScreen: {productName: string};
     Login: undefined; Register: undefined; 
-    Notification: undefined; 
+    Notification: undefined; ListNotification: undefined; NotificationDetail: {notiId: number};
     StoreScreen: { storeId: number }; StoreDetail: { storeId: number, distance: number};
     Voucher: undefined; VourcherDetail: {voucherId: number};
     ViewAllBestSeller: undefined;  
@@ -44,9 +49,10 @@ export type RootStackParams = {
     EventNews: undefined;
     RegisterComponent: { phoneNumber: string, referralCode: string };
     CartDetail: undefined; NewAddressModal: undefined; CartEmpty: undefined; 
-    PaymentScreen: {paymentUrl: string};
+    PaymentScreen: {paymentUrl: string, orderCode: string};
     PaymentSuccessScreen: { orderCode: string};
-    PaymentFailedScreen: { orderCode: number | null; reason?: string };
+    PaymentFailedScreen: { orderCode: string, reason: string | null, paymentUrl: string};
+    OrderShippingConfirm: undefined;
 };    
 
 
@@ -63,6 +69,9 @@ const GuestStack = () => (
         <RootStack.Screen name="Order" component={OrderScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="Setting" component={Setting} options={{ headerShown: false }} />
         <RootStack.Screen name="AccountGuest" component={AccountGuest} options={{ headerShown: false }} />
+        <RootStack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} options={{ headerShown: false }} />
+        <RootStack.Screen name="OTPVerificationScreen" component={OTPVerificationScreen} options={{ headerShown: false }} />
+        <RootStack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="ViewAllBestSeller" component={ViewAllBestSeller} options={{ headerShown: false }} />
         <RootStack.Screen name="ViewAllForYou" component={ViewAllForYou} options={{ headerShown: false }} />
         <RootStack.Screen name="ViewAllTryFood" component={ViewAllTryFood} options={{ headerShown: false }} />
@@ -70,6 +79,9 @@ const GuestStack = () => (
         <RootStack.Screen name="ViewAllEventNews" component={ViewAllEventNews} options={{ headerShown: false }} />
         <RootStack.Screen name="EventNews" component={EventNews} options={{ headerShown: false }} />
         <RootStack.Screen name="CartDetail" component={CartDetail} options={{ headerShown: false }} />
+        <RootStack.Screen name="CartEmpty" component={CartEmpty} options={{ headerShown: false }} />
+        <RootStack.Screen name="SearchScreen" component={SearchScreen} options={{ headerShown: false }} />
+        <RootStack.Screen name="SearchResultsScreen" component={SearchResultsScreen} options={{ headerShown: false }} />
     </RootStack.Navigator>
 );
 
@@ -78,6 +90,8 @@ const UserStack = () => (
     <RootStack.Navigator initialRouteName="HomeScreen" screenOptions={{ animation: "none", headerBackTitle: "" }} id={undefined}>
         <RootStack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="Notification" component={Notification} options={{ headerShown: false }} />
+        <RootStack.Screen name="ListNotification" component={ListNotification} options={{ headerShown: false }} />
+        <RootStack.Screen name="NotificationDetail" component={NotificationDetail} options={{ headerShown: false }} />
         <RootStack.Screen name="Account" component={Account} options={{ headerShown: false }} />
         <RootStack.Screen name="AccountGuest" component={AccountGuest} options={{ headerShown: false }} />
         <RootStack.Screen name="Order" component={OrderScreen} options={{ headerShown: false }} />
@@ -95,6 +109,8 @@ const UserStack = () => (
         <RootStack.Screen name="CartDetail" component={CartDetail} options={{ headerShown: false }} />
         <RootStack.Screen name="CartEmpty" component={CartEmpty} options={{ headerShown: false }} />
         <RootStack.Screen name="OrderConfirm" component={OrderConfirm} options={{ headerShown: false }} />
+        <RootStack.Screen name="OrderShipping" component={OrderShipping} options={{ headerShown: false }} />
+        <RootStack.Screen name="OrderShippingConfirm" component={OrderShippingConfirm} options={{ headerShown: false }} />
         <RootStack.Screen name="NewAddressModal" component={NewAddressModal} options={{ headerShown: false }} />
         <RootStack.Screen name="PaymentScreen" component={PaymentScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="PaymentSuccessScreen" component={PaymentSuccessScreen} options={{ headerShown: false }}/>
@@ -104,6 +120,8 @@ const UserStack = () => (
         <RootStack.Screen name="OrderConfirmed" component={OrderConfirmed} options={{ headerShown: false }} />
         <RootStack.Screen name="ListOrderDetail" component={ListOrderDetail} options={{ headerShown: false }} />
         <RootStack.Screen name="OrderCompleted" component={OrderCompleted} options={{ headerShown: false }} />
+        <RootStack.Screen name="SearchScreen" component={SearchScreen} options={{ headerShown: false }} />
+        <RootStack.Screen name="SearchResultsScreen" component={SearchResultsScreen} options={{ headerShown: false }} />
     </RootStack.Navigator>
 );
 

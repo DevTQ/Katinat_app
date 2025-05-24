@@ -1,5 +1,6 @@
 export const appInfor = {
-    BASE_URL: "http://192.168.43.2:8088/api/v1",
-    // 192.168.1.251, 172.20.10.8, 192.168.169.2, 192.168.43.2
+    BASE_URL:"http://192.168.100.157:8088/api/v1",
+    BASE_PHONENUMBER: '024 7300 1025',
+    WS_URL:"http://192.168.100.157:8088/api/v1/ws-order-status",
 };
 export default appInfor;
