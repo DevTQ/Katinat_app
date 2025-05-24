@@ -11,10 +11,11 @@ import { userService } from "src/services/userService";
 import LoginDTO from "@dtos/loginDTO";
 import TokenService from "src/services/tokenService";
 import { useDispatch } from "react-redux";
-import { setUser } from "../redux/slice/authSlice"; 
+import { setUser } from "../redux/slice/authSlice";
+import forgotService from "src/services/forgotService";
 
 export const RegisterScreenController = () => {
-    
+
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     const [selected, setSelected] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +31,7 @@ export const RegisterScreenController = () => {
         if (key === "phoneNumber") {
             if (!value.trim()) setErrorMessage("Vui lòng nhập số điện thoại!");
             else if (!Validate.isValidPhoneNumber(value)) setErrorMessage("Số điện thoại không hợp lệ");
-            else setErrorMessage(""); 
+            else setErrorMessage("");
         }
     };
 
@@ -54,10 +55,10 @@ export const RegisterScreenController = () => {
             if (checkPhoneRes.data === "Số điện thoại đã tồn tại") {
                 setErrorMessage("Số điện thoại đã được sử dụng");
             } else {
-                navigation.navigate("RegisterComponent", { 
-                    phoneNumber: values.phoneNumber, 
+                navigation.navigate("RegisterComponent", {
+                    phoneNumber: values.phoneNumber,
                     referralCode: values.referralCode || ""
-                });      
+                });
             }
         } catch (error) {
             setErrorMessage("Số điện thoại đã tồn tại, vui lòng đăng nhập để tiếp tục");
@@ -148,7 +149,7 @@ export const RegisterComponentController = (phoneNumber?: string, referralCode?:
     };
 
     return {
-        values, errors, isLoading, modalVisible, secureTextPassword, secureTextConfirmPassword, setModalVisible, setIsLoading, 
+        values, errors, isLoading, modalVisible, secureTextPassword, secureTextConfirmPassword, setModalVisible, setIsLoading,
         togglePasswordVisibility, toggleConfirmPasswordVisibility, handleChangeValue,
         handleGenderSelect, handleOutsidePress, handleRegisterComponent
     };
@@ -156,21 +157,21 @@ export const RegisterComponentController = (phoneNumber?: string, referralCode?:
 
 export const useLoginController = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
-    const dispatch = useDispatch(); 
+    const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(false);
     const [values, setValues] = useState(new LoginDTO());
     const [errorMessage, setErrorMessage] = useState("");
     const [secureText, setSecureText] = useState(true);
-
     const [phoneError, setPhoneError] = useState("");
     const [passwordError, setPasswordError] = useState("");
+    const [showErrorModal, setShowErrorModal] = useState(false);
 
     const handleChangeValue = (key: keyof LoginDTO, value: string) => {
         setValues((prev) => new LoginDTO({ ...prev, [key]: value }));
         if (key === "phone_number") {
             if (!value.trim()) setErrorMessage("Vui lòng nhập số điện thoại!");
             else if (!Validate.isValidPhoneNumber(value)) setErrorMessage("Số điện thoại không hợp lệ");
-            else setErrorMessage(""); 
+            else setErrorMessage("");
         }
     };
 
@@ -180,8 +181,8 @@ export const useLoginController = () => {
         setPhoneError("");
         setPasswordError("");
         setErrorMessage("");
-        
-    
+
+
         if (!values.phone_number.trim()) {
             setPhoneError("Vui lòng nhập số điện thoại!");
             return;
@@ -190,7 +191,7 @@ export const useLoginController = () => {
             setPasswordError("Vui lòng nhập mật khẩu!");
             return;
         }
-    
+
         setIsLoading(true);
         try {
             const res = await authenticationAPI.HandleAuthentication(
@@ -198,29 +199,33 @@ export const useLoginController = () => {
                 values,
                 "post"
             );
-    
+
             if (res?.data?.token) {
                 await TokenService.setToken(res.data.token);
-                
+
                 if (res.data.user) {
-                    dispatch(setUser(res.data.user)); 
-                }                                                 
-    
+                    dispatch(setUser(res.data.user));
+                }
+
                 navigation.dispatch(
                     CommonActions.reset({
                         index: 0,
                         routes: [{ name: "HomeScreen" }],
                     })
-                );     
-            } else {
-                setErrorMessage("Tài khoản hoặc mật khẩu không chính xác!");
+                );
             }
         } catch (error: any) {
-            setErrorMessage(error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!");
+            if (error.response?.status === 401) {
+                setErrorMessage("Tên người dùng hoặc mật khẩu không chính xác.");
+                setShowErrorModal(true);
+            } else {
+                setErrorMessage("Tên người dùng hoặc mật khẩu không chính xác.");
+                setShowErrorModal(true); 
+            }
         } finally {
             setIsLoading(false);
         }
-    };    
+    };
     return {
         values,
         isLoading,
@@ -232,6 +237,30 @@ export const useLoginController = () => {
         handleChangeValue,
         handleLogin,
         setPhoneError,
-        setPasswordError, 
+        setPasswordError,
+        showErrorModal,
+        setShowErrorModal,
     };
 };
+
+export function useForgotPasswordController() {
+    const [errorMessage, setErrorMessage] = useState<string>("");
+    const [values, setValues] = useState(new LoginDTO());
+    const [phoneError, setPhoneError] = useState("");
+
+    const handleChangeValue = (key: keyof LoginDTO, value: string) => {
+        setValues((prev) => new LoginDTO({ ...prev, [key]: value }));
+        if (key === "phone_number") {
+            if (!value.trim()) setErrorMessage("Vui lòng nhập số điện thoại!");
+            else if (!Validate.isValidPhoneNumber(value)) setErrorMessage("Số điện thoại không hợp lệ");
+            else setErrorMessage("");
+        }
+    };
+    return {
+        values,
+        errorMessage,
+        phoneError,
+        setPhoneError,
+        handleChangeValue,
+    };
+}
