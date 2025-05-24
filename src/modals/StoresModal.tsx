@@ -160,6 +160,8 @@ const styles = StyleSheet.create({
   storeAddress: {
     fontSize: 15,
     color: "#104358",
+    flexWrap: 'wrap',
+    width: 300
   },
   distance: {
     fontSize: 14,

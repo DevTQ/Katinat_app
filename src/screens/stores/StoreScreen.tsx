@@ -2,9 +2,11 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
 import {
-    SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, FlatList
+    SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, FlatList,
+    KeyboardAvoidingView,
+    Platform
 } from "react-native";
-import { AppBar } from "src/components/orders";
+import AppBar from "src/components/homeguests/AppBar";
 import { RootStackParams } from "src/navigators/MainNavigator";
 import storeService from "src/services/storeService";
 
@@ -16,30 +18,31 @@ const StoreScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [searchFocused, setSearchFocused] = useState(false);
 
     useEffect(() => {
         async function getCurrentLocation() {
-          
-          let { status } = await Location.requestForegroundPermissionsAsync();
-          if (status !== 'granted') {
-            setErrorMsg('Permission to access location was denied');
-            return;
-          }
-    
-          let location = await Location.getCurrentPositionAsync({});
-          setLocation(location);
+
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
         }
-    
+
         getCurrentLocation();
     }, []);
-    
+
     useEffect(() => {
         const fetchStores = async () => {
             setLoading(true);
             try {
                 const storeData = await storeService.getStores();
                 let storesWithDistance = storeData;
-    
+
                 if (location) {
                     storesWithDistance = storesWithDistance.map((store: any) => {
                         const distance = calculateDistance(
@@ -48,10 +51,10 @@ const StoreScreen = () => {
                         );
                         return { ...store, distance: distance.toFixed(2) + " km" };
                     });
-    
+
                     storesWithDistance.sort((a: any, b: any) => parseFloat(a.distance) - parseFloat(b.distance));
                 }
-    
+
                 setStores(storesWithDistance);
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách cửa hàng:", error);
@@ -59,23 +62,23 @@ const StoreScreen = () => {
                 setLoading(false);
             }
         };
-    
+
         if (location) {
             fetchStores();
         }
-        }, [location]);   
-     
+    }, [location]);
+
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
         const toRad = (value: number) => (value * Math.PI) / 180;
-        
+
         const R = 6371;
         const dLat = toRad(lat2 - lat1);
         const dLon = toRad(lon2 - lon1);
-        
+
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     };
@@ -122,64 +125,57 @@ const StoreScreen = () => {
     );
     return (
         <SafeAreaView style={styles.header}>
-            <View style={styles.title}>
-                <Text style={styles.textTitle}>KATINAT</Text>
-                <Text style={{ textAlign: 'center', fontSize: 10, color: 'white' }}>
-                    COFFEE & TEA HOUSE
-                </Text>
-            </View>
-            <View style={styles.body}>
-                <View style={{ flexDirection: 'row' }}>
-                    <Image source={require("../../../assets/images/icons/search-icon.png")}
-                        style={styles.search_icon}
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Tìm kiếm cửa hàng"
-                    />
-                    <View style={{ flexDirection: 'row', position: 'relative', right: 150 }}>
-                        <TouchableOpacity style={styles.list} activeOpacity={1}>
-                            <Text style={styles.text}>Danh sách</Text>
+            <KeyboardAvoidingView
+                style={styles.header}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+                <View style={styles.title}>
+                    <Text style={styles.textTitle}>KATINAT</Text>
+                    <Text style={{ textAlign: 'center', fontSize: 10, color: 'white' }}>
+                        COFFEE & TEA HOUSE
+                    </Text>
+                </View>
+                <View style={styles.body}>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Image source={require("../../../assets/images/icons/search-icon.png")}
+                            style={styles.search_icon}
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Tìm kiếm cửa hàng"
+                            onFocus={() => setSearchFocused(true)}
+                            onBlur={() => setSearchFocused(false)}
+                        />
+                        <View style={{ flexDirection: 'row', position: 'relative', right: 150 }}>
+                            <TouchableOpacity style={styles.list} activeOpacity={1}>
+                                <Text style={styles.text}>Danh sách</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.map} activeOpacity={1}>
+                                <Text style={[styles.text, { marginLeft: 22 }]}>Bản đồ</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    <View style={styles.groupBtn}>
+                        <TouchableOpacity activeOpacity={1}
+                            style={[styles.btn, { backgroundColor: '#0F4359', width: '30%', marginRight: 10 }]}>
+                            <Text style={styles.text}>Gần bạn nhất</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.map} activeOpacity={1}>
-                            <Text style={[styles.text, { marginLeft: 22 }]}>Bản đồ</Text>
+                        <TouchableOpacity activeOpacity={1}
+                            style={[, styles.btn, { backgroundColor: '#CFCFCF', width: '20%' }]}>
+                            <Text style={styles.text}>Tất cả</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-                <View style={styles.groupBtn}>
-                    <TouchableOpacity activeOpacity={1}
-                        style={[styles.btn, { backgroundColor: '#0F4359', width: '30%', marginRight: 10 }]}>
-                        <Text style={styles.text}>Gần bạn nhất</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={1}
-                        style={[, styles.btn, { backgroundColor: '#CFCFCF', width: '20%' }]}>
-                        <Text style={styles.text}>Tất cả</Text>
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.groupBtn}>
-                    <TouchableOpacity activeOpacity={1}
-                        style={{ width: '42%', padding: 10, borderRadius: 99, marginRight: 8, borderWidth: 0.5 }}>
-                        <Text style={[styles.text, { color: '#0F4359' }]}>Tỉnh/Thành Phố</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={1}
-                        style={{ width: '38%', padding: 10, borderRadius: 99, borderWidth: 0.5, marginRight: 8 }}>
-                        <Text style={[styles.text, { color: '#0F4359' }]}>Quận/Huyện</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={1}
-                        style={{ width: '15%', padding: 10, borderRadius: 99, backgroundColor: '#769DAD', alignItems: 'center' }}>
-                        <Text style={styles.text}>Lọc</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-            <FlatList
-                data={stores}
-                numColumns={1}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.store_id?.toString() || Math.random().toString()}
-                style={styles.card}
-                showsVerticalScrollIndicator={false}
-            />
-            <AppBar/>
+                <FlatList
+                    data={stores}
+                    numColumns={1}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.store_id?.toString() || Math.random().toString()}
+                    style={styles.card}
+                    showsVerticalScrollIndicator={false}
+                />
+                </KeyboardAvoidingView>
+                {!searchFocused && <AppBar />}
         </SafeAreaView>
     )
 };
