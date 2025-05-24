@@ -7,14 +7,34 @@ import { RootStackParams } from "src/navigators/MainNavigator";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
 import voucherService from "src/services/voucherService";
+import ModalVoucher from "./ModalVoucher";
 dayjs.extend(customParseFormat);
 
 
 const Voucher = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+    const [selectedVoucherId, setSelectedVoucherId] = useState<number | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
     const [vouchers, setVouchers] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    
+    const [isValidTab, setIsValidTab] = useState(true);
+    const now = dayjs();
+    const validVouchers = vouchers.filter(item => {
+        const voucherEnd = dayjs(item.endDate, "DD/MM/YYYY HH:mm");
+        return voucherEnd.isAfter(now); // chỉ lấy voucher còn hạn
+    });
+
+    const invalidVouchers = vouchers.filter(item => {
+        const now = dayjs();
+        const voucherStart = dayjs(item.startDate, "DD/MM/YYYY HH:mm");
+        const voucherEnd = dayjs(item.endDate, "DD/MM/YYYY HH:mm");
+        const isExpired = voucherEnd.isBefore(now);
+        const isNotStarted = voucherStart.isAfter(now);
+        const isOutOfStock = item.quantity !== undefined && item.quantity <= 0;
+        const isDisabled = item.status === 'disabled';
+        return isExpired || isNotStarted || isOutOfStock || isDisabled;
+    });
+
     useEffect(() => {
         const fetchVouchers = async () => {
             try {
@@ -27,7 +47,7 @@ const Voucher = () => {
             }
         };
         fetchVouchers();
-    }, []);        
+    }, []);
 
     const renderItem = ({ item }: { item: any }) => {
         const now = dayjs();
@@ -46,16 +66,17 @@ const Voucher = () => {
                         console.error("Lỗi: VoucherID không hợp lệ", item);
                         return;
                     }
-                    navigation.navigate("VourcherDetail", { voucherId: item.voucherId });
+                    setSelectedVoucherId(item.voucherId);
+                    setModalVisible(true);
                 }}
                 style={styles.card}
             >
                 <View style={{ flexDirection: 'row' }}>
                     <View style={styles.imageWrapper}>
-                        <Image source={{uri: item.image}} style={styles.image} />
+                        <Image source={{ uri: item.image }} style={styles.image} />
                         <View style={styles.displayDate}>
-                            { displayDate && (
-                                <Text style={{textAlign: 'center', color: '#B22222', marginTop: 6, fontSize: 16, fontWeight: '800'}}>
+                            {displayDate && (
+                                <Text style={{ textAlign: 'center', color: '#B22222', marginTop: 6, fontSize: 16, fontWeight: '800' }}>
                                     {displayDate}
                                 </Text>
                             )}
@@ -63,7 +84,7 @@ const Voucher = () => {
                     </View>
                     <View style={{ marginLeft: 5 }}>
                         <Text style={styles.name}>{item.voucherName}</Text>
-                        <Text style={{ fontSize: 15, color: '#a2a39d', flexWrap: 'wrap', width: 260}}>Áp dụng cho: {item.type}</Text>
+                        <Text style={{ fontSize: 15, color: '#a2a39d', flexWrap: 'wrap', width: 260 }}>Áp dụng cho: {item.type}</Text>
                         <Text style={{ color: '#be9f8d', position: 'absolute', top: 115 }}>HSD: {voucherEnd.format("DD/MM/YYYY HH:mm")}</Text>
                         <TouchableOpacity style={[styles.btnSelect, { position: 'absolute', top: 110, left: 140 }]}>
                             <Text style={{ color: 'white', fontWeight: '500', fontSize: 15 }}>Chọn</Text>
@@ -89,10 +110,22 @@ const Voucher = () => {
                 </View>
             </View>
             <View style={styles.body}>
-                <TouchableOpacity style={[styles.btn, { width: 110, backgroundColor: '#104358', marginRight: 8 }]}>
+                <TouchableOpacity
+                    style={[
+                        styles.btn,
+                        { width: 110, backgroundColor: isValidTab ? '#104358' : '#CFCFCF', marginRight: 8 }
+                    ]}
+                    onPress={() => setIsValidTab(true)}
+                >
                     <Text style={styles.textBtn}>Khả dụng</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.btn, { width: 130, backgroundColor: '#CFCFCF' }]}>
+                <TouchableOpacity
+                    style={[
+                        styles.btn,
+                        { width: 130, backgroundColor: !isValidTab ? '#104358' : '#CFCFCF' }
+                    ]}
+                    onPress={() => setIsValidTab(false)}
+                >
                     <Text style={styles.textBtn}>Không khả dụng</Text>
                 </TouchableOpacity>
             </View>
@@ -100,12 +133,20 @@ const Voucher = () => {
                 <Text style={{ fontSize: 20, fontWeight: '500', color: '#104358' }}>Ưu đãi sản phẩm</Text>
             </View>
             <FlatList
-                data={vouchers}
+                data={isValidTab ? validVouchers : invalidVouchers}
                 numColumns={1}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.voucherId?.toString() || Math.random().toString()}
                 showsVerticalScrollIndicator={false}
             />
+            {selectedVoucherId !== null && (
+                <ModalVoucher
+                    visible={modalVisible}
+                    couponId={selectedVoucherId}
+                    onClose={() => setModalVisible(false)}
+                    disabled={!isValidTab}
+                />
+            )}
         </SafeAreaView>
     );
 };

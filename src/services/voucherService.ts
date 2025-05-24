@@ -12,6 +12,15 @@ const voucherService = {
             throw error;
         }
     },
+    getVoucherById: async (voucherId: string | number) => {
+        try {
+            const response = await axiosClient.get(`/vouchers/${voucherId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Lỗi khi lấy chi tiết voucher", error);
+            throw error;
+        }
+    }
 };
 
 export default voucherService;
