@@ -1,4 +1,4 @@
-import axiosClient from "../services/axiosClient";
+import axiosClient from "./axiosClient";
 
 const OrderService = {
   createOrder: async (orderData: any) => {
@@ -27,7 +27,18 @@ const OrderService = {
       console.error('Failed to get order by orderId:', error.response?.data || error.message);
       throw error;
     }
-  } 
+  },
+  updateOrderStatus: async (orderCode: string, status: string) => {
+    console.log(orderCode);
+    console.log(status);
+    try {
+      const res = await axiosClient.put(`/orders/code/${orderCode}/status`, { status });
+      return res.data;
+    } catch (error: any) {
+      console.error('Failed to update order status:', error.response?.data || error.message);
+      throw error;
+    }
+  }
 }
 
 
