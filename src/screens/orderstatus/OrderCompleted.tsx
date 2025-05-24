@@ -7,13 +7,14 @@ import {
     StatusBar,
     TouchableOpacity,
     Image,
+    ScrollView,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParams } from 'src/navigators/MainNavigator';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import OrderService from 'src/services/orderService';
+import appInfor from "../../utils/appInfor";
 
 const OrderCompleted = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
@@ -47,106 +48,107 @@ const OrderCompleted = () => {
         );
     }
 
+    const totalPrice = order?.orderDetails?.reduce(
+        (acc: number, item: any) => acc + (item.price * item.numberOfProducts),
+        0
+    ) || 0;
+
+    const discount = order?.voucher?.discountValue ? totalPrice * (order.voucher.discountValue / 100) : 0;
+    const finalAmount = totalPrice - discount;
+
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="light-content" backgroundColor="#0f4359" />
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <AntDesign name="arrowleft" size={22} color="white" />
-                </TouchableOpacity>
-            </View>
+            <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
+            <ScrollView>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')} style={styles.backButton}>
+                        <AntDesign name="arrowleft" size={25} color="#0f4359" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Chi tiết lịch sử đơn hàng</Text>
+                </View>
 
-            <View style={styles.banner}>
-                <Image
-                    source={require("../../../assets/images/paid.png")}
-                    style={styles.profileImage}
-                />
-                <Text style={styles.bannerText}>Hoàn tất đơn hàng</Text>
-                <Text style={styles.dateTime}>
-                    {new Date(order.created_at).toLocaleString()}
-                </Text>
-            </View>
-            <View style={styles.progressBar}>
-                <View style={styles.step}>
-                    <Icon name="clock-o" size={24} color="#0f4359" style={{ marginTop: 10 }} />
-                    <Text style={[styles.stepText, { color: '#0f4359' }]}>Chưa hoàn tất {'\n'} thanh toán</Text>
+                <View style={styles.banner}>
+                    <Text style={styles.storeName}>{order?.store?.storeName}</Text>
+                    <Text style={styles.orderCode}>{order?.orderCode}</Text>
+                    <Text style={styles.phoneNumber}>
+                        Số điện thoại: {appInfor.BASE_PHONENUMBER} Gọi ngay</Text>
+                    <Text style={styles.orderType}>
+                        {order?.orderType === 'pickup'
+                            ? 'Đến lấy'
+                            : order?.orderType === 'delivery'
+                                ? 'Giao hàng'
+                                : order?.orderType}
+                    </Text>
                 </View>
-                <View style={[styles.line, { backgroundColor: '#0f4359' }]} />
-                <View style={styles.step}>
-                    <Icon name="credit-card" size={24} color="#0f4359" />
-                    <Text style={[styles.stepText, { color: '#0f4359' }]}>Đã nhận thanh toán</Text>
-                </View>
-                <View style={[styles.line, { backgroundColor: '#0f4359' }]} />
-                <View style={styles.step}>
-                    <Icon name="envelope" size={24} color="#0f4359" />
-                    <Text style={[styles.stepText, { color: '#0f4359' }]}>Đã nhận đơn</Text>
-                </View>
-                <View style={[styles.line, { backgroundColor: '#0f4359' }]} />
-                <View style={styles.step}>
-                    <Icon name="coffee" size={24} color="#0f4359" />
-                    <Text style={[styles.stepText, { color: '#0f4359' }]}>Hoàn thành</Text>
-                </View>
-            </View>
 
-            <View style={styles.detailsContainer}>
-                <Text style={styles.sectionTitle}>Chi tiết đơn hàng</Text>
-                <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Mã đơn hàng:</Text>
-                    <Text style={styles.detailValue}>{order?.orderCode}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Tên khách hàng:</Text>
-                    <Text style={styles.detailValue}>{order?.fullName}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Số điện thoại:</Text>
-                    <Text style={styles.detailValue}>{order?.phoneNumber}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Thời gian đặt:</Text>
-                    <Text style={styles.detailValue}>
-                        {order?.created_at ? new Date(order.created_at).toLocaleString() : ''}
-                    </Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Phương thức thanh toán:</Text>
-                    <Text style={styles.detailValue}>{order?.paymentMethod}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Trạng thái:</Text>
-                    <Text style={[styles.detailValue, styles.statusConfirmed]}>
-                        {order?.status === 'PAID'
-                            ? 'Đã thanh toán'
-                            : order?.status === 'ORDER_CONFIRMED'
-                                ? 'Đã xác nhận'
-                                : order?.status === 'READY'
-                                    ? 'Đã chuẩn bị xong'
-                                    : order?.status === 'COMPLETED'
-                                        ? 'Hoàn thành'
-                                        : order?.status === 'REJECTED'
-                                            ? 'Đã từ chối'
-                                            : order?.status}
-                    </Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Tổng tiền:</Text>
-                    <Text style={styles.detailValue}>
-                        {order?.totalMoney?.toLocaleString()} VND
-                    </Text>
-                </View>
-                {order?.note && (
+                <View style={styles.detailsContainer}>
                     <View style={styles.detailRow}>
-                        <Text style={styles.detailLabel}>Ghi chú:</Text>
-                        <Text style={styles.detailValue}>{order?.note}</Text>
+                        <Text style={styles.detailLabel}>Mã đơn hàng</Text>
+                        <Text style={styles.detailValue}>{order?.orderCode}</Text>
                     </View>
-                )}
-            </View>
-
+                    <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>Tên</Text>
+                        <Text style={styles.detailValue}>{order?.fullName}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>Số điện thoại</Text>
+                        <Text style={styles.detailValue}>{order?.phoneNumber}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>Địa chỉ cửa hàng</Text>
+                        <Text style={styles.detailValue}>
+                            {order?.store?.storeAddress}
+                        </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>Trạng thái đơn hàng</Text>
+                        <Text style={[styles.detailValue, styles.statusConfirmed]}>
+                            {order?.status === 'COMPLETED' ? 'Đã hoàn thành' : order?.status}
+                        </Text>
+                    </View>
+                    <View style={styles.line}></View>
+                    <View style={styles.detailRow}>
+                        <Text style={styles.sectionTitle}>Tóm tắt đơn hàng</Text>
+                    </View>
+                    {order?.orderDetails?.map((item: any) => (
+                        <View style={[styles.orderDetailRow, { marginVertical: 5 }]} key={item.orderDetailId}>
+                            <Text style={styles.orderDetailLabel}>
+                                {item.numberOfProducts}x  {item.product?.name}
+                            </Text>
+                            <Text style={styles.orderDetailValue}>
+                                {item.totalMoney?.toLocaleString()}đ
+                            </Text>
+                        </View>
+                    ))}
+                    <View style={styles.line}></View>
+                    <View style={styles.orderDetailRow}>
+                        <Text style={styles.detailLabel}>Thành tiền</Text>
+                        <Text style={[styles.orderDetailValue, { fontWeight: '400', marginBottom: 10 }]}>{totalPrice.toLocaleString()}đ</Text>
+                    </View>
+                    {order.voucher && (
+                        <View style={styles.orderDetailRow}>
+                            <Text style={styles.detailLabel}>Khuyến mãi</Text>
+                            <Text style={[styles.orderDetailValue, { fontWeight: '400', color: '#ba955c', marginBottom: 10 }]}
+                            >-{discount.toLocaleString()}đ</Text>
+                        </View>
+                    )}
+                    <View style={styles.orderDetailRow}>
+                        <Text style={styles.detailLabel}>Thanh toán bằng</Text>
+                        <Text style={[styles.orderDetailValue, { fontWeight: '400', marginBottom: 10 }]}>{order?.paymentMethod}</Text>
+                    </View>
+                    <View style={styles.orderDetailRow}>
+                        <Text style={[styles.sectionTitle, { textAlign: 'left' }]}>Số tiền thanh toán</Text>
+                        <Text style={[styles.sectionTitle, { fontSize: 24, fontWeight: 'bold' }]}>
+                            {finalAmount.toLocaleString()}đ
+                        </Text>
+                    </View>
+                </View>
+            </ScrollView>
             <TouchableOpacity
-                onPress={() => navigation.replace('HomeScreen')}
-                style={styles.homeButton}
+                onPress={() => navigation.replace("HomeScreen")}
+                style={styles.Button}
             >
-                <Text style={styles.homeButtonText}>Về trang chủ</Text>
+                <Text style={styles.ButtonText}>Đặt lại</Text>
             </TouchableOpacity>
         </SafeAreaView>
     );
@@ -163,69 +165,63 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     header: {
-        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
+        padding: 20,
     },
     headerTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
-    },
-    successContainer: {
-        alignItems: 'center',
-        padding: 24,
-    },
-    successText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginTop: 16,
-        color: '#4CAF50',
+        marginTop: 28,
+        color: "#0f4359",
+        textAlign: 'center',
     },
     orderCode: {
-        fontSize: 16,
-        marginTop: 8,
-        color: '#666',
+        fontSize: 20,
+        color: '#ba955c',
+        fontWeight: '500'
     },
     detailsContainer: {
-        padding: 16,
-        backgroundColor: '#f5f5f5',
-        margin: 16,
+        marginHorizontal: 20,
+        marginTop: 10,
         borderRadius: 8,
     },
     sectionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginBottom: 16,
+        color: '#0f4359',
     },
     detailRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 12,
+        alignItems: 'center',
+        marginBottom: 5,
     },
     detailLabel: {
+        width: 150,
         fontSize: 16,
-        color: '#666',
+        color: "#0f4359",
     },
     detailValue: {
         fontSize: 16,
-        fontWeight: '500',
+        fontWeight: 'bold',
+        color: "#0f4359",
+        marginLeft: 10,
+        flexWrap: 'wrap',
+        width: 220,
     },
     statusConfirmed: {
         color: '#4CAF50',
     },
-    homeButton: {
-        backgroundColor: '#0f4359',
-        margin: 16,
-        padding: 16,
-        borderRadius: 8,
+    Button: {
+        backgroundColor: '#bb946b',
+        margin: 15,
+        marginBottom: 30,
+        padding: 20,
+        borderRadius: 10,
         alignItems: 'center',
     },
-    homeButtonText: {
+    ButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
     },
     backButton: {
@@ -236,54 +232,46 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     banner: {
-        backgroundColor: '#0f4359',
-        borderColor: 'white',
+        backgroundColor: '#e9efef',
         padding: 10,
         alignItems: 'center',
     },
-    profileImage: {
-        width: 180,
-        height: 130,
-        marginVertical: 40,
+    storeName: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: "#0f4359"
     },
-    bannerText: {
-        color: 'white',
+    phoneNumber: {
+        fontSize: 15,
+        fontWeight: '500',
+        color: "#0f4359",
+    },
+    orderDetailLabel: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: "#0f4359",
+    },
+    orderDetailValue: {
         fontSize: 18,
         fontWeight: '500',
-        letterSpacing: -0.2,
-        marginBottom: 20
+        color: "#0f4359",
     },
-    dateTime: {
-        color: 'white',
-        fontSize: 14,
-        marginBottom: 10
-    },
-    progressBar: {
+    orderDetailRow: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        padding: 5,
-    },
-    step: {
-        alignItems: 'center',
-    },
-    stepText: {
-        fontSize: 12,
-        color: '#d9d9d9',
-        textAlign: 'center',
-        fontWeight: '500',
-        letterSpacing: -0.5
-    },
-    stepTime: {
-        fontSize: 10,
-        color: '#0f4359',
+        justifyContent: 'space-between',
     },
     line: {
-        width: 15,
-        height: 2,
-        backgroundColor: '#d9d9d9',
+        height: 10,
+        backgroundColor: 'transparent',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        marginVertical: 20,
     },
-
+    orderType: {
+        fontSize: 17,
+        fontWeight: '500',
+        color: '#0f4359'
+    }
 });
 
 export default OrderCompleted;

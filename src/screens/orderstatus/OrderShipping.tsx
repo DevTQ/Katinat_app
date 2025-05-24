@@ -14,6 +14,7 @@ import * as Notifications from 'expo-notifications';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParams } from 'src/navigators/MainNavigator';
+import { FontAwesome } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import OrderService from 'src/services/orderService';
 import Toast from 'react-native-toast-message';
@@ -31,7 +32,8 @@ Notifications.setNotificationHandler({
     }),
 });
 
-const OrderConfirmed = () => {
+
+const OrderShipping = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     const { orderCode } = useRoute().params as { orderCode: string };
     const [order, setOrder] = useState<any>(null);
@@ -61,6 +63,7 @@ const OrderConfirmed = () => {
         READY: 4,
         COMPLETED: 5,
     };
+
     const currentStep = statusStepMap[order?.status] ?? 0;
 
     useEffect(() => {
@@ -70,6 +73,7 @@ const OrderConfirmed = () => {
                 await Notifications.requestPermissionsAsync();
             }
         };
+
         registerForPushNotificationsAsync();
     }, []);
 
@@ -102,8 +106,8 @@ const OrderConfirmed = () => {
         Toast.show({
             type: 'success',
             position: 'top',
-            text1: 'Đơn hàng đã sẵn sàng!',
-            text2: 'Hãy đến quầy nhận đồ uống nhé.',
+            text1: 'Đơn hàng đã được giao đến bạn!',
+            text2: 'Nhanh chân ra nhận đồ uống nhé.',
             visibilityTime: 5000,
             autoHide: true,
             topOffset: 50,
@@ -111,8 +115,8 @@ const OrderConfirmed = () => {
 
         await Notifications.scheduleNotificationAsync({
             content: {
-                title: 'Đơn hàng đã sẵn sàng!',
-                body: 'Đơn hàng của bạn đã được chuẩn bị xong.',
+                title: 'Đơn hàng đã giao tới nơi!',
+                body: 'Nhanh chân ra nhận đồ uống nhé.',
             },
             trigger: null,
         });
@@ -142,13 +146,16 @@ const OrderConfirmed = () => {
 
     const handleUpdateOrderStatus = async () => {
         try {
-            const res = await OrderService.updateOrderStatus(orderCode, "COMPLETED")
-            navigation.replace('OrderCompleted', { orderCode })
+            await OrderService.updateOrderStatus(orderCode, "COMPLETED");
+            // Fetch lại đơn hàng để cập nhật trạng thái mới
+            const updatedOrder = await OrderService.getOrderByOrderCode(orderCode);
+            setOrder(updatedOrder);
+            navigation.replace('OrderCompleted', { orderCode });
             disconnectWebSocket();
         } catch (error) {
             console.error('Lỗi khi cập nhật trạng thái đơn hàng:', error);
         }
-    }
+    };
 
     const totalPrice = order?.orderDetails?.reduce(
         (acc: number, item: any) => acc + (item.price * item.numberOfProducts),
@@ -180,19 +187,22 @@ const OrderConfirmed = () => {
                     source={require("../../../assets/images/order-confirm.png")}
                     style={styles.profileImage}
                 />
-                <Text style={styles.bannerText}>Đã nhận đơn</Text>
+                <Text style={styles.bannerText}>
+                    {order?.status === 'READY' ? 'Đang giao hàng' : 'Đã nhận đơn'}
+                </Text>
                 <Text style={styles.dateTime}>
                     {dayjs(order.confirm_at).format('HH:mm DD/MM/YYYY')}
                 </Text>
             </View>
             <View style={styles.progressBar}>
                 {steps.map((step, idx) => {
-                    const isActive = idx <= currentStep;
+                    // Chỉ sáng bước cuối nếu đã COMPLETED
+                    const isActive = idx <= currentStep && (idx < steps.length - 1 || order?.status === 'COMPLETED');
                     const color = isActive ? '#0f4359' : '#d9d9d9';
                     return (
                         <React.Fragment key={idx}>
                             <View style={styles.step}>
-                                <View style={{ flexDirection: 'row', }}>
+                                <View style={{ flexDirection: 'row' }}>
                                     <Icon name={step.icon} size={24} color={color} />
                                     {idx < steps.length - 1 && (
                                         <View style={{ backgroundColor: color, opacity: isActive ? 1 : 0.5 }} />
@@ -207,10 +217,9 @@ const OrderConfirmed = () => {
 
             <View style={styles.detailsContainer}>
                 <Text style={styles.sectionTitle}>Đơn hàng của bạn đang được chuẩn bị!</Text>
-                <Text style={styles.detailLabel}>
-                    Hãy đến cửa hàng và đọc mã đơn <Text style={styles.detailValue}>
-                        {order?.orderCode}
-                    </Text>
+                <Text style={styles.detailLabel}>Mã đơn hàng <Text style={styles.detailValue}>
+                    {order?.orderCode}
+                </Text>
                 </Text>
 
                 <Text style={[styles.sectionTitle, { textAlign: 'left', marginVertical: 5, marginTop: 15 }]}>Tóm tắt đơn hàng</Text>
@@ -383,4 +392,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default OrderConfirmed;
+export default OrderShipping;

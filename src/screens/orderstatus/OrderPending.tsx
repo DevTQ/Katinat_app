@@ -1,35 +1,57 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParams } from 'src/navigators/MainNavigator';
 import OrderService from 'src/services/orderService';
+import ConfirmCancelOrderModal from '../../modals/CancelledOrderModal';
+import OrderExpiredModal from 'src/modals/OrderExpiredModal';
+import dayjs from 'dayjs';
 
 const OrderPending = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     const route = useRoute();
-    const { orderId, paymentUrl } = route.params as {
-        orderId: number,
+    const [modalVisible, setModalVisible] = useState(false);
+    const [expiredModalVisible, setExpiredModalVisible] = useState(false);
+    const { orderCode, paymentUrl } = route.params as {
+        orderCode: string,
         paymentUrl?: string | null;
     };
     const [order, setOrder] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (paymentUrl) {
-            const timer = setTimeout(() => {
-                navigation.navigate("PaymentScreen", { paymentUrl });
-            }, 4000);
-            return () => clearTimeout(timer);
-        }
-    }, [paymentUrl]);
+    const steps =
+        order?.orderType === 'pickup'
+            ? [
+                { icon: 'clock-o', label: 'Chưa hoàn tất thanh toán' },
+                { icon: 'credit-card', label: 'Đã nhận thanh toán' },
+                { icon: 'envelope', label: 'Đã nhận đơn' },
+                { icon: 'coffee', label: 'Hoàn thành' },
+            ]
+            : [
+                { icon: 'clock-o', label: 'Chưa hoàn tất thanh toán' },
+                { icon: 'credit-card', label: 'Đã nhận thanh toán' },
+                { icon: 'envelope', label: 'Đã nhận đơn' },
+                { icon: 'truck', label: 'Đang vận chuyển' },
+                { icon: 'coffee', label: 'Hoàn thành' },
+            ];
+    const statusStepMap: Record<string, number> = {
+        PENDING: 0,
+        PAID: 1,
+        ORDER_CONFIRMED: 2,
+        SHIPPING: 3,
+        READY: 4,
+        COMPLETED: 5,
+    };
+
+    const currentStep = statusStepMap[order?.status] ?? 0;
 
     useEffect(() => {
         const fetchOrder = async () => {
             try {
-                const orderData = await OrderService.getOrderByOrderId(orderId);
+                const orderData = await OrderService.getOrderByOrderCode(orderCode);
                 setOrder(orderData);
                 setLoading(false);
             } catch (error) {
@@ -38,18 +60,54 @@ const OrderPending = () => {
             }
         };
 
-        if (orderId) {
+        if (orderCode) {
             fetchOrder();
         }
-    }, [orderId]);
+    }, [orderCode]);
 
-    if (loading) {
-        return (
-            <SafeAreaView style={styles.container}>
-                <Text>Đang tải...</Text>
-            </SafeAreaView>
-        );
-    }
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+
+        const fetchOrder = async () => {
+            try {
+                const orderData = await OrderService.getOrderByOrderCode(orderCode);
+                setOrder(orderData);
+                setLoading(false);
+            } catch (error) {
+                console.error("Lỗi khi lấy đơn hàng:", error);
+                setLoading(false);
+            }
+        };
+
+        if (orderCode) {
+            fetchOrder();
+            interval = setInterval(fetchOrder, 30000);
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [orderCode]);
+
+    useEffect(() => {
+        if (order?.status === 'CANCELLED') {
+            setExpiredModalVisible(true);
+        }
+    }, [order]);
+
+    const handleKeep = () => {
+        setModalVisible(false);
+    };
+
+    const handleCancel = async () => {
+        setModalVisible(false);
+        try {
+            await OrderService.updateOrderStatus(order?.orderCode, "CANCELLED");
+            navigation.replace("ListOrderDetail", { orderCode });
+        } catch (error) {
+            Alert.alert("Lỗi", "Không thể hủy đơn hàng. Vui lòng thử lại.");
+        }
+    };
 
     if (!order) {
         return (
@@ -88,7 +146,7 @@ const OrderPending = () => {
                 />
                 <Text style={styles.bannerText}>Chưa hoàn tất thanh toán</Text>
                 <Text style={styles.dateTime}>
-                    {new Date(order.created_at).toLocaleString()}
+                    {dayjs(order.created_at).format('HH:mm DD/MM/YYYY')}
                 </Text>
             </View>
 
@@ -101,27 +159,25 @@ const OrderPending = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Progress Bar */}
             <View style={styles.progressBar}>
-                <View style={styles.step}>
-                    <Icon name="clock-o" size={24} color="#0f4359" style={{ marginTop: 10 }} />
-                    <Text style={[styles.stepText, { color: '#0f4359' }]}>Chưa hoàn tất {'\n'} thanh toán</Text>
-                </View>
-                <View style={styles.line} />
-                <View style={styles.step}>
-                    <Icon name="credit-card" size={24} color="#d9d9d9" />
-                    <Text style={styles.stepText}>Đã nhận thanh toán</Text>
-                </View>
-                <View style={styles.line} />
-                <View style={styles.step}>
-                    <Icon name="envelope" size={24} color="#d9d9d9" />
-                    <Text style={styles.stepText}>Đã nhận đơn</Text>
-                </View>
-                <View style={styles.line} />
-                <View style={styles.step}>
-                    <Icon name="coffee" size={24} color="#d9d9d9" />
-                    <Text style={styles.stepText}>Hoàn thành</Text>
-                </View>
+                {steps.map((step, idx) => {
+                    const isActive = idx <= currentStep;
+                    const color = isActive ? '#0f4359' : '#d9d9d9';
+                    return (
+                        <React.Fragment key={idx}>
+                            <View style={styles.step}>
+                                <View style={{ flexDirection: 'row', }}>
+                                    <Icon name={step.icon} size={24} color={color} />
+                                    {idx < steps.length - 1 && (
+                                        <View style={{ backgroundColor: color, opacity: isActive ? 1 : 0.5 }} />
+                                    )}
+                                </View>
+                                <Text style={[styles.stepText, { color }]}>{step.label}</Text>
+                            </View>
+
+                        </React.Fragment>
+                    );
+                })}
             </View>
 
             {/* Order Details */}
@@ -132,10 +188,12 @@ const OrderPending = () => {
                     <Text style={styles.detail}>Thành tiền</Text>
                     <Text style={styles.detail}>{totalPrice.toLocaleString()}đ</Text>
                 </View>
-                <View style={styles.detailItem}>
-                    <Text style={styles.detail}>Khuyến mãi</Text>
-                    <Text style={styles.detail}>-{discount.toLocaleString()}đ</Text>
-                </View>
+                {order.voucher && (
+                    <View style={styles.detailItem}>
+                        <Text style={styles.detail}>Khuyến mãi</Text>
+                        <Text style={{ color: '#bb946b', fontSize: 17 }}>-{discount.toLocaleString()}đ</Text>
+                    </View>
+                )}
                 <View style={styles.detailItem}>
                     <Text style={styles.amountText}>Số tiền thanh toán: </Text>
                     <Text style={[styles.amountText, { fontSize: 22 }]}>{finalAmount.toLocaleString()}đ</Text>
@@ -144,21 +202,43 @@ const OrderPending = () => {
 
             {/* Action Buttons */}
             <View style={styles.actionButtons}>
-                <TouchableOpacity style={styles.payAgainButton}
-                    onPress={() => navigation.navigate("PaymentScreen", { paymentUrl })}
+                <TouchableOpacity
+                    style={styles.payAgainButton}
+                    onPress={() => {
+                        if (order.status === 'PENDING') {
+                            navigation.navigate("PaymentScreen", { paymentUrl, orderCode });
+                        } else {
+                            Alert.alert("Thông báo", "Đơn hàng đã hết hạn, vui lòng tạo đơn mới.");
+                        }
+                    }}
                 >
-                    <Text style={styles.buttonText}>Thanh toán lại</Text>
+                    <Text style={styles.buttonText}>Tiếp tục thanh toán</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.viewDetailsButton}
-                onPress={() => navigation.navigate("ListOrderDetail", {orderId})}
+                    onPress={() => navigation.navigate("ListOrderDetail", { orderCode })}
                 >
                     <Text style={styles.buttonText}>Xem chi tiết đơn hàng</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.cancelOrderButton}>
-                    <Icon name="times" size={20} color="#828689" />
+                <TouchableOpacity style={styles.cancelOrderButton} onPress={() => setModalVisible(true)}>
+                    <Icon name="times" size={23} color="#828689" />
                     <Text style={styles.cancelText}>Hủy đơn</Text>
                 </TouchableOpacity>
+                <View style={{ height: 1, width: 100, backgroundColor: 'black', opacity: 0.5 }}></View>
             </View>
+            <ConfirmCancelOrderModal
+                visible={modalVisible}
+                onKeep={handleKeep}
+                onCancel={handleCancel}
+                onClose={() => setModalVisible(false)}
+            />
+            <OrderExpiredModal
+                visible={expiredModalVisible}
+                onClose={() => setExpiredModalVisible(false)}
+                onReOrder={() => {
+                    setExpiredModalVisible(false);
+                    navigation.replace("CartDetail");
+                }}
+            />
         </SafeAreaView>
     );
 };
@@ -194,7 +274,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '500',
         letterSpacing: -0.2,
-        marginBottom: 20
+        marginBottom: 5
     },
     dateTime: {
         color: 'white',
@@ -220,24 +300,27 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        padding: 5,
     },
     step: {
         alignItems: 'center',
+        justifyContent: 'flex-start',
+        minHeight: 60,
+        width: 70,
     },
     stepText: {
         fontSize: 12,
         color: '#d9d9d9',
         textAlign: 'center',
         fontWeight: '500',
-        letterSpacing: -0.5
+        letterSpacing: -0.5,
+        flexWrap: 'wrap',
+        width: 70,
     },
     stepTime: {
         fontSize: 10,
         color: '#0f4359',
     },
     line: {
-        width: 15,
         height: 2,
         backgroundColor: 'gray',
     },
@@ -290,7 +373,6 @@ const styles = StyleSheet.create({
     cancelOrderButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 5,
         borderRadius: 5,
     },
     buttonText: {
