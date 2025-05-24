@@ -3,10 +3,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import MainNavigator from "./src/navigators/MainNavigator";
 import SplashScreen from "./src/screens/SplashScreen";
 import { StatusBar } from "react-native";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import { persistor, store } from "./src/redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+
 
 const App = () => {
   const [isShowSplash, setIsShowSplash] = useState(true);
