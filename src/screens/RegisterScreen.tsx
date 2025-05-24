@@ -49,7 +49,6 @@ const RegisterScreen = () => {
           {/* Nội dung */}
           <KeyboardAvoidingView
             style={styles.bottomContainer}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
           >
             <View style={styles.bottomContainer}>
@@ -67,7 +66,6 @@ const RegisterScreen = () => {
                 </View>
                 <Text style={styles.Text}>Nhập SĐT đã sử dụng đăng ký thành viên trước đó (nếu có)</Text>
               </View>
-
               {/* Form đăng ký */}
               <View style={styles.body}>
                 <Text style={styles.label}>Số điện thoại</Text>
@@ -104,27 +102,26 @@ const RegisterScreen = () => {
                 </View>
               </View>
 
-              {/* Nút đăng ký */}
               <View style={styles.bottom}>
                 <TouchableOpacity
                   style={[styles.button, {
-                    backgroundColor: isPhoneNumberValid(values.phoneNumber) ? "#4CAF50" : "#57635f",
+                    backgroundColor: isPhoneNumberValid(values.phoneNumber) ? "#bb946b" : "#bb946b",
                     opacity: isPhoneNumberValid(values.phoneNumber) ? 1 : 0.5,
                   },]}
                   onPress={() => handleRegister()}
                   disabled={!isPhoneNumberValid(values.phoneNumber)}
                 >
                   <Text style={[styles.buttonText, { opacity: isPhoneNumberValid(values.phoneNumber) ? 1 : 0.5 }]}>Đăng Ký</Text>
-                  
+
                 </TouchableOpacity>
                 <View style={{ alignItems: "center", marginTop: 20 }}>
-  <Text style={[styles.Text]}>
-    Bạn đã đăng ký tài khoản trên ứng dụng?
-  </Text>
-  <TouchableOpacity activeOpacity={1} onPress={() => navigation.navigate("Login")}>
-    <Text style={[styles.Text, styles.active1]}>Đăng nhập tại đây!</Text>
-  </TouchableOpacity>
-</View>
+                  <Text style={[styles.Text]}>
+                    Bạn đã đăng ký tài khoản trên ứng dụng?
+                  </Text>
+                  <TouchableOpacity activeOpacity={1} onPress={() => navigation.navigate("Login")}>
+                    <Text style={[styles.Text, styles.active1]}>Đăng nhập tại đây!</Text>
+                  </TouchableOpacity>
+                </View>
 
               </View>
             </View>
@@ -157,7 +154,7 @@ const styles = StyleSheet.create({
   },
   title: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   row: {
     flexDirection: "row",

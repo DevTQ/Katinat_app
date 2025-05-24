@@ -39,10 +39,9 @@ const RegisterComponent = () => {
                 <KeyboardAvoidingView
                     style={styles.container}
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} // Adjust for Android to prevent overlapping
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} 
                 >
                     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                        {/* Nút quay lại */}
                         <TouchableOpacity activeOpacity={1} onPress={() => navigation.navigate("Register")} style={styles.backButton}>
                             <AntDesign name="arrowleft" size={22} color="black" />
                         </TouchableOpacity>
@@ -75,12 +74,12 @@ const RegisterComponent = () => {
                             <Text style={styles.lable}>Giới tính</Text>
                             <View style={styles.inputContainer}>
                                 <TextInput
-                                    value={values.gender}                          // <-- HIỂN THỊ GIÁ TRỊ THỰC
-                                    placeholder="Chọn giới tính"                   // <-- placeholder cố định
-                                    placeholderTextColor="#a9a9a9"                  // <-- màu placeholder
+                                    value={values.gender}                         
+                                    placeholder="Chọn giới tính"                   
+                                    placeholderTextColor="#a9a9a9"                
                                     style={[
                                         styles.input,
-                                        { color: values.gender ? 'black' : '#a9a9a9' } // <-- màu chữ: đen nếu có value
+                                        { color: values.gender ? 'black' : '#a9a9a9' } 
                                     ]}
                                     editable={false}
                                 />
@@ -94,8 +93,6 @@ const RegisterComponent = () => {
                             {errors.gender && <Text style={styles.errorText}>{errors.gender}</Text>}
                         </View>
 
-
-                        {/* Mã giới thiệu */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.lable}>Nhập mã giới thiệu (nếu có)</Text>
                             <TextInput
@@ -107,7 +104,6 @@ const RegisterComponent = () => {
 
                         <Text style={[styles.text, { fontSize: 18, fontWeight: 'bold', marginLeft: 20, marginTop: 20 }]}>THÔNG TIN ĐĂNG NHẬP</Text>
 
-                        {/* Mật khẩu */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.lable}>Mật khẩu</Text>
                             <View style={styles.inputContainer}>
@@ -124,7 +120,6 @@ const RegisterComponent = () => {
                             {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
                         </View>
 
-                        {/* Nhập lại mật khẩu */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.lable}>Nhập lại mật khẩu</Text>
                             <View style={styles.inputContainer}>

@@ -4,6 +4,7 @@ import appInfor from "src/utils/appInfor";
 import RegisterComponentDTO from "@dtos/registerDTO";
 import RegisterScreenDTO from "@dtos/registerScreenDTO";
 import LoginDTO from "@dtos/loginDTO";
+import axiosClient from "./axiosClient";
 
 export const userService = {
   checkPhoneNumber: async (data: RegisterScreenDTO) => {
