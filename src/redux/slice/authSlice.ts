@@ -4,6 +4,9 @@ interface User {
   id: number;
   fullname: string;
   phone_number: string;
+  gender: string;
+  birth_date: string; // ISO date string
+  city: string;
 }
 
 interface AuthState {

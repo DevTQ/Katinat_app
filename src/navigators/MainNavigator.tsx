@@ -15,8 +15,11 @@ import {
     OTPVerificationScreen,ResetPasswordScreen, OrderShippingConfirm,
     OrderShipping, ListNotification, NotificationDetail,
     SearchScreen,
-    SearchResultsScreen
+    SearchResultsScreen, EditProfileScreen,
+    VoucherScreen, OrderHistory, OrderReview, ReferFriend,
+    ChangePassword
 } from "../screens";
+
 import { 
     ViewAllBestSeller, productDetail, 
     ViewAllEventNews, EventNews, RegisterComponent,
@@ -53,6 +56,12 @@ export type RootStackParams = {
     PaymentSuccessScreen: { orderCode: string};
     PaymentFailedScreen: { orderCode: string, reason: string | null, paymentUrl: string};
     OrderShippingConfirm: undefined;
+    EditProfileScreen: undefined;
+    VoucherScreen: undefined;
+    OrderHistory: undefined;
+    OrderReview: undefined;
+    ReferFriend: undefined;
+    ChangePassword: undefined;
 };    
 
 
@@ -122,6 +131,12 @@ const UserStack = () => (
         <RootStack.Screen name="OrderCompleted" component={OrderCompleted} options={{ headerShown: false }} />
         <RootStack.Screen name="SearchScreen" component={SearchScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="SearchResultsScreen" component={SearchResultsScreen} options={{ headerShown: false }} />
+        <RootStack.Screen name="EditProfileScreen" component={EditProfileScreen} options={{ headerShown: false }} />
+        <RootStack.Screen name="VoucherScreen" component={VoucherScreen} options={{ headerShown: false }} />
+        <RootStack.Screen name="OrderHistory" component={OrderHistory} options={{ headerShown: false }} />
+        <RootStack.Screen name="OrderReview" component={OrderReview} options={{ headerShown: false }} />
+        <RootStack.Screen name="ReferFriend" component={ReferFriend} options={{ headerShown: false }} />
+        <RootStack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false }} />
     </RootStack.Navigator>
 );
 
