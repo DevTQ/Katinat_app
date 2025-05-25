@@ -18,6 +18,7 @@ const userSlice = createSlice({
         setUser: (state, action: PayloadAction<UserState>) => {
             state.fullname = action.payload.fullname;
             state.phone_number = action.payload.phone_number;
+            
         },
         clearUser: (state) => {
             state.fullname = "";
