@@ -6,10 +6,12 @@ import { logout } from "../redux/slice/authSlice";
 import { AppBar } from "src/components/orders";
 import LogoutModal from "src/modals/LogoutModal";
 import { RootState } from "src/redux/store";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import { MaterialIcons, FontAwesome, AntDesign } from "@expo/vector-icons";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParams } from "src/navigators/MainNavigator";
 
 const Account = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     const dispatch = useDispatch();
     const [modalVisible, setModalVisible] = useState(false);
     const user = useSelector((state: RootState) => state.auth.user);
@@ -55,37 +57,46 @@ const Account = () => {
                 </View>
                 <View style={styles.body}>
                     <View style={styles.content}>
-                        <TouchableOpacity style={styles.fuct}>
+                        <TouchableOpacity
+                            style={styles.fuct}
+                            onPress={() => navigation.navigate("EditProfileScreen" )
+                                
+                            }
+                        >
                             <Text style={styles.text}>Chỉnh sửa trang cá nhân</Text>
-                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                            <AntDesign name="edit" size={18} color="#104358" style={{ marginRight: 10 }} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.fuct}>
-                            <Text style={styles.text}>Sở thích</Text>
-                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                        <TouchableOpacity style={styles.fuct}
+                            onPress={() => navigation.navigate("ChangePassword")}
+                        >
+                            <Text style={styles.text}>Đổi mật khẩu</Text>
+                            <MaterialIcons name="password" size={18} color="#104358" style={{ marginRight: 10 }} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.fuct}>
-                            <Text style={styles.text}>Danh sách yêu thích</Text>
-                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.fuct}>
-                            <Text style={styles.text}>Đặc quyền thành viên</Text>
-                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.fuct}>
+                        <TouchableOpacity style={styles.fuct}
+                            onPress={() => navigation.navigate("VoucherScreen")}
+                            >
                             <Text style={styles.text}>Ưu đãi</Text>
-                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                            <FontAwesome name="ticket" size={18} color="#104358" style={{ marginRight: 10 }} />
+                    
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.fuct}>
+                        <TouchableOpacity style={styles.fuct}
+                        onPress={() => navigation.navigate("OrderHistory")}>
+                            
                             <Text style={styles.text}>Lịch sử đặt hàng</Text>
-                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                            <FontAwesome name="history" size={18} color="#104358" style={{ marginRight: 10 }} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.fuct}>
+                        <TouchableOpacity style={styles.fuct}
+                            onPress={() => navigation.navigate("OrderReview")}
+                        >
                             <Text style={styles.text}>Đánh giá đơn hàng</Text>
-                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                            <MaterialIcons name="reviews" size={18} color="#104358" style={{ marginRight: 10 }} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.fuct}>
-                            <Text style={styles.text}>Giới thiệu Bạn bè</Text>
-                            <AntDesign name="right" size={18} color="#104358" style={{ marginRight: 10 }} />
+                        <TouchableOpacity style={styles.fuct}
+                            onPress={() => navigation.navigate("ReferFriend")}
+                        >
+                            <Text style={styles.text}>Giới thiệu bạn bè</Text>
+                            <MaterialIcons name="group-add" size={18} color="#104358" style={{ marginRight: 10 }} />
+                            
                         </TouchableOpacity>
                     </View>
                 </View>

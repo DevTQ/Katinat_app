@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface UserState {
     phone_number: string;
     fullname: string;
+
   }
   
   const initialState: UserState = {
@@ -18,7 +19,11 @@ const userSlice = createSlice({
         setUser: (state, action: PayloadAction<UserState>) => {
             state.fullname = action.payload.fullname;
             state.phone_number = action.payload.phone_number;
+<<<<<<< HEAD:frontend/src/redux/slice/userSlice.ts
             
+=======
+
+>>>>>>> 087d3bcceeb6ed1994fe9fc91c158e2aa3e94c5b:src/redux/slice/userSlice.ts
         },
         clearUser: (state) => {
             state.fullname = "";
