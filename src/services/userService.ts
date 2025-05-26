@@ -6,6 +6,9 @@ import RegisterScreenDTO from "@dtos/registerScreenDTO";
 import LoginDTO from "@dtos/loginDTO";
 import axiosClient from "./axiosClient";
 import UpdateProfileDTO from "@dtos/UpdateProfileDTO";
+import { ChangePassword } from "src/screens";
+import changePassword from "@dtos/changePasswordDTO";
+import changePasswordDTO from "@dtos/changePasswordDTO";
 
 export const userService = {
   checkPhoneNumber: async (data: RegisterScreenDTO) => {
@@ -45,5 +48,17 @@ export const userService = {
 
   deleteUser: async (userId: number) => {
     return authenticationAPI.HandleAuthentication(`/delete/${userId}`, null, "delete");
-  }
+  },
+
+  changePassword: async (data: changePasswordDTO) => {
+    return authenticationAPI.HandleAuthentication(
+      "/change-password",
+      {
+        oldPassword: data.old_password,
+        newPassword: data.new_password,
+      },
+      "put"
+    );
+  },
+
 };

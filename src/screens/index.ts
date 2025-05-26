@@ -30,7 +30,6 @@ export { default as NotificationDetail } from "./notifications/NotificationDetai
 export { default as SearchScreen } from "./SearchScreen";
 export { default as SearchResultsScreen } from './SearchResultsScreen';
 export { default as EditProfileScreen } from "./account/EditProfileScreen";
-export { default as VoucherScreen } from "./account/VoucherScreen";
 export { default as OrderHistory } from "./account/OrderHistory";
 export { default as OrderReview } from "./account/OrderReview";
 export { default as ReferFriend } from "./account/ReferFriend";

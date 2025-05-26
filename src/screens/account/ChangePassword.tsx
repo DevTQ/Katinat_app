@@ -1,17 +1,30 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../../navigators/MainNavigator";
+import { userService } from 'src/services/userService';
 
 const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+  const [loading, setLoading] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
 
-  const handleChangePassword = () => {
+  const isDisabled =
+    !oldPassword ||
+    !newPassword ||
+    !confirmPassword ||
+    newPassword !== confirmPassword ||
+    newPassword.length < 6 ||
+    loading;
+
+  const handleChangePassword = async () => {
     if (!oldPassword || !newPassword || !confirmPassword) {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin.');
       return;
@@ -24,111 +37,256 @@ const ChangePassword = () => {
       Alert.alert('Lỗi', 'Mật khẩu mới phải có ít nhất 6 ký tự.');
       return;
     }
-    // Thêm logic xử lý đổi mật khẩu (ví dụ: gọi API) tại đây
-    Alert.alert('Thành công', 'Mật khẩu đã được thay đổi.');
-    setOldPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+
+    setLoading(true);
+    try {
+      await userService.changePassword({
+        old_password: oldPassword,
+        new_password: newPassword,
+
+      });
+      Alert.alert('Thành công', 'Mật khẩu đã được thay đổi.');
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      navigation.goBack();
+    } catch (error: any) {
+      Alert.alert('Lỗi', error.response?.data?.message || error.message || 'Có lỗi xảy ra khi đổi mật khẩu.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <View style={styles.container}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                <AntDesign name="arrowleft" size={22} color="black" />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <AntDesign name="arrowleft" size={24} color="#333" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Đổi mật khẩu</Text>
+          <View style={{ width: 24 }} />
+        </View>
+
+        {/* Form */}
+        <View style={styles.form}>
+          {/* Old Password */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Mật khẩu hiện tại</Text>
+            <View style={styles.passwordInput}>
+              <TextInput
+                style={styles.input}
+                secureTextEntry={!showOldPassword}
+                value={oldPassword}
+                onChangeText={setOldPassword}
+                placeholder="Nhập mật khẩu hiện tại"
+                placeholderTextColor="#999"
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowOldPassword(!showOldPassword)}
+              >
+                <Ionicons
+                  name={showOldPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color="#999"
+                />
               </TouchableOpacity>
-      {/* Header */}
-      <Text style={styles.headerText}>Đổi mật khẩu</Text>
+            </View>
+          </View>
 
-      {/* Form */}
-      <View style={styles.form}>
-        <Text style={styles.label}>Mật khẩu cũ</Text>
-        <TextInput
-          style={styles.input}
-          secureTextEntry={true}
-          value={oldPassword}
-          onChangeText={setOldPassword}
-          placeholder="Nhập mật khẩu cũ"
-          placeholderTextColor="#999"
-        />
+          {/* New Password */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Mật khẩu mới</Text>
+            <View style={styles.passwordInput}>
+              <TextInput
+                style={styles.input}
+                secureTextEntry={!showNewPassword}
+                value={newPassword}
+                onChangeText={setNewPassword}
+                placeholder="Nhập mật khẩu mới (ít nhất 6 ký tự)"
+                placeholderTextColor="#999"
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowNewPassword(!showNewPassword)}
+              >
+                <Ionicons
+                  name={showNewPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color="#999"
+                />
+              </TouchableOpacity>
+            </View>
+            {newPassword.length > 0 && (
+              <View style={styles.passwordStrength}>
+                <View style={[
+                  styles.strengthBar,
+                  {
+                    width: `${Math.min((newPassword.length / 10) * 100, 100)}%`,
+                    backgroundColor: newPassword.length < 6 ? '#ff5252' :
+                      newPassword.length < 8 ? '#ffb142' : '#4cd137'
+                  }
+                ]} />
+              </View>
+            )}
+          </View>
 
-        <Text style={styles.label}>Mật khẩu mới</Text>
-        <TextInput
-          style={styles.input}
-          secureTextEntry={true}
-          value={newPassword}
-          onChangeText={setNewPassword}
-          placeholder="Nhập mật khẩu mới"
-          placeholderTextColor="#999"
-        />
+          {/* Confirm Password */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Xác nhận mật khẩu</Text>
+            <View style={styles.passwordInput}>
+              <TextInput
+                style={styles.input}
+                secureTextEntry={!showConfirmPassword}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                placeholder="Nhập lại mật khẩu mới"
+                placeholderTextColor="#999"
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                <Ionicons
+                  name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color="#999"
+                />
+              </TouchableOpacity>
+            </View>
+            {confirmPassword.length > 0 && newPassword !== confirmPassword && (
+              <Text style={styles.errorText}>Mật khẩu không khớp</Text>
+            )}
+          </View>
 
-        <Text style={styles.label}>Xác nhận mật khẩu mới</Text>
-        <TextInput
-          style={styles.input}
-          secureTextEntry={true}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          placeholder="Xác nhận mật khẩu mới"
-          placeholderTextColor="#999"
-        />
+          {/* Submit Button */}
+          <TouchableOpacity
+            style={[styles.button, isDisabled && styles.buttonDisabled]}
+            onPress={handleChangePassword}
+            disabled={isDisabled}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Đổi mật khẩu</Text>
+            )}
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
-          <Text style={styles.buttonText}>Xác nhận</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-    paddingTop: 50,
+    backgroundColor: '#f8f9fa',
+    marginTop: Platform.OS === 'ios' ? 0 : 30, // Adjust for Android status bar
+
+  },
+  scrollContainer: {
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 40,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 32,
   },
   backButton: {
-    position: "absolute",
-    top: 40,
-    left: 15,
-    zIndex: 10,
-    padding: 10,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: '#e9ecef',
   },
   headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 30,
+    fontSize: 22,
+    fontWeight: '600',
     color: '#333',
   },
   form: {
-    flex: 1,
+    marginBottom: 24,
+  },
+  inputContainer: {
+    marginBottom: 20,
   },
   label: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 5,
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#495057',
+    marginBottom: 8,
+  },
+  passwordInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
   },
   input: {
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 20,
-    paddingHorizontal: 10,
+    flex: 1,
+    height: 52,
     fontSize: 16,
     color: '#333',
+    paddingVertical: 14,
+  },
+  eyeIcon: {
+    padding: 8,
+  },
+  passwordStrength: {
+    height: 4,
+    backgroundColor: '#e9ecef',
+    borderRadius: 2,
+    marginTop: 8,
+    overflow: 'hidden',
+  },
+  strengthBar: {
+    height: 4,
+    borderRadius: 2,
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#ff5252',
+    marginTop: 4,
   },
   button: {
-    backgroundColor: '#4A90E2',
-    paddingVertical: 15,
-    borderRadius: 8,
+    backgroundColor: '#bb946b',
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 20,
+    justifyContent: 'center',
+    marginTop: 24,
+    shadowColor: '#4267B2',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  buttonDisabled: {
+    backgroundColor: '#d3c4b2',
+    shadowOpacity: 0,
+    opacity: 0.6,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });
 
