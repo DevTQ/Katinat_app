@@ -73,8 +73,13 @@ const Account = () => {
                             <MaterialIcons name="password" size={18} color="#104358" style={{ marginRight: 10 }} />
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.fuct}
+<<<<<<< HEAD
                             onPress={() => navigation.navigate("Voucher")}
                             >
+=======
+                            onPress={() => navigation.navigate("Voucher")}>
+                            
+>>>>>>> d4fc372ebe50ec2a1c5934010fdbbe5faea0f48e
                             <Text style={styles.text}>Ưu đãi</Text>
                             <FontAwesome name="ticket" size={18} color="#104358" style={{ marginRight: 10 }} />
                     

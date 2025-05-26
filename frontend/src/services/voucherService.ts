@@ -20,7 +20,18 @@ const voucherService = {
             console.error("Lỗi khi lấy chi tiết voucher", error);
             throw error;
         }
+    },
+    applyVoucherCode: async (code: string) => {
+    try {
+        const response = await axiosClient.post("/vouchers/apply", { code });
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi áp dụng mã voucher:", error);
+        throw error;
     }
+}
+
 };
+
 
 export default voucherService;

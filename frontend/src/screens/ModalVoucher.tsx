@@ -10,6 +10,9 @@ import {
 } from 'react-native';
 import dayjs from 'dayjs';
 import voucherService from 'src/services/voucherService';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackParams } from 'src/navigators/MainNavigator';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 interface Coupon {
     code: number;
@@ -28,6 +31,7 @@ interface OfferModalProps {
     disabled?: boolean;
 }
 
+
 const VourcherDetail: React.FC<OfferModalProps> = ({
     visible,
     onClose,
@@ -39,7 +43,7 @@ const VourcherDetail: React.FC<OfferModalProps> = ({
     const [error, setError] = useState<string | null>(null);
     useEffect(() => {
         if (!visible) return;
-
+        
         const fetchCoupon = async () => {
             setLoading(true);
             try {
@@ -52,10 +56,11 @@ const VourcherDetail: React.FC<OfferModalProps> = ({
                 setLoading(false);
             }
         };
-
+        
         fetchCoupon();
     }, [visible, couponId]);
-
+    
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     const voucherEnd = dayjs(coupon?.endDate, "DD/MM/YYYY HH:mm");
 
     return (
@@ -81,6 +86,7 @@ const VourcherDetail: React.FC<OfferModalProps> = ({
                             {/* Button */}
                             <View style={{ alignItems: 'center' }}>
                                 <TouchableOpacity
+                                    onPress={() => navigation.navigate("Order")}
                                     style={[
                                         styles.button,
                                         disabled && { opacity: 0.5 }

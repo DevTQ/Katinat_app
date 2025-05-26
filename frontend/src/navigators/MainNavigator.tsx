@@ -15,7 +15,12 @@ import {
     OTPVerificationScreen,ResetPasswordScreen, OrderShippingConfirm,
     OrderShipping, ListNotification, NotificationDetail,
     SearchScreen,
+<<<<<<< HEAD
     SearchResultsScreen, EditProfileScreen,OrderHistory, OrderReview, ReferFriend,
+=======
+    SearchResultsScreen, EditProfileScreen,
+    OrderHistory, OrderReview, ReferFriend,
+>>>>>>> d4fc372ebe50ec2a1c5934010fdbbe5faea0f48e
     ChangePassword
 } from "../screens";
 
@@ -56,7 +61,6 @@ export type RootStackParams = {
     PaymentFailedScreen: { orderCode: string, reason: string | null, paymentUrl: string};
     OrderShippingConfirm: undefined;
     EditProfileScreen: undefined;
-    VoucherScreen: undefined;
     OrderHistory: undefined;
     OrderReview: undefined;
     ReferFriend: undefined;
