@@ -20,11 +20,7 @@ export const store = configureStore({
     user: persistedUserReducer,
     auth: authReducer,
     cart: cartReducer,
-<<<<<<< HEAD
     voucher: persistedVoucherReducer,
-=======
-    voucher: voucherReducer,
->>>>>>> d4fc372ebe50ec2a1c5934010fdbbe5faea0f48e
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
