@@ -46,10 +46,6 @@ export const userService = {
     );
   },
 
-  deleteUser: async (userId: number) => {
-    return authenticationAPI.HandleAuthentication(`/delete/${userId}`, null, "delete");
-  },
-
   changePassword: async (data: changePasswordDTO) => {
     return authenticationAPI.HandleAuthentication(
       "/change-password",

@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Linking, TextInput } from 'react-native';
 
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
@@ -8,12 +8,12 @@ import { RootStackParams } from "../../navigators/MainNavigator";
 
 
 const App = () => {
+  const [inputCode, setInputCode] = useState('');
   const referralCode = 'AFF0343785';
   const referralLink = 'https://share.katinat.vn/Affiliate/Ka';
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
 
   const handleShare = async () => {
-    // Xử lý chia sẻ (có thể sử dụng Share API của React Native)
     const message = `Mã giới thiệu: ${referralCode}\nLiên kết: ${referralLink}`;
     try {
       await Linking.openURL(`https://www.facebook.com/sharer/sharer.php?u=${referralLink}&quote=${message}`);
@@ -24,16 +24,14 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <AntDesign name="arrowleft" size={22} color="black" />
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <AntDesign name="arrowleft" size={22} color="black" />
+      </TouchableOpacity>
 
-        </TouchableOpacity>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Giới thiệu bạn bè</Text>
       </View>
 
-      {/* Instructions */}
       <View style={styles.instructions}>
         <View style={styles.instructionItem}>
           <Text style={styles.instructionNumber}>1</Text>
@@ -56,12 +54,10 @@ const App = () => {
         </View>
       </View>
 
-      {/* Referral Code and Link */}
       <View style={styles.referralSection}>
         <Text style={styles.sectionTitle}>Mã giới thiệu</Text>
         <View style={styles.referralCodeContainer}>
           <Text style={styles.referralCode}>{referralCode}</Text>
-          {/* Placeholder cho biểu tượng sao chép */}
           <View style={styles.copyIcon}>
             <Text style={styles.placeholderText}>[Copy]</Text>
           </View>
@@ -70,13 +66,11 @@ const App = () => {
         <Text style={styles.sectionTitle}>Liên kết</Text>
         <View style={styles.referralLinkContainer}>
           <Text style={styles.referralLink}>{referralLink}</Text>
-          {/* Placeholder cho biểu tượng sao chép */}
           <View style={styles.copyIcon}>
             <Text style={styles.placeholderText}>[Copy]</Text>
           </View>
         </View>
 
-        {/* Share Button */}
         <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
           <Ionicons name="share-social" size={20} color="#fff" />
           <Text style={styles.shareButtonText}>Khác (Instagram, Zalo, ...)</Text>
@@ -84,12 +78,21 @@ const App = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Note */}
+      {/* Input referral code from user */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.sectionTitle}>Nhập mã giới thiệu</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Nhập mã giới thiệu từ bạn bè"
+          value={inputCode}
+          onChangeText={setInputCode}
+        />
+      </View>
+
       <Text style={styles.note}>
         Bạn đã có mã giới thiệu từ lời mời của bạn bè
       </Text>
 
-      {/* Confirm Button */}
       <TouchableOpacity style={styles.confirmButton}>
         <Text style={styles.confirmButtonText}>Xác nhận</Text>
       </TouchableOpacity>
@@ -98,7 +101,7 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
-    backButton: {
+  backButton: {
     position: "absolute",
     top: 40,
     left: 15,
@@ -201,6 +204,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginHorizontal: 10,
   },
+  inputContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 14,
+    color: '#333',
+    backgroundColor: '#f9f9f9',
+  },
   note: {
     fontSize: 14,
     color: '#333',
@@ -209,7 +225,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   confirmButton: {
-    backgroundColor: '#A9B6C2',
+    backgroundColor: '#4A90E2',
     paddingVertical: 15,
     marginHorizontal: 20,
     borderRadius: 25,

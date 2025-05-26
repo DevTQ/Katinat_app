@@ -10,11 +10,6 @@ import Entypo from '@expo/vector-icons/Entypo';
 
 const Setting = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
-    const [language, setLanguage] = useState("VN");
-
-    const toggleLanguage = () => {
-        setLanguage((prev) => (prev === "VN" ? "EN" : "VN"));
-    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -24,53 +19,14 @@ const Setting = () => {
             <View style={styles.topContainer}>
                 <Text style={styles.title}>Cài đặt</Text>
             </View>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("ChangePassword")}>
                 <View style={{ marginLeft: 10 }}>
                     <MaterialIcons name="password" size={24} color="black" />
                 </View>
                 <Text style={[styles.textBtn, { flex: 1 }]}>Đổi mật khẩu</Text>
                 <Entypo name="chevron-small-right" size={24} color="black" />
             </TouchableOpacity>
-            <View style={[styles.button, { justifyContent: "space-between", paddingHorizontal: 10 }]}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <SimpleLineIcons name="globe" size={24} color="black" />
-                    <Text style={styles.textBtn}>Ngôn ngữ</Text>
-                </View>
-                <View style={styles.toggleContainer}>
-                    <TouchableOpacity
-                        style={[
-                            styles.languageButton,
-                            language === "VN" && styles.activeLanguageButton,
-                        ]}
-                        onPress={toggleLanguage}
-                    >
-                        <Text
-                            style={[
-                                styles.languageText,
-                                language === "VN" && styles.activeLanguageText,
-                            ]}
-                        >
-                            VN
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[
-                            styles.languageButton,
-                            language === "EN" && styles.activeLanguageButton,
-                        ]}
-                        onPress={toggleLanguage}
-                    >
-                        <Text
-                            style={[
-                                styles.languageText,
-                                language === "EN" && styles.activeLanguageText,
-                            ]}
-                        >
-                            EN
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
+            
         </SafeAreaView>
     );
 };
