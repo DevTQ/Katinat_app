@@ -86,9 +86,7 @@ const Voucher = () => {
                         <Text style={styles.name}>{item.voucherName}</Text>
                         <Text style={{ fontSize: 15, color: '#a2a39d', flexWrap: 'wrap', width: 260 }}>Áp dụng cho: {item.type}</Text>
                         <Text style={{ color: '#be9f8d', position: 'absolute', top: 115 }}>HSD: {voucherEnd.format("DD/MM/YYYY HH:mm")}</Text>
-                        <TouchableOpacity style={[styles.btnSelect, { position: 'absolute', top: 110, left: 140 }]}>
-                            <Text style={{ color: 'white', fontWeight: '500', fontSize: 15 }}>Chọn</Text>
-                        </TouchableOpacity>
+                        
                     </View>
                 </View>
             </TouchableOpacity>

@@ -4,6 +4,7 @@ import { persistStore, persistReducer } from "redux-persist";
 import userReducer from "./slice/userSlice";
 import authReducer from "./slice/authSlice";
 import cartReducer from "./slice/cartSlice";
+import voucherReducer from "./slice/voucherSlice";
 
 const persistConfig = {
   key: "root",
@@ -18,6 +19,7 @@ export const store = configureStore({
     user: persistedUserReducer,
     auth: authReducer,
     cart: cartReducer,
+    voucher: voucherReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
