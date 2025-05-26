@@ -18,8 +18,6 @@ import LoginModal from "src/modals/LoginModal";
 import ProductNotificationModal from "src/modals/ProductNotificationModal";
 import { deleteProduct, updateProductQuantity } from "../../redux/slice/cartSlice";
 
-
-
 const CartDetail = () => {
     const user = useSelector((state: RootState) => state.auth.user);
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();

@@ -15,8 +15,7 @@ import {
     OTPVerificationScreen,ResetPasswordScreen, OrderShippingConfirm,
     OrderShipping, ListNotification, NotificationDetail,
     SearchScreen,
-    SearchResultsScreen, EditProfileScreen,
-    VoucherScreen, OrderHistory, OrderReview, ReferFriend,
+    SearchResultsScreen, EditProfileScreen,OrderHistory, OrderReview, ReferFriend,
     ChangePassword
 } from "../screens";
 
@@ -34,7 +33,7 @@ const RootStack = createNativeStackNavigator<RootStackParams>();
 
 export type RootStackParams = {
     HomeGuest: undefined; HomeScreen: undefined; 
-    Order: undefined; OrderConfirm: undefined; OrderPending: {orderCode: string | null, paymentUrl: string}; 
+    Order: {justAppliedVoucher?: boolean } | undefined; OrderConfirm: undefined; OrderPending: {orderCode: string | null, paymentUrl: string}; 
     OrderPaid: {orderCode: string}; ListOrderDetail: ListOrderDetailParams; OrderConfirmed: {orderCode: string};
     OrderCompleted: {orderCode: string}; OrderShipping: {orderCode: string}
     AccountGuest: undefined; Account: undefined; ForgotPasswordScreen: undefined; 
@@ -132,7 +131,6 @@ const UserStack = () => (
         <RootStack.Screen name="SearchScreen" component={SearchScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="SearchResultsScreen" component={SearchResultsScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="EditProfileScreen" component={EditProfileScreen} options={{ headerShown: false }} />
-        <RootStack.Screen name="VoucherScreen" component={VoucherScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="OrderHistory" component={OrderHistory} options={{ headerShown: false }} />
         <RootStack.Screen name="OrderReview" component={OrderReview} options={{ headerShown: false }} />
         <RootStack.Screen name="ReferFriend" component={ReferFriend} options={{ headerShown: false }} />

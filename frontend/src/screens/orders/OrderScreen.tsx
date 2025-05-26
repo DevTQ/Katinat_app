@@ -11,11 +11,14 @@ import {
   Image,
   FlatList,
   ActivityIndicator,
-  TextInput
+  TextInput,
+  Alert,
+  Animated
 } from "react-native";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import { AppBar, IconFunct } from "../../components/orders";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "../../navigators/MainNavigator";
 import productService from "src/services/productService";
@@ -24,13 +27,19 @@ import { RootState } from "src/redux/store";
 
 const OrderScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+  const route = useRoute<RouteProp<RootStackParams, "Order">>();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   const CartProducts = useSelector((state: RootState) => state.cart.CartArr);
   const totalCartQuantity = CartProducts.reduce((sum, item) => sum + item.quantity, 0);
+  const selectedVoucher = useSelector((state: RootState) => state.voucher.selectedVoucher);
+  const justAppliedVoucher = route.params?.justAppliedVoucher;
 
   // 1. Lấy products (full list hoặc phân trang tuỳ backend)
   useEffect(() => {
@@ -106,6 +115,36 @@ const OrderScreen = () => {
     </TouchableOpacity>
   );
 
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setToastVisible(true);
+    
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true
+      }),
+      Animated.delay(2000),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true
+      })
+    ]).start(() => {
+      setToastVisible(false);
+    });
+  };
+
+  useEffect(() => {
+    if (justAppliedVoucher && selectedVoucher) {
+      showToast(`Đã áp dụng mã ưu đãi này cho đơn hàng của bạn`);
+      navigation.setParams?.({ justAppliedVoucher: undefined });
+    } else if (justAppliedVoucher) {
+      showToast("Đã áp dụng mã ưu đãi này cho đơn hàng của bạn");
+      navigation.setParams?.({ justAppliedVoucher: undefined });
+    }
+  }, [justAppliedVoucher, selectedVoucher]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -188,6 +227,18 @@ const OrderScreen = () => {
 
         </View>
         {!searchFocused && <AppBar />}
+        
+        {toastVisible && (
+          <Animated.View 
+            style={[
+              styles.toast, 
+              { opacity: fadeAnim }
+            ]}
+          >
+            <AntDesign name="checkcircle" size={22} color="#104358" style={styles.toastIcon} />
+            <Text style={styles.toastText}>{toastMessage}</Text>
+          </Animated.View>
+        )}
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
@@ -324,6 +375,37 @@ const styles = StyleSheet.create({
     width: 23,
     height: 23,
     marginRight: 15
+  },
+  toast: {
+    position: 'absolute',
+    bottom: 85,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: 10,
+    borderRadius: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  toastIcon: {
+    marginRight: 5
+  },
+  toastText: {
+    color: '#104358',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    flex: 1,
+    letterSpacing: -0.1
   }
 });
 

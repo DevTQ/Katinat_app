@@ -4,20 +4,23 @@ import { persistStore, persistReducer } from "redux-persist";
 import userReducer from "./slice/userSlice";
 import authReducer from "./slice/authSlice";
 import cartReducer from "./slice/cartSlice";
+import voucherReducer from "./slice/voucherSlice";
 
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
-  whitelist: ["user"],
+  whitelist: ["user", "voucher"],
 };
 
 const persistedUserReducer = persistReducer(persistConfig, userReducer);
+const persistedVoucherReducer = persistReducer(persistConfig, voucherReducer);
 
 export const store = configureStore({
   reducer: {
     user: persistedUserReducer,
     auth: authReducer,
     cart: cartReducer,
+    voucher: persistedVoucherReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

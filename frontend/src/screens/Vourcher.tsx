@@ -9,21 +9,26 @@ import { useEffect, useState } from "react";
 import voucherService from "src/services/voucherService";
 import ModalVoucher from "./ModalVoucher";
 dayjs.extend(customParseFormat);
+import { useDispatch, useSelector } from "react-redux";
+import { setVoucher } from "src/redux/slice/voucherSlice";
+import { RootState } from "src/redux/store";
 
 
 const Voucher = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+    const dispatch = useDispatch();
     const [selectedVoucherId, setSelectedVoucherId] = useState<number | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [vouchers, setVouchers] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isValidTab, setIsValidTab] = useState(true);
     const now = dayjs();
+    const [showApplyButton, setShowApplyButton] = useState(false);
     const validVouchers = vouchers.filter(item => {
         const voucherEnd = dayjs(item.endDate, "DD/MM/YYYY HH:mm");
-        return voucherEnd.isAfter(now); // chỉ lấy voucher còn hạn
+        return voucherEnd.isAfter(now);
     });
-
+    const selectedVoucher = useSelector((state: RootState) => state.voucher.selectedVoucher);
     const invalidVouchers = vouchers.filter(item => {
         const now = dayjs();
         const voucherStart = dayjs(item.startDate, "DD/MM/YYYY HH:mm");
@@ -34,6 +39,16 @@ const Voucher = () => {
         const isDisabled = item.status === 'disabled';
         return isExpired || isNotStarted || isOutOfStock || isDisabled;
     });
+
+    useEffect(() => {
+        if (selectedVoucher && selectedVoucher.voucherId) {
+            setSelectedVoucherId(selectedVoucher.voucherId);
+            setShowApplyButton(true);
+        } else {
+            setSelectedVoucherId(null);
+            setShowApplyButton(false);
+        }
+    }, [selectedVoucher]);
 
     useEffect(() => {
         const fetchVouchers = async () => {
@@ -48,6 +63,14 @@ const Voucher = () => {
         };
         fetchVouchers();
     }, []);
+
+    const handleSelect = () => {
+        setShowApplyButton(true);
+    };
+
+    const handleApply = () => {
+        setShowApplyButton(false);
+    };
 
     const renderItem = ({ item }: { item: any }) => {
         const now = dayjs();
@@ -86,8 +109,28 @@ const Voucher = () => {
                         <Text style={styles.name}>{item.voucherName}</Text>
                         <Text style={{ fontSize: 15, color: '#a2a39d', flexWrap: 'wrap', width: 260 }}>Áp dụng cho: {item.type}</Text>
                         <Text style={{ color: '#be9f8d', position: 'absolute', top: 115 }}>HSD: {voucherEnd.format("DD/MM/YYYY HH:mm")}</Text>
-                        <TouchableOpacity style={[styles.btnSelect, { position: 'absolute', top: 110, left: 140 }]}>
-                            <Text style={{ color: 'white', fontWeight: '500', fontSize: 15 }}>Chọn</Text>
+                        <TouchableOpacity
+                            style={[
+                                styles.btnSelect,
+                                { position: 'absolute', top: 110, left: 140 },
+                                selectedVoucherId === item.voucherId
+                                    ? { backgroundColor: '#104358' }
+                                    : { backgroundColor: '#bb946b' }
+                            ]}
+                            onPress={() => {
+                                if (selectedVoucherId === item.voucherId) {
+                                    dispatch(setVoucher(null));
+                                    setShowApplyButton(false);
+                                } else {
+                                    dispatch(setVoucher(item));
+                                    setSelectedVoucherId(item.voucherId);
+                                    setShowApplyButton(true);
+                                }
+                            }}
+                        >
+                            <Text style={{ color: 'white', fontWeight: '500', fontSize: 15 }}>
+                                {selectedVoucherId === item.voucherId ? 'Hủy' : 'Chọn'}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -132,6 +175,7 @@ const Voucher = () => {
             <View style={{ marginLeft: 20, marginTop: 15 }}>
                 <Text style={{ fontSize: 20, fontWeight: '500', color: '#104358' }}>Ưu đãi sản phẩm</Text>
             </View>
+
             <FlatList
                 data={isValidTab ? validVouchers : invalidVouchers}
                 numColumns={1}
@@ -146,6 +190,34 @@ const Voucher = () => {
                     onClose={() => setModalVisible(false)}
                     disabled={!isValidTab}
                 />
+            )}
+            {showApplyButton && (
+                <View style={{
+                    position: 'absolute',
+                    bottom: 20,
+                    left: 0,
+                    right: 0,
+                    alignItems: 'center',
+                    zIndex: 100,
+                }}>
+                    <TouchableOpacity
+                        style={{
+                            backgroundColor: '#bb946b',
+                            paddingVertical: 15,
+                            paddingHorizontal: 60,
+                            borderRadius: 12,
+                            width: 370,
+                        }}
+                        onPress={() => {
+                            setShowApplyButton(false);
+                            setSelectedVoucherId(null);
+                            navigation.navigate("Order", { justAppliedVoucher: true });
+                        }}
+                    >
+                        <Text style={{ color: 'white', fontSize: 18, fontWeight: '500', textAlign: 'center' }}
+                        >Áp dụng mã ưu đãi</Text>
+                    </TouchableOpacity>
+                </View>
             )}
         </SafeAreaView>
     );

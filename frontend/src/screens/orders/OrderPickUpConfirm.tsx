@@ -20,7 +20,7 @@ import ProductNotificationModal from "src/modals/ProductNotificationModal";
 import paymentService from "src/services/paymentService";
 import DeliveryMethodModal from "../../modals/OptionOrderModal";
 import RecipientModal from "src/modals/RecipientModal";
-
+import { setVoucher, clearVoucher  } from "src/redux/slice/voucherSlice";
 
 const OrderConfirm = () => {
 
@@ -32,12 +32,13 @@ const OrderConfirm = () => {
     const [selectedProductForDeletion, setSelectedProductForDeletion] = useState<number | null>(null);
     const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
     const dispatch = useDispatch();
-
+    const selectedVoucher = useSelector((state: RootState) => state.voucher.selectedVoucher);
+    
     const fullName = currentUser?.fullname;
     const phone = currentUser?.phone_number;
     const userId = currentUser?.id;
     const [vouchers, setVouchers] = useState<any[]>([]);
-    const [selectedVoucher, setSelectedVoucher] = useState<any | null>(null);
+    
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedPayment, setSelectedPayment] = useState<"VNPAY" | "MoMo" | null>(null);
     const [isRecipientModalVisible, setRecipientModalVisible] = useState(false);
@@ -55,6 +56,7 @@ const OrderConfirm = () => {
         storeAddress: string;
         distance?: string;
     } | null>(null);
+    
 
     useEffect(() => {
         const fetchVouchers = async () => {
@@ -70,15 +72,30 @@ const OrderConfirm = () => {
         fetchVouchers();
     }, []);
 
+    useEffect(() => {
+        if (selectedVoucher && typeof selectedVoucher === 'number' && vouchers.length > 0) {
+            const fullVoucher = vouchers.find(v => v.voucherId === selectedVoucher);
+            if (fullVoucher) {
+                dispatch(setVoucher(fullVoucher));
+            }
+        }
+    }, [vouchers, selectedVoucher]);
+
+    useEffect(() => {
+        console.log("selectedVoucher updated:", selectedVoucher);
+    }, [selectedVoucher]);
+
     const toggleRadioButton = (option: "VNPAY" | "MoMo") => {
         setSelectedPayment(option);
     };
 
+    
+
     const handleToggleVoucher = (voucher: any) => {
         if (selectedVoucher?.voucherId === voucher.voucherId) {
-            setSelectedVoucher(null);
+            dispatch(clearVoucher());
         } else {
-            setSelectedVoucher(voucher);
+            dispatch(setVoucher(voucher));
         }
     };
 
