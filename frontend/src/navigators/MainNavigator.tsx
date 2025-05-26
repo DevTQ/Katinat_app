@@ -15,12 +15,7 @@ import {
     OTPVerificationScreen,ResetPasswordScreen, OrderShippingConfirm,
     OrderShipping, ListNotification, NotificationDetail,
     SearchScreen,
-<<<<<<< HEAD
     SearchResultsScreen, EditProfileScreen,OrderHistory, OrderReview, ReferFriend,
-=======
-    SearchResultsScreen, EditProfileScreen,
-    OrderHistory, OrderReview, ReferFriend,
->>>>>>> d4fc372ebe50ec2a1c5934010fdbbe5faea0f48e
     ChangePassword
 } from "../screens";
 
