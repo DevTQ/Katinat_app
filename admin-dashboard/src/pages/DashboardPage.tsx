@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   Row,
@@ -12,6 +12,7 @@ import {
   Calendar,
   Badge,
   Space,
+  Spin,
 } from 'antd';
 import {
   ArrowUpOutlined,
@@ -31,57 +32,128 @@ import {
   Pie,
   PieConfig,
 } from '@ant-design/plots';
+import dashboardService, {
+  DashboardStats,
+  RevenueData,
+  CategoryStats,
+  BestSellingProduct,
+  RecentOrder,
+  HourlyStats,
+} from '../api/dashboardService';
 
 const { Title, Text } = Typography;
 
 const DashboardPage: React.FC = () => {
-  // Mock data - Replace with actual API data
-  const revenueData = [
-    { date: '2024-01', value: 15000000 },
-    { date: '2024-02', value: 25000000 },
-    { date: '2024-03', value: 35000000 },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryStats[]>([]);
+  const [bestSellingProducts, setBestSellingProducts] = useState<BestSellingProduct[]>([]);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [hourlyData, setHourlyData] = useState<HourlyStats[]>([]);
+  
+  // Fetch all dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);        const [
+          statsData,
+          revenue,
+          categories,
+          bestSelling,
+          orders,
+          hourly
+        ] = await Promise.all([
+          dashboardService.getStats(),
+          dashboardService.getRevenueData(),
+          dashboardService.getCategoryStats(),
+          dashboardService.getBestSellingProducts(),
+          dashboardService.getRecentOrders(),
+          dashboardService.getHourlyStats()
+        ]);
 
-  const categoryData = [
-    { category: 'Cà phê', value: 35 },
-    { category: 'Trà sữa', value: 25 },
-    { category: 'Nước ép', value: 20 },
-    { category: 'Sinh tố', value: 15 },
-    { category: 'Khác', value: 5 },
-  ];
+        console.log('Received stats data:', statsData);
+        console.log('Received revenue data:', revenue);
+        console.log('Received categories data:', categories);
+        console.log('Response data type:', typeof statsData);
+        console.log('Response data structure:', JSON.stringify(statsData, null, 2));
 
-  const bestSellingProducts = [
-    { name: 'Cà phê sữa đá', sold: 150, revenue: 3000000, growth: 15 },
-    { name: 'Trà sữa trân châu', sold: 120, revenue: 2800000, growth: 10 },
-    { name: 'Sinh tố bơ', sold: 90, revenue: 2250000, growth: 5 },
-  ];
+        // Make sure we're getting the data in the correct format
+        if (statsData && typeof statsData === 'object') {
+          setStats(statsData);
+        } else {
+          console.error('Invalid stats data format received:', statsData);
+        }
+          // Dữ liệu cho biểu đồ doanh thu
+        if (Array.isArray(revenue) && revenue.length > 0) {
+          setRevenueData(revenue);
+        } else {
+          // Dữ liệu mẫu cho biểu đồ doanh thu
+          const sampleRevenueData = Array.from({ length: 30 }, (_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - (29 - i));
+            return {
+              date: date.toISOString().split('T')[0],
+              value: Math.floor(Math.random() * 1000000) + 100000
+            };
+          });
+          setRevenueData(sampleRevenueData);
+        }
+        
+        // Dữ liệu cho biểu đồ phân bố danh mục
+        if (Array.isArray(categories) && categories.length > 0) {
+          console.log('Raw category data:', categories);
+          setCategoryData(categories);
+        } else {
+          // Dữ liệu mẫu cho biểu đồ phân bố danh mục
+          const sampleCategoryData = [
+            { category: 'Cà phê', value: 35 },
+            { category: 'Trà sữa', value: 25 },
+            { category: 'Nước ép', value: 20 },
+            { category: 'Bánh ngọt', value: 20 }
+          ];
+          console.log('Using sample data:', sampleCategoryData);
+          setCategoryData(sampleCategoryData);
+        }
 
-  const recentOrders = [
-    {
-      id: 'ORD001',
-      customer: 'Nguyễn Văn A',
-      items: 3,
-      total: 150000,
-      status: 'pending',
-      time: '10:30',
-    },
-    {
-      id: 'ORD002',
-      customer: 'Trần Thị B',
-      items: 2,
-      total: 120000,
-      status: 'processing',
-      time: '10:15',
-    },
-    {
-      id: 'ORD003',
-      customer: 'Lê Văn C',
-      items: 4,
-      total: 200000,
-      status: 'completed',
-      time: '10:00',
-    },
-  ];
+        // Dữ liệu cho biểu đồ theo giờ
+        if (Array.isArray(hourly) && hourly.length > 0) {
+          setHourlyData(hourly);
+        } else {
+          // Dữ liệu mẫu cho biểu đồ theo giờ
+          const sampleHourlyData = Array.from({ length: 24 }, (_, hour) => ({
+            hour,
+            value: Math.floor(Math.random() * 15) + 1
+          }));
+          setHourlyData(sampleHourlyData);
+        }
+
+        // Dữ liệu sản phẩm bán chạy
+        if (Array.isArray(bestSelling) && bestSelling.length > 0) {
+          setBestSellingProducts(bestSelling);
+        } else {
+          // Dữ liệu mẫu cho sản phẩm bán chạy
+          const sampleBestSelling = [
+            { name: 'Cà phê sữa', sold: 45, revenue: 675000, growth: 15 },
+            { name: 'Trà sữa trân châu', sold: 38, revenue: 760000, growth: 12 },
+            { name: 'Bánh tiramisu', sold: 32, revenue: 960000, growth: 8 }
+          ];
+          setBestSellingProducts(sampleBestSelling);
+        }
+
+        // Dữ liệu đơn hàng gần đây
+        if (Array.isArray(orders) && orders.length > 0) {
+          setRecentOrders(orders);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   // Revenue Chart Configuration
   const revenueConfig: AreaConfig = {
@@ -103,30 +175,41 @@ const DashboardPage: React.FC = () => {
         },
       },
     },
-  };
-
-  // Category Chart Configuration
+  };  // Category Chart Configuration
   const categoryConfig: PieConfig = {
-    data: categoryData,
+    data: categoryData.filter(item => item.value > 0),
     angleField: 'value',
     colorField: 'category',
-    radius: 0.8,
+    radius: 0.75,
     label: {
       type: 'outer',
-      content: '{name} {percentage}',
-    },
-    interactions: [
-      {
-        type: 'element-active',
+      formatter: (datum: { value: number; category: string }) => {
+        const total = categoryData.reduce((sum, item) => sum + item.value, 0);
+        const percent = (datum.value / total * 100).toFixed(1);
+        return `${datum.category}\n${percent}%`;
       },
-    ],
-  };
+    },
+    legend: {
+      layout: 'horizontal',
+      position: 'bottom'
+    },
+    tooltip: {
+      formatter: (datum: { value: number; category: string }) => {
+        const total = categoryData.reduce((sum, item) => sum + item.value, 0);
+        const percent = ((datum.value / total) * 100).toFixed(1);
+        return { name: datum.category, value: `${datum.value} (${percent}%)` };
+      }
+    },
+    animation: {
+      appear: {
+        animation: 'wave',
+        duration: 1000,
+      },
+    },
+    interactions: [{ type: 'element-active' }],
+};
 
-  // Sales by Hour Chart Configuration
-  const hourlyData = Array.from({ length: 24 }, (_, i) => ({
-    hour: i,
-    value: Math.floor(Math.random() * 50) + 10,
-  }));
+  console.log('Filtered category data:', categoryData.filter(item => item.value > 0));
 
   const hourlyConfig: ColumnConfig = {
     data: hourlyData,
@@ -145,7 +228,6 @@ const DashboardPage: React.FC = () => {
       },
     },
   };
-
   const getOrderStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -154,6 +236,10 @@ const DashboardPage: React.FC = () => {
         return 'blue';
       case 'completed':
         return 'green';
+      case 'ready':
+        return 'cyan';
+      case 'cancelled':
+        return 'red';
       default:
         return 'default';
     }
@@ -164,9 +250,12 @@ const DashboardPage: React.FC = () => {
       case 'pending':
         return 'Chờ xử lý';
       case 'processing':
-        return 'Đang pha chế';
-      case 'completed':
+        return 'Đang pha chế';      case 'completed':
         return 'Hoàn thành';
+      case 'ready':
+        return 'Sẵn sàng';
+      case 'cancelled':
+        return 'Đã hủy';
       default:
         return status;
     }
@@ -187,6 +276,14 @@ const DashboardPage: React.FC = () => {
     return {};
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -203,15 +300,14 @@ const DashboardPage: React.FC = () => {
           <Card>
             <Statistic
               title="Doanh thu hôm nay"
-              value={2500000}
+              value={stats?.totalRevenue ?? 0}
               precision={0}
               valueStyle={{ color: '#3f8600' }}
               prefix={<DollarOutlined />}
               suffix="đ"
-            />
-            <div className="mt-2">
-              <Text type="success">
-                <ArrowUpOutlined /> 15% so với hôm qua
+            />            <div className="mt-2">              <Text type={((stats?.percentageChanges?.revenue ?? 0) >= 0) ? 'success' : 'danger'}>
+                {((stats?.percentageChanges?.revenue ?? 0) >= 0) ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                {' '}{Math.abs(stats?.percentageChanges?.revenue ?? 0)}% so với hôm qua
               </Text>
             </div>
           </Card>
@@ -220,13 +316,12 @@ const DashboardPage: React.FC = () => {
           <Card>
             <Statistic
               title="Đơn hàng hôm nay"
-              value={48}
+              value={stats?.totalOrders ?? 0}
               valueStyle={{ color: '#1890ff' }}
               prefix={<ShoppingCartOutlined />}
-            />
-            <div className="mt-2">
-              <Text type="success">
-                <ArrowUpOutlined /> 10% so với hôm qua
+            />            <div className="mt-2">              <Text type={((stats?.percentageChanges?.orders ?? 0) >= 0) ? 'success' : 'danger'}>
+                {((stats?.percentageChanges?.orders ?? 0) >= 0) ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                {' '}{Math.abs(stats?.percentageChanges?.orders ?? 0)}% so với hôm qua
               </Text>
             </div>
           </Card>
@@ -235,29 +330,30 @@ const DashboardPage: React.FC = () => {
           <Card>
             <Statistic
               title="Khách hàng mới"
-              value={12}
+              value={stats?.newCustomers ?? 0}
               valueStyle={{ color: '#faad14' }}
               prefix={<UserOutlined />}
-            />
-            <div className="mt-2">
-              <Text type="warning">
-                <ArrowDownOutlined /> 5% so với hôm qua
+            />            <div className="mt-2">              <Text type={((stats?.percentageChanges?.customers ?? 0) >= 0) ? 'success' : 'danger'}>
+                {((stats?.percentageChanges?.customers ?? 0) >= 0) ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                {' '}{Math.abs(stats?.percentageChanges?.customers ?? 0)}% so với hôm qua
               </Text>
             </div>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
+          <Card>            <Statistic
               title="Sản phẩm đã bán"
-              value={156}
+              value={stats?.totalProductsSold ?? 0}
               valueStyle={{ color: '#cf1322' }}
               prefix={<CoffeeOutlined />}
             />
             <div className="mt-2">
-              <Text type="success">
-                <ArrowUpOutlined /> 20% so với hôm qua
-              </Text>
+              {stats?.totalProductsSold === 0 ? (
+                <Text type="secondary">Chưa có sản phẩm bán ra</Text>              ) : (                <Text type={((stats?.percentageChanges?.products ?? 0) >= 0) ? 'success' : 'danger'}>
+                  {((stats?.percentageChanges?.products ?? 0) >= 0) ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                  {' '}{Math.abs(stats?.percentageChanges?.products ?? 0).toFixed(1)}% so với hôm qua
+                </Text>
+              )}
             </div>
           </Card>
         </Col>
@@ -347,9 +443,8 @@ const DashboardPage: React.FC = () => {
                   key: 'customer',
                 },
                 {
-                  title: 'Tổng tiền',
-                  dataIndex: 'total',
-                  key: 'total',
+                  title: 'Tổng tiền',                  dataIndex: 'totalMoney',
+                  key: 'totalMoney',
                   render: (value) => (
                     <span>
                       {new Intl.NumberFormat('vi-VN', {
@@ -409,4 +504,3 @@ const DashboardPage: React.FC = () => {
 };
 
 export default DashboardPage;
-  
