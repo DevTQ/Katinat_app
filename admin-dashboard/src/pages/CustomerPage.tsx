@@ -591,15 +591,39 @@ const CustomerPage: React.FC = () => {
             layout="vertical"
             onFinish={async (values) => {
               try {
-                if (selectedCustomer) {
-                  await customerService.updateCustomer(String(selectedCustomer.id || selectedCustomer.userId), values);
-                  antMessage.success('Cập nhật thông tin thành công');
+                if (!selectedCustomer) {
+                  antMessage.error('Không tìm thấy thông tin khách hàng');
+                  return;
                 }
+                
+                console.log('Form values:', values);
+                const updateData = {
+                  phone_number: values.phone,
+                  email: values.email,
+                  fullname: values.name,
+                  gender: values.gender,
+                  active: values.status === 'active' ? 1 : 0,
+                };
+                console.log('Sending update data:', updateData);
+
+                const customerId = selectedCustomer.id || selectedCustomer.userId;
+                if (!customerId) {
+                  antMessage.error('Không tìm thấy ID khách hàng');
+                  return;
+                }
+
+                await customerService.updateCustomer(customerId, updateData);
+                antMessage.success('Cập nhật thông tin thành công');
                 setIsModalVisible(false);
                 fetchCustomers();
-              } catch (error) {
+              } catch (error: any) {
                 console.error('Error saving customer:', error);
-                antMessage.error('Không thể lưu thông tin khách hàng');
+                if (error.response) {
+                  console.error('Error details:', error.response.data);
+                  antMessage.error(`Lỗi: ${error.response.data.message || 'Không thể lưu thông tin khách hàng'}`);
+                } else {
+                  antMessage.error('Không thể lưu thông tin khách hàng');
+                }
               }
             }}
           >

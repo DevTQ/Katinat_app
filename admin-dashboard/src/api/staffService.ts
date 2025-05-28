@@ -36,10 +36,10 @@ export interface CreateStaffRequest {
 export interface UpdateStaffRequest {
   fullname: string;
   phone_number: string;
-  email: string | null;
+  email: string;
   gender: string;
-  role: string;
-  active: boolean;
+  role_id: number;
+  active: number;
 }
 
 export interface StaffFilters {
@@ -198,7 +198,7 @@ const staffService = {
     }
     
     try {
-      return await axiosClient.put<any, StaffUser>(`/admin/staff/${id}`, staff);
+      return await axiosClient.put<any, StaffUser>(`/admin/staff/update/${id}`, staff);
     } catch (error) {
       console.error(`Error updating staff with ID ${id}:`, error);
       throw error;

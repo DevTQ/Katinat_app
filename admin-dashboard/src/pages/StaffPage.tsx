@@ -63,7 +63,7 @@ const StaffPage: React.FC = () => {
   const [resetPasswordModalVisible, setResetPasswordModalVisible] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number>(0);
   const [passwordForm] = Form.useForm();
-  const { message: antMessage, notification: antNotification } = App.useApp();
+  const { message: antMessage} = App.useApp();
   
   // Lấy các quyền từ context
   const { hasPermission, isLoading: permissionLoading, refreshPermissions } = usePermissions();
@@ -269,6 +269,12 @@ const StaffPage: React.FC = () => {
       antMessage.error('Bạn không có quyền chỉnh sửa nhân viên');
       return;
     }
+
+    // Kiểm tra nếu user là MANAGER và người đang đăng nhập không phải ADMIN
+    if (user.role === 'MANAGER' && userRole !== 'ADMIN') {
+      antMessage.error('Chỉ Admin mới có quyền chỉnh sửa thông tin Quản lý');
+      return;
+    }
     
     setEditingUser(user);
     form.setFieldsValue({
@@ -286,15 +292,7 @@ const StaffPage: React.FC = () => {
 
   const handleViewUser = (user: StaffUser) => {
     setEditingUser(user);
-    form.setFieldsValue({
-      firstName: (user.fullname || user.fullName || '').split(' ')[0],
-      lastName: (user.fullname || user.fullName || '').split(' ')[1],
-      email: user.email,
-      phoneNumber: user.phone_number || user.phoneNumber || '',
-      role: user.role,
-      gender: user.gender,
-      active: user.active !== undefined ? user.active : user.enabled || false
-    });
+    
     setIsViewMode(true);
     setIsModalOpen(true);
   };
@@ -368,55 +366,49 @@ const StaffPage: React.FC = () => {
   const handleFormSubmit = async () => {
     try {
       const values = await form.validateFields();
+      const fullname = `${values.firstName} ${values.lastName}`.trim();
+      
       if (editingUser) {
+        // Cập nhật nhân viên
         const updateData = {
-          fullname: `${values.firstName} ${values.lastName}`.trim(),
-          phone_number: values.phoneNumber,
-          email: values.email || null,
+          fullname: fullname,
+          phone_number: values.phoneNumber || '',
+          email: values.email || '',
           gender: values.gender,
-          role: values.role,
-          active: values.active
+          role_id: getRoleIdFromRole(values.role),
+          active: values.active ? 1 : 0
         };
         
-        try {
-          await staffService.updateStaff(editingUser.id, updateData);
-          antMessage.success('Cập nhật nhân viên thành công');
-          setIsModalOpen(false);
-          fetchUsers();
-        } catch (error) {
-          console.error('Error updating staff:', error);
-          antMessage.error('Không thể cập nhật nhân viên');
-        }
+        console.log('Sending update data:', updateData);
+        await staffService.updateStaff(editingUser.id || editingUser.userId, updateData);
+        antMessage.success('Cập nhật thông tin nhân viên thành công');
       } else {
-        const { password, confirmPassword, ...rest } = values;
-        const newStaff = {
-          fullname: `${values.firstName} ${values.lastName}`.trim(),
-          phone_number: values.phoneNumber,
-          email: values.email || null,
-          gender: values.gender || 'Nam',
-          referralCode: '',
-          password: password,
-          retype_password: values.confirmPassword,
-          role_id: getRoleIdFromRole(values.role)
+        // Thêm nhân viên mới
+        const createData = {
+          fullname: fullname,
+          phone_number: values.phoneNumber || '',
+          email: values.email || '',
+          gender: values.gender,
+          role_id: getRoleIdFromRole(values.role),
+          password: values.password,
+          retype_password: values.retypePassword,
+          referralCode: values.referralCode || ''
         };
-        console.log("newStaff: " + newStaff);
-      
-        try {
-          await staffService.createStaff(newStaff);
-          antNotification.success({
-            message: 'Thêm nhân viên thành công',
-            description: `Nhân viên ${newStaff.fullname} đã được thêm vào hệ thống.`
-          });
-          setIsModalOpen(false);
-          fetchUsers();
-        } catch (error) {
-          console.error('Error creating staff:', error);
-          antMessage.error('Không thể thêm nhân viên mới');
-        }
+        
+        await staffService.createStaff(createData);
+        antMessage.success('Thêm nhân viên mới thành công');
       }
-    } catch (error) {
-      console.error('Form validation error:', error);
-      antMessage.error('Vui lòng kiểm tra lại thông tin');
+      
+      setIsModalOpen(false);
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error updating staff:', error);
+      if (error.response) {
+        const errorMessage = error.response.data?.message || 'Không thể cập nhật thông tin nhân viên';
+        antMessage.error(errorMessage);
+      } else {
+        antMessage.error('Không thể cập nhật thông tin nhân viên');
+      }
     }
   };
 
@@ -794,141 +786,7 @@ const StaffPage: React.FC = () => {
         width={700}
         className="rounded-2xl animate-fade-in"
       >
-        <Form
-          form={form}
-          layout="vertical"
-          disabled={isViewMode}
-        >
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="firstName"
-                label={<span><UserOutlined className="mr-1 text-blue-400" /> Họ</span>}
-                rules={[{ required: true, message: 'Vui lòng nhập họ' }]}
-              >
-                <Input placeholder="Nhập họ" className="rounded-xl" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="lastName"
-                label={<span><UserOutlined className="mr-1 text-blue-400" /> Tên</span>}
-                rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
-              >
-                <Input placeholder="Nhập tên" className="rounded-xl" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            {selectedRole === 'ADMIN' && (
-              <Col span={12}>
-                <Form.Item
-                  name="email"
-                  label={<span><MailOutlined className="mr-1 text-green-400" /> Email</span>}
-                  rules={[
-                    { required: true, message: 'Vui lòng nhập email cho tài khoản Admin' },
-                    { type: 'email', message: 'Email không hợp lệ' }
-                  ]}
-                >
-                  <Input placeholder="Nhập email" className="rounded-xl" />
-                </Form.Item>
-              </Col>
-            )}
-            <Col span={12}>
-              <Form.Item
-                name="phoneNumber"
-                label={<span><PhoneOutlined className="mr-1 text-pink-400" /> Số điện thoại</span>}
-                rules={[
-                  { required: true, message: 'Vui lòng nhập số điện thoại' },
-                  { pattern: /^[0-9]{10}$/, message: 'Số điện thoại phải có 10 chữ số' }
-                ]}
-              >
-                <Input placeholder="Nhập số điện thoại" className="rounded-xl" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item
-                name="role"
-                label={<span><UserOutlined className="mr-1 text-blue-400" /> Vai trò</span>}
-                rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
-              >
-                <Select
-                  placeholder="Chọn vai trò"
-                  onChange={(value) => setSelectedRole(value)}
-                  className="rounded-xl"
-                >
-                  {canCreateRoleAdmin && <Option value="ADMIN">Quản trị viên</Option>}
-                  {canCreateRoleManager && <Option value="MANAGER">Quản lý</Option>}
-                  {canCreateRoleStaff && <Option value="STAFF">Nhân viên</Option>}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                name="gender"
-                label={<span><UserOutlined className="mr-1 text-purple-400" /> Giới tính</span>}
-                rules={[{ required: true, message: 'Vui lòng chọn giới tính' }]}
-              >
-                <Select placeholder="Chọn giới tính" className="rounded-xl">
-                  <Option value="Nam">Nam</Option>
-                  <Option value="Nữ">Nữ</Option>
-                  <Option value="Khác">Khác</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              {editingUser && (
-                <Form.Item
-                  name="active"
-                  label={<span><UserOutlined className="mr-1 text-green-400" /> Trạng thái</span>}
-                  valuePropName="checked"
-                >
-                  <Switch
-                    checkedChildren="Đang hoạt động"
-                    unCheckedChildren="Vô hiệu hóa"
-                  />
-                </Form.Item>
-              )}
-            </Col>
-          </Row>
-          {!editingUser && (
-            <>
-              <Form.Item
-                name="password"
-                label={<span><LockOutlined className="mr-1 text-blue-400" /> Mật khẩu</span>}
-                rules={[
-                  { required: true, message: 'Vui lòng nhập mật khẩu' },
-                  { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' }
-                ]}
-                hasFeedback
-              >
-                <Input.Password placeholder="Nhập mật khẩu" className="rounded-xl" />
-              </Form.Item>
-              <Form.Item
-                name="confirmPassword"
-                label={<span><LockOutlined className="mr-1 text-blue-400" /> Xác nhận mật khẩu</span>}
-                dependencies={['password']}
-                hasFeedback
-                rules={[
-                  { required: true, message: 'Vui lòng xác nhận mật khẩu' },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue('password') === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(new Error('Mật khẩu xác nhận không khớp'));
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password placeholder="Nhập lại mật khẩu" className="rounded-xl" />
-              </Form.Item>
-            </>
-          )}
-        </Form>
-        {isViewMode && editingUser && (
+        {isViewMode && editingUser ? (
           <div className="mt-4 bg-gradient-to-br from-blue-50 via-white to-pink-50 p-4 rounded-xl shadow-lg animate-fade-in">
             <Row gutter={24} align="middle">
               <Col span={8} className="text-center">
@@ -1024,6 +882,141 @@ const StaffPage: React.FC = () => {
               </Col>
             </Row>
           </div>
+        ) : (
+          <Form
+            form={form}
+            layout="vertical"
+            disabled={isViewMode}
+          >
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="firstName"
+                  label={<span><UserOutlined className="mr-1 text-blue-400" /> Họ</span>}
+                  rules={[{ required: true, message: 'Vui lòng nhập họ' }]}
+                >
+                  <Input placeholder="Nhập họ" className="rounded-xl" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="lastName"
+                  label={<span><UserOutlined className="mr-1 text-blue-400" /> Tên</span>}
+                  rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
+                >
+                  <Input placeholder="Nhập tên" className="rounded-xl" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              {selectedRole === 'ADMIN' && (
+                <Col span={12}>
+                  <Form.Item
+                    name="email"
+                    label={<span><MailOutlined className="mr-1 text-green-400" /> Email</span>}
+                    rules={[
+                      { required: true, message: 'Vui lòng nhập email cho tài khoản Admin' },
+                      { type: 'email', message: 'Email không hợp lệ' }
+                    ]}
+                  >
+                    <Input placeholder="Nhập email" className="rounded-xl" />
+                  </Form.Item>
+                </Col>
+              )}
+              <Col span={12}>
+                <Form.Item
+                  name="phoneNumber"
+                  label={<span><PhoneOutlined className="mr-1 text-pink-400" /> Số điện thoại</span>}
+                  rules={[
+                    { required: true, message: 'Vui lòng nhập số điện thoại' },
+                    { pattern: /^[0-9]{10}$/, message: 'Số điện thoại phải có 10 chữ số' }
+                  ]}
+                >
+                  <Input placeholder="Nhập số điện thoại" className="rounded-xl" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item
+                  name="role"
+                  label={<span><UserOutlined className="mr-1 text-blue-400" /> Vai trò</span>}
+                  rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
+                >
+                  <Select
+                    placeholder="Chọn vai trò"
+                    onChange={(value) => setSelectedRole(value)}
+                    className="rounded-xl"
+                  >
+                    {canCreateRoleAdmin && <Option value="ADMIN">Quản trị viên</Option>}
+                    {canCreateRoleManager && <Option value="MANAGER">Quản lý</Option>}
+                    {canCreateRoleStaff && <Option value="STAFF">Nhân viên</Option>}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  name="gender"
+                  label={<span><UserOutlined className="mr-1 text-purple-400" /> Giới tính</span>}
+                  rules={[{ required: true, message: 'Vui lòng chọn giới tính' }]}
+                >
+                  <Select placeholder="Chọn giới tính" className="rounded-xl">
+                    <Option value="Nam">Nam</Option>
+                    <Option value="Nữ">Nữ</Option>
+                    <Option value="Khác">Khác</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                {editingUser && (
+                  <Form.Item
+                    name="active"
+                    label={<span><UserOutlined className="mr-1 text-green-400" /> Trạng thái</span>}
+                    valuePropName="checked"
+                  >
+                    <Switch
+                      checkedChildren="Đang hoạt động"
+                      unCheckedChildren="Vô hiệu hóa"
+                    />
+                  </Form.Item>
+                )}
+              </Col>
+            </Row>
+            {!editingUser && (
+              <>
+                <Form.Item
+                  name="password"
+                  label={<span><LockOutlined className="mr-1 text-blue-400" /> Mật khẩu</span>}
+                  rules={[
+                    { required: true, message: 'Vui lòng nhập mật khẩu' },
+                    { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' }
+                  ]}
+                  hasFeedback
+                >
+                  <Input.Password placeholder="Nhập mật khẩu" className="rounded-xl" />
+                </Form.Item>
+                <Form.Item
+                  name="confirmPassword"
+                  label={<span><LockOutlined className="mr-1 text-blue-400" /> Xác nhận mật khẩu</span>}
+                  dependencies={['password']}
+                  hasFeedback
+                  rules={[
+                    { required: true, message: 'Vui lòng xác nhận mật khẩu' },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue('password') === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error('Mật khẩu xác nhận không khớp'));
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password placeholder="Nhập lại mật khẩu" className="rounded-xl" />
+                </Form.Item>
+              </>
+            )}
+          </Form>
         )}
       </Modal>
       {/* Modal đặt lại mật khẩu */}
@@ -1071,4 +1064,4 @@ const StaffPage: React.FC = () => {
   );
 };
 
-export default StaffPage; 
+export default StaffPage;

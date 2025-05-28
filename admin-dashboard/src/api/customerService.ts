@@ -200,11 +200,30 @@ const customerService = {
       throw error;
     }
   },
-  updateCustomer: async (id: string, customerData: any) => {
-    return await axiosClient.put(`/customers/${id}`, customerData); // Cập nhật thông tin khách hàng theo ID
+  updateCustomer: async (id: number, customerData: any) => {
+    if (!hasValidToken()) {
+      throw new AuthError();
+    }
+    
+    if (id === undefined) {
+      throw new Error('Customer ID is required');
+    }
+    try {
+      console.log('Updating customer with data:', customerData);
+      const response = await axiosClient.put<any, Customers>(`/users/customer/update/${id}`, customerData);
+      console.log('Update response:', response);
+      return response;
+    } catch (error: any) {
+      console.error(`Error put customer with ID ${id}:`, error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+      }
+      throw error;
+    }
   },
   deleteCustomer: async (id: string) => {
-    return await axiosClient.delete(`/customers/${id}`); // Xóa khách hàng theo ID
+    return await axiosClient.delete(`/customers/${id}`);
   },
 };
 

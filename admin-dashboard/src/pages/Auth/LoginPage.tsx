@@ -13,6 +13,7 @@ const phoneRegex = /^(0|\+84)(\d{9}|\d{10})$/;
 const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loginType, setLoginType] = useState<'unknown' | 'email' | 'phone'>('unknown');
+  const [loginError, setLoginError] = useState<string>('');
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { refreshPermissions } = usePermissions();
@@ -32,18 +33,18 @@ const LoginPage: React.FC = () => {
       setLoginType('unknown');
     }
   };
-
   const onFinish = async (values: LoginRequest) => {
     try {
       setLoading(true);
+      setLoginError(''); // Reset error message when starting login
 
       if (loginType === 'unknown') {
-        message.error('Vui lòng nhập email hoặc số điện thoại hợp lệ');
+        setLoginError('Vui lòng nhập email hoặc số điện thoại hợp lệ');
         setLoading(false);
         return;
       }
 
-      const res = await authService.login(values); 
+      const res = await authService.login(values);
       const { token, user, role, permissions } = res;
 
       // Lưu token và thông tin khác
@@ -58,7 +59,7 @@ const LoginPage: React.FC = () => {
       }
       
       refreshPermissions();
-
+      
       if (role === 'ADMIN') {
         message.success('Đăng nhập thành công với tư cách Admin!');
         navigate('/');
@@ -71,10 +72,40 @@ const LoginPage: React.FC = () => {
       } else {
         message.warning('Tài khoản không có quyền truy cập hệ thống này');
       }
+    } catch (error: any) {
+      console.error('Login error:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
 
-    } catch (error) {
-      console.error("Login error:", error);
-      message.error('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!');
+      if (error.response) {
+        // Dựa vào status code để hiển thị thông báo phù hợp
+        switch (error.response.status) {
+          case 400:
+            setLoginError('Thông tin đăng nhập không hợp lệ');
+            break;
+          case 401:
+            setLoginError('Tài khoản hoặc mật khẩu không chính xác');
+            break;
+          case 403:
+            setLoginError('Tài khoản không có quyền truy cập');
+            break;
+          case 404:
+            setLoginError('Tài khoản không tồn tại');
+            break;
+          default:
+            // Nếu server trả về message thì dùng message từ server
+            const serverMessage = error.response.data?.message;
+            setLoginError(serverMessage || 'Đăng nhập thất bại. Vui lòng thử lại sau');
+        }
+      } else if (error.request) {
+        // Không nhận được response từ server
+        setLoginError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng');
+      } else {
+        // Lỗi không xác định
+        setLoginError('Có lỗi xảy ra. Vui lòng thử lại sau');
+      }
     } finally {
       setLoading(false);
     }
@@ -184,22 +215,26 @@ const LoginPage: React.FC = () => {
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
-            >
-              <Form.Item
+            >              <Form.Item
                 name="username"
                 rules={[{ required: true, message: 'Vui lòng nhập thông tin đăng nhập!' }]}
                 validateTrigger="onChange"
+                validateStatus={loginError ? 'error' : undefined}
+                help={loginError}
               >
                 <Input
-                  prefix={<UserOutlined className="text-gray-400" />}
+                  prefix={<UserOutlined className={loginError ? 'text-red-400' : 'text-gray-400'} />}
                   placeholder="Email hoặc số điện thoại"
                   autoComplete="username"
-                  onChange={(e) => detectLoginType(e.target.value)}
+                  onChange={(e) => {
+                    detectLoginType(e.target.value);
+                    if (loginError) setLoginError('');
+                  }}
                   suffix={
                     loginType !== 'unknown' ? (
                       <Tooltip title={loginType === 'email' ? 'Đăng nhập với tư cách Admin' : 'Đăng nhập với tư cách Nhân viên'}>
                         <InfoCircleOutlined
-                          style={{ color: loginType === 'email' ? '#1890ff' : '#52c41a' }}
+                          style={{ color: loginError ? '#ff4d4f' : loginType === 'email' ? '#1890ff' : '#52c41a' }}
                         />
                       </Tooltip>
                     ) : null
@@ -207,8 +242,8 @@ const LoginPage: React.FC = () => {
                   style={{
                     height: '50px',
                     borderRadius: '10px',
-                    boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
-                    borderColor: loginType === 'email' ? '#1890ff' : loginType === 'phone' ? '#52c41a' : undefined
+                    boxShadow: loginError ? '0 2px 5px rgba(255,77,79,0.2)' : '0 2px 5px rgba(0,0,0,0.05)',
+                    borderColor: loginError ? '#ff4d4f' : loginType === 'email' ? '#1890ff' : loginType === 'phone' ? '#52c41a' : undefined
                   }}
                 />
               </Form.Item>
@@ -222,6 +257,7 @@ const LoginPage: React.FC = () => {
               <Form.Item
                 name="password"
                 rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+                validateStatus={loginError ? 'error' : undefined}
               >
                 <Input.Password
                   prefix={<LockOutlined className="text-gray-400" />}
@@ -286,4 +322,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;

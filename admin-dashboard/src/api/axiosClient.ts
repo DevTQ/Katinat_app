@@ -22,7 +22,13 @@ axiosClient.interceptors.request.use(
 
 // Thêm interceptor cho response
 axiosClient.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    // Log raw response for debugging
+    console.log('Raw API response:', response);
+    
+    // Trả về response.data trực tiếp vì axios đã unwrap một lớp
+    return response.data;
+  },
   (error) => {
     if (error.response) {
       console.error('API Error:', error.response.data);

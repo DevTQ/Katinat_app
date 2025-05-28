@@ -157,13 +157,18 @@ export default function CategoryPage() {
       antMessage.error('Không thể thêm danh mục');
     }
   };
-
   const handleUpdateCategory = () => {
     if (!editingCategory) return;
 
     editForm.validateFields().then((values) => {
+      // Đảm bảo gửi cả name và description
+      const updateData = {
+        name: values.name,
+        description: values.description
+      };
+      
       categoryService
-        .updateCategory(String(editingCategory.categoryId), values)
+        .updateCategory(String(editingCategory.categoryId), updateData)
         .then(() => {
           antMessage.success('Cập nhật danh mục thành công');
           fetchCategories();
