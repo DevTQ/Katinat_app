@@ -1,0 +1,44 @@
+server:
+  port: 8088
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/Kat?useSSL=false&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+      dialect: org.hibernate.dialect.MySQL8Dialect
+      format_sql: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+api:
+  prefix: api/v1
+jwt:
+  expiration: 2592000
+  secretKey: TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI=
+cloudinary:
+  cloud_name: dfwuwte0t
+  api_key: 648924468346653
+  api_secret: iCDhPDnO2m0JyoxPO34mk9MdDN8
+vnpay:
+  pay-url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+  return-path: /api/v1/payments/payment-callback
+  tmn-code: "Q2FYWVYG"
+  secret-key: "OELPDKI066ZDDGBW4JH6AUK7FB245Z98"
+  api-url: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
+logging:
+  level:
+    # Bật debug cho Spring WebSocket handshake
+    org.springframework.web.socket.server: DEBUG
+    # Nếu dùng STOMP over WebSocket
+    org.springframework.messaging.simp: DEBUG
+    org.springframework.web.socket.handler: DEBUG
+
