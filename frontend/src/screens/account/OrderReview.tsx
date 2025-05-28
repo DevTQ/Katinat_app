@@ -137,6 +137,7 @@ const OrderHistoryScreen = () => {
             data={orders}
             keyExtractor={(item) => item.id}
             renderItem={renderOrderItem}
+            showsVerticalScrollIndicator={false}
           />
         )}
       </View>

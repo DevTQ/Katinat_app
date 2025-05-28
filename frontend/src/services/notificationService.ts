@@ -1,10 +1,10 @@
 import axiosClient from "./axiosClient";
 
 const NotificationService = {
-    getAllNotification: async (page = 0, limit = 10) => {
+    getAllNotificationByUser: async (userId: number, page = 0, limit = 10) => {
         try {
             const res = await axiosClient.get("/notification", {
-                params: {page, limit}
+                params: {userId, page, limit}
             });
             return res.data.notices;
         }catch(error) {

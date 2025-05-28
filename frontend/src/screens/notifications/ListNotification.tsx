@@ -8,24 +8,29 @@ dayjs.extend(customParseFormat);
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import notificationService from "src/services/notificationService";
+import { useSelector } from "react-redux";
+import { RootState } from "src/redux/store";
 
 const ListNotification = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
     const [noties, setNoties] = useState<any[]>([]);
     const flatListRef = useRef<FlatList>(null);
-    const [showTopBtn, setShowTopBtn] = useState(false);
+    const [showTopBtn, setShowTopBtn] = useState(false);    
+    const user = useSelector((state: RootState) => state.auth.user);
 
     useEffect(() => {
         const fetchNoties = async () => {
+            if (!user?.id) return;
             try {
-                const notiResponse = await notificationService.getAllNotification();
+                const notiResponse = await notificationService.getAllNotificationByUser(user.id);
+                console.log(notiResponse);
                 setNoties(notiResponse);
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách thông báo:", error);
             }
         };
         fetchNoties();
-    }, []);
+    }, [user?.id]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -141,11 +146,11 @@ const styles = StyleSheet.create({
     },
     name: {
         textAlign: 'center',
-        fontSize: 16,
+        fontSize: 14,
         color: '#284349',
         fontWeight: '500',
         marginTop: 10,
-        letterSpacing: -1
+        letterSpacing: -0.5
     },
     contents: {
         flex: 1, 

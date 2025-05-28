@@ -34,3 +34,4 @@ export { default as OrderHistory } from "./account/OrderHistory";
 export { default as OrderReview } from "./account/OrderReview";
 export { default as ReferFriend } from "./account/ReferFriend";
 export { default as ChangePassword } from "./account/ChangePassword";
+export { default as NotiEmpty } from "./notifications/NotiEmpty";

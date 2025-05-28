@@ -3,10 +3,12 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParams } from "src/navigators/MainNavigator";
+import { useSelector } from "react-redux";
+import { RootState } from "src/redux/store";
 
 const Notification = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
-
+    const user = useSelector((state: RootState) => state.auth.user);
     return (
         <SafeAreaView style={styles.container}>
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -17,7 +19,9 @@ const Notification = () => {
                     <Text style={styles.title}>Thông báo</Text>
                 </View>
                 <TouchableOpacity style={styles.cart} activeOpacity={1}
-                onPress={() => navigation.navigate("ListNotification")}
+                    onPress={() => {
+                        user ? navigation.navigate("ListNotification") : navigation.navigate("NotiEmpty")
+                    }}
                 >
                     <Image
                         source={require("../../../assets/images/icons/bell-notification.png")}

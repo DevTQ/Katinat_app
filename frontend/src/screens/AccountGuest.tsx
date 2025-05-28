@@ -10,6 +10,7 @@ import { useLoginController } from "src/controllers/userController";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { RootStackParams } from "src/navigators/MainNavigator";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import ErrorModal from '../modals/ErrorModal.tsx';
 
 const AccountGuest = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
@@ -20,8 +21,8 @@ const AccountGuest = () => {
     };
 
     const {
-        values, errorMessage, phoneError, passwordError, secureText, togglePasswordVisibility, handleChangeValue, handleLogin, setPhoneError, setPasswordError
-    } = useLoginController();
+        values, errorMessage, phoneError, passwordError, secureText, togglePasswordVisibility, handleChangeValue, handleLogin, setPhoneError, setPasswordError,
+    showErrorModal, setShowErrorModal} = useLoginController();
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView>
@@ -60,7 +61,7 @@ const AccountGuest = () => {
                     <View style={styles.groupPassword}>
                         <TextInput
                             style={styles.passwordInput}
-                            secureTextEntry
+                            secureTextEntry={secureText}
                             onFocus={() => SetFocused(true)}
                             onBlur={() => SetFocused(false)}
                             value={values.password}
@@ -128,6 +129,11 @@ const AccountGuest = () => {
                     <Text style={{ textAlign: 'center', fontWeight: '300', color: '#104358' }}>Powered by Softworld OOD platform</Text>
                 </View>
             </ScrollView>
+                <ErrorModal
+                visible={showErrorModal}
+                message={errorMessage}
+                onClose={() => setShowErrorModal(false)}
+            />
             {!Focused && <AppBar />}
         </SafeAreaView>
     )
@@ -171,12 +177,15 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     input: {
+        padding: 15,
         borderWidth: 0.5,
         marginBottom: 10,
         borderRadius: 10,
         width: '90%',
         marginHorizontal: 20,
         height: 50,
+        fontSize: 15,
+        color: '#104358',
     },
     label: {
         fontSize: 18,

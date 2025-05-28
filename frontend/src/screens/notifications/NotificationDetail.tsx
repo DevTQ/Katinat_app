@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParams } from "src/navigators/MainNavigator";
 import appInfor from "src/utils/appInfor";
 import { transform } from "src/utils/transformDate";
+import OrderService from "src/services/orderService";
 
 const NotificationDetail = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
@@ -14,33 +15,52 @@ const NotificationDetail = () => {
     const { notiId } = route.params as { notiId: number };
     const [noti, setNoti] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-
+    const [order, setOrder] = useState<any>(null);
     useEffect(() => {
         const fetchDetail = async () => {
+            setLoading(true);
             try {
                 const data = await notificationService.getNotiById(notiId); 
+                console.log("Thông báo chi tiết: ", data);
                 setNoti(data);
             } catch (error) {
                 console.log("Lỗi khi lấy thông báo với id: ", notiId);
-            } finally {
-                setLoading(false);
             }
         };
         fetchDetail();
     }, [notiId]);
 
+    useEffect(() => {
+        if (!noti?.orderId) return;
+        
+        const fetchOrder = async () => {
+            setLoading(true);
+            try {
+                const data = await OrderService.getOrderByOrderId(noti.orderId);
+                console.log("OrderId: ", noti.orderId);
+                console.log("Thông tin đơn hàng: ", data);
+                setOrder(data);
+            } catch (error) {
+                console.log("Lỗi khi lấy đơn hàng với id: ", noti.orderId);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchOrder();
+    }, [noti?.orderId]);
+
+
     if (loading) return <ActivityIndicator />;
     if (!noti) return <Text>Không tìm thấy thông báo</Text>;
 
     if (noti.type === "ORDER") {
-        const order = noti.orderId;
 
         const totalPrice = order?.orderDetails?.reduce(
-            (acc: number, item: any) => acc + (item.price * item.numberOfProducts),
+            (acc: number, item: any) => acc + (item.price * item.number_of_products),
             0
         ) || 0;
 
-        const discount = order?.voucher?.discountValue ? totalPrice * (order.voucher.discountValue / 100) : 0;
+        const discount = order?.discountValue ? totalPrice * (order?.discountValue / 100) : 0;
         const finalAmount = totalPrice - discount;
         return (
             <SafeAreaView style={styles.container}>
@@ -83,7 +103,7 @@ const NotificationDetail = () => {
                         <View style={styles.detailRow}>
                             <Text style={styles.detailLabel}>Địa chỉ cửa hàng</Text>
                             <Text style={styles.detailValue}>
-                                {order?.store?.storeAddress}
+                                {order?.storeAddress}
                             </Text>
                         </View>
                         <View style={styles.detailRow}>
@@ -104,10 +124,10 @@ const NotificationDetail = () => {
                         {order?.orderDetails?.map((item: any) => (
                             <View style={[styles.orderDetailRow, { marginVertical: 5 }]} key={item.orderDetailId}>
                                 <Text style={styles.orderDetailLabel}>
-                                    {item.numberOfProducts}x  {item.product?.name}
+                                    {item.number_of_products}x  {item.productName}
                                 </Text>
                                 <Text style={styles.orderDetailValue}>
-                                    {item.totalMoney?.toLocaleString()}đ
+                                    {item.total_money.toLocaleString()}đ
                                 </Text>
                             </View>
                         ))}

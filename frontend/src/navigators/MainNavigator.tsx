@@ -14,7 +14,7 @@ import {
     ListOrderDetail,ForgotPasswordScreen,
     OTPVerificationScreen,ResetPasswordScreen, OrderShippingConfirm,
     OrderShipping, ListNotification, NotificationDetail,
-    SearchScreen,
+    SearchScreen, NotiEmpty,
     SearchResultsScreen, EditProfileScreen,OrderHistory, OrderReview, ReferFriend,
     ChangePassword
 } from "../screens";
@@ -32,7 +32,7 @@ import {
 const RootStack = createNativeStackNavigator<RootStackParams>();
 
 export type RootStackParams = {
-    HomeGuest: undefined; HomeScreen: undefined; 
+    HomeGuest: undefined; HomeScreen: undefined; NotiEmpty: undefined;
     Order: {justAppliedVoucher?: boolean } | undefined; OrderConfirm: undefined; OrderPending: {orderCode: string | null, paymentUrl: string}; 
     OrderPaid: {orderCode: string}; ListOrderDetail: ListOrderDetailParams; OrderConfirmed: {orderCode: string};
     OrderCompleted: {orderCode: string}; OrderShipping: {orderCode: string}
@@ -71,6 +71,7 @@ const GuestStack = () => (
         <RootStack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="RegisterComponent" component={RegisterComponent} options={{ headerShown: false }} />
         <RootStack.Screen name="Notification" component={Notification} options={{ headerShown: false }} />
+        <RootStack.Screen name="NotiEmpty" component={NotiEmpty} options={{ headerShown: false }} />
         <RootStack.Screen name="StoreScreen" component={StoreScreen} options={{ headerShown: false }} />
         <RootStack.Screen name="StoreDetail" component={StoreDetail} options={{ headerShown: false }} />
         <RootStack.Screen name="Order" component={OrderScreen} options={{ headerShown: false }} />
