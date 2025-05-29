@@ -11,8 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Service
@@ -49,11 +47,24 @@ public class VoucherService implements IVoucherService{
 
     @Override
     public Voucher updateVoucher(long id, VoucherDTO voucherDTO) throws Exception {
-        return null;
+        Voucher voucher = voucherRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Voucher not found with id: " + id));
+
+        voucher.setVoucherName(voucherDTO.getVoucherName());
+        voucher.setImage(voucherDTO.getImage());
+        voucher.setType(voucherDTO.getType());
+        voucher.setDiscountValue(voucherDTO.getDiscountValue());
+        voucher.setConditions(voucherDTO.getConditions());
+        voucher.setEndDate(OffsetDateTime.from(voucherDTO.getEndDate()));
+
+        return voucherRepository.save(voucher);
     }
 
     @Override
-    public void deleteVoucher(long id) {
-
+    public void deleteVoucher(long id) throws DataNotFoundException {
+        if (!voucherRepository.existsById(id)) {
+            throw new DataNotFoundException("Voucher not found with id: " + id);
+        }
+        voucherRepository.deleteById(id);
     }
 }

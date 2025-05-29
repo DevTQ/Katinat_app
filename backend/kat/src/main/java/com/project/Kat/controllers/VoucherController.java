@@ -72,4 +72,37 @@ public class VoucherController {
         }
 
     }
+
+    @DeleteMapping("/{voucherId}")
+    public ResponseEntity<?> deleteVoucher(
+            @PathVariable("voucherId") Long voucherId
+    ) {
+        try {
+            voucherService.deleteVoucher(voucherId);
+            return ResponseEntity.ok("Xóa voucher thành công");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{voucherId}")
+    public ResponseEntity<?> updateVoucher(
+            @PathVariable("voucherId") Long voucherId,
+            @Valid @RequestBody VoucherDTO voucherDTO,
+            BindingResult result
+    ) {
+        try {
+            if (result.hasErrors()) {
+                List<String> errorMessages = result.getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
+                return ResponseEntity.badRequest().body(errorMessages);
+            }
+            Voucher updatedVoucher = voucherService.updateVoucher(voucherId, voucherDTO);
+            return ResponseEntity.ok(updatedVoucher);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

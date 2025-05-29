@@ -107,6 +107,8 @@ public class WebSecurityConfig {
                             .requestMatchers(POST, String.format("%s/vouchers/**", apiPrefix))
                             .hasAnyRole(Role.ADMIN, Role.MANAGER)
                             .requestMatchers(GET, String.format("%s/vouchers/**", apiPrefix)).permitAll()
+                            .requestMatchers(PUT, String.format("%s/vouchers/**", apiPrefix))
+                            .hasAnyRole(Role.ADMIN, Role.MANAGER)
                             
                             // Admin APIs
                             .requestMatchers(GET, String.format("%s/admin/staff/**", apiPrefix))
