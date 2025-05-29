@@ -180,6 +180,7 @@ const styles = StyleSheet.create({
         width: 350,
         height: 55,
         borderRadius: 12,
+        paddingHorizontal: 15,
     },
     button: {
         marginTop: 10,

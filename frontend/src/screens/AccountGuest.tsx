@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
         height: 50,
         fontSize: 15,
         color: '#104358',
+        paddingHorizontal: 15,
     },
     label: {
         fontSize: 18,
@@ -206,6 +207,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 50,
         paddingVertical: 10,
+        paddingHorizontal: 15,
     },
     forgotPassword: {
         textDecorationLine: 'underline',
